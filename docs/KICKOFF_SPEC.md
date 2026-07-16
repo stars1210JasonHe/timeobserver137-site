@@ -81,6 +81,7 @@
 信息架构/内容模型不变，见母 spec §3/§4。补充两点：
 - **《给 AI 装一套会遗忘的记忆》升格为 AI positioning 的 featured 写作**（hero 区可引）。
 - **视觉 north star（Yeqiu 7-16 给定）= [gsap.com/showcase](https://gsap.com/showcase/)** —— 高端 motion/scroll-driven 动效水准。实现期动效库首选 **GSAP**（现已全免费含原付费插件；Astro 内以 script/island 集成，ScrollTrigger 等按需），配 frontend-design / design-shotgun 出方向。约束不变：快、有品味、**不要 AI 模板味**；动效不牺牲 LCP/阅读体验（写作页克制、portfolio 页可炫）。
+- **美学方向（Yeqiu 7-16 补充定向）= 宇宙背景（cosmos）**。依据：博客偏数学、本人理论物理背景。实测确认（Euler 7-16 fetch）：showcase 本身 = 建筑/agency 类工艺标杆、无现成宇宙范本 → **showcase 定工艺下限，cosmos 定美学方向**，两者由 Gauss 研究轮衔接（exemplar 剖析 + 实现模式 + 性能预算）。品牌契合点：「时间观察者」＝观测者/天文台意象；「对称与怪兽」系列＝群论 → 星座/格点/轨道纹样；multi-agent fleet ↔ 星座连线网络。风险红线：宇宙主题易俗（cheesy starfield），以 exemplar 研究防呆；KaTeX 长文阅读面保持安静表面，cosmos 主要住 portal 页。**「宇宙的公式肯定要的」（Yeqiu 7-16 硬需求）**：物理/数学公式作为设计元素必须在（候选：Euler 恒等式 / 场方程 / 196883 维等品牌相关式），但公式当壁纸极易俗——tasteful vs kitsch 分界纳入 Gauss 研究轮。
 
 ## 7. 顺序（母 spec §7 + 本次细化）
 
