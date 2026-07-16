@@ -1,0 +1,30 @@
+---
+import '../styles/tokens.css';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/noto-sans-sc';
+import HeadMeta from '../components/HeadMeta.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  lang: 'en' | 'zh';
+  /** counterpart URL in the other language (nav switcher) */
+  altHref: string;
+  ogImage?: string;
+}
+const { title, description, lang, altHref, ogImage } = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang === 'zh' ? 'zh-CN' : 'en'}>
+  <head>
+    <HeadMeta {title} {description} {lang} {ogImage} path={Astro.url.pathname} />
+  </head>
+  <body class="bg-bg font-sans text-ink antialiased">
+    <Nav {lang} {altHref} />
+    <slot />
+    <Footer {lang} />
+  </body>
+</html>
