@@ -37,11 +37,13 @@
   },
   {
    "slug": "four-color-theorem",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:06:24.081Z"
   },
   {
    "slug": "gauss-heptadecagon",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:06:07.889Z"
   },
   {
    "slug": "e10-petersburg-ii-blind-years",
