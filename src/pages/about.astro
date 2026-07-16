@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import EquationCanon from '../components/EquationCanon.astro';
+---
+
+<Base
+  title="About — Yeqiu He"
+  description="Yeqiu He: theoretical physics background, AI systems engineer, writer of long-form math history."
+  lang="en"
+  altHref="/zh/about/"
+>
+  <main class="mx-auto max-w-2xl px-6 py-12">
+    <h1 class="text-3xl font-semibold text-chalk">About</h1>
+    <div class="mt-8 space-y-5 leading-relaxed text-ink">
+      <p>
+        I'm <strong class="text-chalk">Yeqiu He</strong> (贺冶秋) — trained in theoretical physics,
+        working as an <strong class="text-chalk">AI systems engineer</strong>. I build agent systems
+        with real memory architectures, retrieval pipelines that treat grounding as an engineering
+        problem, and the occasional game engine for fun.
+      </p>
+      <p>
+        The physics never left. It shows up as an obsession with <em>why things are true</em>:
+        my <a class="text-accent-soft underline underline-offset-2" href="/writing/">long-form essays</a>
+        walk through group theory, the Monster, and Euler's life at whiteboard depth — and the
+        <a class="text-accent-soft underline underline-offset-2" href="/projects/">systems I build</a>
+        carry the same habit, from Monte-Carlo equity engines to review chains that catch fabricated evidence.
+      </p>
+      <p>
+        Currently based in Germany, relocating to Australia. I run an
+        <a class="text-accent-soft underline underline-offset-2" href="/projects/openclaw-fleet/">eight-agent fleet</a>
+        that helps research, build, and review — this site included.
+      </p>
+    </div>
+  </main>
+  <EquationCanon lang="en" />
+</Base>
