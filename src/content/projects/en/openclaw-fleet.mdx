@@ -1,0 +1,56 @@
+---
+title: "OpenClaw — an eight-agent fleet that remembers"
+tagline: "Eight persona agents with a shared memory architecture, running my research, engineering, and media production for months on end."
+lang: en
+role: "Architect & operator"
+stack: ["LLM agents", "Python", "RAG / embeddings", "Discord bus", "cron / systemd", "git-as-memory"]
+links:
+  live: "https://timeobserver137.cyou/ai-memory-that-forgets/"
+featured: true
+order: 1
+---
+
+## The problem
+
+One assistant cannot hold a life. Research reports, video production, engineering
+work, legal-domain retrieval, code review — each wants different context, different
+judgment, different memory. And LLM sessions forget everything the moment they end.
+
+## What I built
+
+A fleet of **eight persona agents** — an orchestrator, a deep-research agent, an
+engineer, a mathematician, a media producer, a critical reviewer, and more — each
+with its own identity files, its own memory, and its own lane. They run across a
+Raspberry Pi home server and a Windows workstation, and coordinate over a Discord
+message bus with an explicit ask/deliver protocol.
+
+The heart of the system is a **three-layer file-based memory architecture**:
+
+- **Anchors** — hundreds of structured knowledge entries (`[TYPE:id]` blocks) that
+  survive across sessions, versioned in git;
+- **Semantic recall** — an embedding index over the anchor corpus, so any agent can
+  ask "have we solved this before?" and get a real answer;
+- **Daily logs + nightly consolidation** — a cron "dreaming" pipeline distills each
+  day's transcripts into durable memory, with guards against overwriting
+  hand-edited entries.
+
+On top of that: **multi-layer review chains**. Substantive deliverables pass
+through the author's self-review, an adversarial content review, and an independent
+critical reviewer before they reach me. The chain has caught fabricated evidence
+from a sub-agent, scope-overgeneralized claims, and — more than once — the
+reviewer's own errors.
+
+## What it proves
+
+That agent systems become genuinely useful when you treat **memory as an
+engineering problem** — not a bigger context window, but a curated, versioned,
+searchable knowledge base with write disciplines and review gates. I wrote up the
+full architecture history in
+[a long-form essay](https://timeobserver137.cyou/ai-memory-that-forgets/) (中文) —
+including the failures: memory inflation, anchor clobbering, and why forgetting
+had to be designed in.
+
+## Status
+
+In continuous operation since early 2026. This site — spec'd, reviewed, built, and
+migrated by the fleet with me as the merge gate — is itself an output of the system.
