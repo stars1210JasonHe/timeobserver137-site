@@ -1,19 +1,15 @@
 ---
-// Placeholder body — the real hero (GSAP) lands in Task 2.2.
 import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import Monument from '../../components/Monument.astro';
 ---
 
 <Base
   title="贺冶秋 — AI 系统工程师"
-  description="贺冶秋（时间观察者）的作品集与写作：多智能体系统、RAG 管线、科学史随笔。"
+  description="贺冶秋（时间观察者）的作品集与写作：多智能体系统、RAG 管线、关于对称与欧拉的科学史长文。"
   lang="zh"
   altHref="/"
 >
-  <main class="mx-auto grid min-h-[70vh] max-w-5xl place-items-center px-6">
-    <div class="space-y-3 text-center">
-      <p class="text-sm uppercase tracking-widest text-muted">timeobserver137.cyou</p>
-      <h1 class="text-4xl font-semibold text-chalk">贺冶秋 — AI 系统工程师</h1>
-      <p class="text-muted">我构建会记忆的多智能体系统。新站建设中。</p>
-    </div>
-  </main>
+  <Hero lang="zh" />
+  <Monument lang="zh" />
 </Base>

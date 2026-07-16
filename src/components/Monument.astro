@@ -1,0 +1,36 @@
+---
+/**
+ * Second screen — the |M| typographic monument (Gauss §6.7: the single most
+ * distinctive element on the site is also the cheapest: plain text + tabular-nums).
+ * Chalk on bg = 17.01:1. No KaTeX, no images, selectable, SEO-visible.
+ */
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+
+const M = '808017424794512875886459904961710757005754368000000000';
+const seriesUrl = 'https://timeobserver137.cyou/symmetry-monster-ep6/';
+---
+
+<section class="mx-auto max-w-4xl px-6 py-24 text-center">
+  <p class="text-sm uppercase tracking-[0.25em] text-muted">
+    {zh ? '怪兽群的阶' : 'The order of the Monster group'}
+  </p>
+  <p
+    class="monument mx-auto mt-6 break-all font-semibold leading-snug text-chalk"
+    style="font-variant-numeric: tabular-nums; font-size: clamp(1.15rem, 3.4vw, 2.6rem);"
+  >
+    {M}
+  </p>
+  <p class="mt-6 text-muted">
+    {zh ? (
+      <>54 位。8×10<sup>53</sup> 个对称。最小忠实表示 196883 维 = 47·59·71。我用六集写完了它的故事 ——
+      <a class="text-accent-soft underline underline-offset-2" href={seriesUrl}>《对称与怪兽》</a>。</>
+    ) : (
+      <>Fifty-four digits. 8×10<sup>53</sup> symmetries. Smallest faithful representation: 196883 = 47·59·71 dimensions.
+      I told its story in six essays — <a class="text-accent-soft underline underline-offset-2" href={seriesUrl}>the Symmetry &amp; Monster series</a> (中文).</>
+    )}
+  </p>
+</section>

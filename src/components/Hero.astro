@@ -1,0 +1,110 @@
+---
+/**
+ * Hero — the A+B synthesis (spec §6: 「虚空当场，他的数学当星」, Yeqiu-approved 2026-07-16).
+ *
+ * Stage layer: the void — ≥70% of the viewport is empty near-black. No stars,
+ * no gradient carpet. Star layer: ONE earned object — the effective-potential
+ * contours of Euler's restricted three-body problem (L1–L5), generated from
+ * the physics by scripts/design/gen_lagrange_svg.py, drawn once in ≤5s and
+ * then still (WCAG 2.2.2-safe). Zero JS: the LCP element is the headline text.
+ * Provenance label under the figure is a compositional REQUIREMENT (EN face
+ * can't read the zh essay; the label is what makes the star legible as earned).
+ */
+import lagrangeSvg from '../assets/lagrange-hero.svg?raw';
+
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+
+const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
+---
+
+<section class="hero mx-auto grid min-h-[88vh] max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+  <div class="max-w-xl">
+    <p class="text-sm uppercase tracking-[0.25em] text-muted">时间观察者 · timeobserver137</p>
+    <h1 class="mt-4 text-4xl font-semibold leading-tight text-chalk sm:text-5xl">
+      {zh ? '贺冶秋' : 'Yeqiu He'}
+      <span class="mt-2 block text-2xl font-normal text-muted sm:text-3xl">
+        {zh ? 'AI 系统工程师' : 'AI Systems Engineer'}
+      </span>
+    </h1>
+    <p class="mt-6 text-lg leading-relaxed text-ink">
+      {zh ? '我构建会记忆的多智能体系统。' : 'I build multi-agent systems that remember.'}
+    </p>
+    <p class="mt-3 leading-relaxed text-muted">
+      {zh
+        ? '一支 8 智能体舰队、检索管线、和这个亲手写的站点 —— 外加一叠关于对称、群论与欧拉的数学史长文。'
+        : 'An eight-agent fleet with a memory architecture, retrieval pipelines, and this hand-built site — plus a shelf of long-form essays on symmetry, group theory, and Euler.'}
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a
+        href={zh ? '/zh/projects/' : '/projects/'}
+        class="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-soft"
+        >{zh ? '看项目' : 'View projects'}</a
+      >
+      <a
+        href={zh ? '/zh/writing/' : '/writing/'}
+        class="rounded-md border border-line px-4 py-2 text-sm text-ink transition-colors hover:border-accent-soft"
+        >{zh ? '读文章' : 'Read writing'}</a
+      >
+      <a
+        href="https://github.com/stars1210JasonHe"
+        class="rounded-md border border-line px-4 py-2 text-sm text-muted transition-colors hover:border-accent-soft hover:text-ink"
+        >GitHub</a
+      >
+    </div>
+  </div>
+
+  <figure class="justify-self-center lg:justify-self-end">
+    <div class="lagrange w-[min(82vw,540px)]" set:html={lagrangeSvg} />
+    <figcaption class="mt-3 max-w-[540px] text-xs leading-relaxed text-faint">
+      {zh ? (
+        <>限制性三体问题的有效势等势线，L<sub>1</sub>–L<sub>5</sub> —— 欧拉先找到了共线的那三个。出自我的文章<a class="text-muted underline decoration-line underline-offset-2 transition-colors hover:text-ink" href={essayUrl}>《失明的十七年里，欧拉做了什么》</a>。</>
+      ) : (
+        <>Effective-potential contours of the restricted three-body problem, L<sub>1</sub>–L<sub>5</sub> — Euler found the collinear three first. From my essay <a class="text-muted underline decoration-line underline-offset-2 transition-colors hover:text-ink" href={essayUrl}>on Euler's blind years</a> (中文).</>
+      )}
+    </figcaption>
+  </figure>
+</section>
+
+<style>
+  /* Draw-once-then-still: total ≈ 4.4s < 5s (WCAG 2.2.2 threshold). Zero JS. */
+  .lagrange :global(svg) {
+    width: 100%;
+    height: auto;
+  }
+  .lagrange :global(.contours path) {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 2.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 0.11s);
+  }
+  .lagrange :global(.sun),
+  .lagrange :global(.planet),
+  .lagrange :global(.lpoints) {
+    opacity: 0;
+    animation: appear 0.7s ease 3.7s forwards;
+  }
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes appear {
+    to {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lagrange :global(.contours path),
+    .lagrange :global(.sun),
+    .lagrange :global(.planet),
+    .lagrange :global(.lpoints) {
+      animation: none;
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+  }
+</style>

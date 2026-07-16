@@ -21,6 +21,7 @@
   --color-accent: #1977ff;
   --color-accent-soft: #3d8bff;
   --color-chalk: #f5f0e6; /* chalk-on-blackboard highlight */
+  --color-gold: #dda25b; /* Gauss §7.5: sun + L-points gold, 11.2% of figure ink */
 
   /* type */
   --font-sans: 'Inter Variable', 'Noto Sans SC Variable', ui-sans-serif, system-ui, sans-serif;
