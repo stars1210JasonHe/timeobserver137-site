@@ -31,6 +31,19 @@ describe('images', () => {
     expect(md).toContain('![](/content/images/2026/06/bare.png)');
   });
 
+  it('kg-gallery-card emits ALL images, not just the first (EP5 has 2 galleries)', () => {
+    const html =
+      '<figure class="kg-card kg-gallery-card kg-width-wide kg-card-hascaption">' +
+      '<div class="kg-gallery-container"><div class="kg-gallery-row">' +
+      '<div class="kg-gallery-image"><img src="/content/images/a.png" alt="甲"></div>' +
+      '<div class="kg-gallery-image"><img src="/content/images/b.png" alt="乙"></div>' +
+      '</div></div><figcaption>两位</figcaption></figure>';
+    const { md } = conv(html);
+    expect(md).toContain('![甲](/content/images/a.png)');
+    expect(md).toContain('![乙](/content/images/b.png)');
+    expect(md).toContain('*两位*');
+  });
+
   it('animated gif src preserved verbatim, no transform', () => {
     const src = '/content/images/2026/07/fig_s6_richmond_build.gif';
     const { md } = conv(`<figure class="kg-card kg-image-card"><img src="${src}" alt="尺规作图"></figure>`);

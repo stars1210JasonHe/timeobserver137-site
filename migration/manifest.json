@@ -4,11 +4,13 @@
  "posts": [
   {
    "slug": "symmetry-monster-ep6",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:27:19.975Z"
   },
   {
    "slug": "symmetry-monster-ep5",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:29:08.565Z"
   },
   {
    "slug": "ai-memory-that-forgets",
@@ -16,15 +18,18 @@
   },
   {
    "slug": "symmetry-monster-ep4",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:26:33.961Z"
   },
   {
    "slug": "symmetry-monster-ep3",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:25:44.114Z"
   },
   {
    "slug": "symmetry-monster-ep2",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:25:18.492Z"
   },
   {
    "slug": "shou-ye-ren",
@@ -33,7 +38,8 @@
   },
   {
    "slug": "symmetry-monster-ep1",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:24:59.652Z"
   },
   {
    "slug": "four-color-theorem",
@@ -101,7 +107,7 @@
    "gatedAt": "2026-07-16T15:22:33.055Z"
   }
  ],
- "aboutMigrated": false,
+ "aboutMigrated": true,
  "rssMigrated": false,
  "imagesLocal": true
 }
