@@ -1,22 +1,23 @@
 ---
 title: "LAN board-game platform"
-tagline: "Gomoku, chess, and xiangqi over the local network — with a hand-built Rust engine for the AI seats."
+tagline: "Gomoku, chess, and xiangqi in the browser — sit down against an AI opponent, or watch two of them play."
 lang: en
 role: "Builder"
-stack: ["Rust", "TypeScript", "WebSocket", "minimax search"]
+stack: ["TypeScript", "Python", "WebSocket", "AI opponents"]
 links:
   github: "https://github.com/stars1210JasonHe/lan-board-game-platform"
 featured: false
 order: 4
 ---
 
-A weekend-class project that grew a real engine: a LAN multiplayer platform for
-three classic board games, where any seat can be taken by a human or by the AI.
+A multiplayer platform for three classic board games, playable in the browser
+over any local network — where the point is **playing against AI**: every seat
+at every board can be taken by a human or an AI opponent, in any combination.
 
-The interesting part is the **Rust engine** — a local search engine reaching
-depth 7 in chess and depth 4 in xiangqi within a 3-second budget, invoked by the
-platform as a subprocess. Writing move generation, evaluation, and iterative
-deepening by hand is the kind of low-level work that LLM-era engineering makes
-easy to skip — which is exactly why I didn't skip it.
+Challenge the AI at gomoku, chess, or xiangqi; mix human-vs-AI and AI-vs-AI
+seats at the same table. The AI seats are backed by a local search engine
+component with a fixed thinking budget of a few seconds per move — strong
+enough to be worth beating.
 
-Playable over any local network; games run in the browser.
+Built as a home-network project: no accounts, no cloud — open a browser on the
+LAN and play.
