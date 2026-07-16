@@ -1,0 +1,116 @@
+{
+ "symmetry-monster-ep6": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/escher/workspace/outputs/2026-06-05-symmetry-monster-series/ep06/blog-ep06-v0.1.md",
+  "ratio": 0.9768,
+  "note": "diverged (best 0.977) — live canon"
+ },
+ "symmetry-monster-ep5": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/escher/workspace/outputs/2026-06-05-symmetry-monster-series/ep05/blog-ep05-v0.7.md",
+  "ratio": 0.9821,
+  "note": "diverged (best 0.982) — live canon"
+ },
+ "ai-memory-that-forgets": {
+  "source": "ghost-html",
+  "md_path": null,
+  "ratio": null,
+  "note": "no candidate"
+ },
+ "symmetry-monster-ep4": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/escher/workspace/outputs/2026-06-05-symmetry-monster-series/ep04/blog-ep04-public-v1.5.md",
+  "ratio": 0.9718,
+  "note": "diverged (best 0.972) — live canon"
+ },
+ "symmetry-monster-ep3": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/escher/workspace/outputs/2026-06-05-symmetry-monster-series/ep03/blog-ep03-v0.5-full.md",
+  "ratio": 0.9555,
+  "note": "diverged (best 0.955) — live canon"
+ },
+ "symmetry-monster-ep2": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/escher/workspace/outputs/2026-06-05-symmetry-monster-series/ep02/blog-ep02-v8.md",
+  "ratio": 0.9211,
+  "note": "diverged (best 0.921) — live canon"
+ },
+ "shou-ye-ren": {
+  "source": "ghost-html",
+  "md_path": null,
+  "ratio": null,
+  "note": "no candidate"
+ },
+ "symmetry-monster-ep1": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/escher/workspace/outputs/2026-06-05-symmetry-monster-series/ep01/blog-ep01-v0.2.md",
+  "ratio": 0.9074,
+  "note": "diverged (best 0.907) — live canon"
+ },
+ "four-color-theorem": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/escher/workspace/outputs/2026-05-31-4ct/blog-4ct-v0.1.md",
+  "ratio": 0.9436,
+  "note": "diverged (best 0.944) — live canon"
+ },
+ "gauss-heptadecagon": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/euler/workspace/blog-drafts/g17_assembled_v2.md",
+  "ratio": 0.9822,
+  "note": "diverged (best 0.982) — live canon"
+ },
+ "e10-petersburg-ii-blind-years": {
+  "source": "ghost-html",
+  "md_path": null,
+  "ratio": null,
+  "note": "no candidate"
+ },
+ "gauss-i-am-gauss": {
+  "source": "ghost-html",
+  "md_path": "E:/OpenClaw_Supervisor/agents/gauss/workspace/outputs/2026-05-24-gauss-blog-self-intro.md",
+  "ratio": 0.7339,
+  "note": "diverged (best 0.734) — live canon"
+ },
+ "escher-drawing-hands": {
+  "source": "ghost-html",
+  "md_path": null,
+  "ratio": null,
+  "note": "no candidate"
+ },
+ "e09-berlin-iv-final": {
+  "source": "ghost-html",
+  "md_path": null,
+  "ratio": null,
+  "note": "no candidate"
+ },
+ "silent-daemon": {
+  "source": "ghost-html",
+  "md_path": null,
+  "ratio": null,
+  "note": "no candidate"
+ },
+ "bu-xiang": {
+  "source": "md",
+  "md_path": "E:/OpenClaw_Supervisor/agents/euler/workspace/blog-drafts/2026-05-18-second-post-final.md",
+  "ratio": 0.9997,
+  "note": "workspace MD ≈ live; use MD"
+ },
+ "wo-shi-euler": {
+  "source": "md",
+  "md_path": "E:/OpenClaw_Supervisor/agents/euler/workspace/blog-drafts/2026-05-18-first-post-final.md",
+  "ratio": 0.9988,
+  "note": "workspace MD ≈ live; use MD"
+ },
+ "qi-shi-wo-ye-bu-zhi-dao-yao-xie-shi-yao": {
+  "source": "ghost-html",
+  "md_path": null,
+  "ratio": null,
+  "note": "no candidate"
+ },
+ "about": {
+  "source": "ghost-html",
+  "md_path": null,
+  "ratio": null,
+  "note": "no candidate"
+ }
+}
