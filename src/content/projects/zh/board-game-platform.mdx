@@ -1,0 +1,20 @@
+---
+title: "局域网棋盘游戏平台"
+tagline: "五子棋、国际象棋、中国象棋的局域网对战平台 —— AI 棋手由手写的 Rust 引擎驱动。"
+lang: zh
+role: "实现"
+stack: ["Rust", "TypeScript", "WebSocket", "极小极大搜索"]
+links:
+  github: "https://github.com/stars1210JasonHe/lan-board-game-platform"
+featured: false
+order: 4
+---
+
+一个从周末项目长出真引擎的作品：三种经典棋类的局域网多人平台，任何一个座位
+都可以由人类或 AI 落座。
+
+有意思的部分是那个 **Rust 引擎** —— 本地搜索引擎在 3 秒预算内做到国际象棋
+7 层、中国象棋 4 层深度，由平台以子进程方式调用。走法生成、局面评估、迭代
+加深都是手写的——这类底层工作在 LLM 时代太容易被跳过了，所以我偏不跳。
+
+任意局域网可玩，对局在浏览器里进行。
