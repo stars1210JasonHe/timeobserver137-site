@@ -1,0 +1,46 @@
+---
+title: "MeinMSC — a classical music visualizer & discovery platform"
+tagline: "Search, play, and see classical music: real-time piano-roll waterfall, synchronized notation, embedding-based similarity, and a composer world map."
+lang: en
+role: "Designer & builder"
+stack: ["Vue 3", "Python", "FastAPI", "SQLite FTS5", "audio embeddings", "FluidSynth", "Docker"]
+links:
+  github: "https://github.com/stars1210JasonHe/meinmsc"
+featured: false
+order: 3
+---
+
+## The problem
+
+MIDI collections of classical music are archives, not experiences: thousands of
+files with inconsistent metadata, no way to *see* the music, and search that only
+works if you already know the catalogue number.
+
+## What I built
+
+A browser-based platform that turns a MIDI library into something you can explore:
+
+- **Visual playback** — a real-time piano-roll waterfall with per-track coloring
+  and particle effects, an animated keyboard, multi-color waveforms, and sheet-music
+  notation synchronized to playback;
+- **Search that understands intent** — full-text search (FTS5) fused with LLM
+  query extraction, so "melancholy late-Romantic piano" works as well as an opus
+  number; an **Ask mode** for mood-based recommendations;
+- **Similarity by sound, not tags** — 768-dimensional audio embeddings with cosine
+  similarity, so "find me more like this" is computed from the music itself;
+- **A composer world map** — 450+ composers plotted by birthplace with a timeline
+  animation, turning the library into a walk through music history;
+- **HQ mode** — server-side SoundFont rendering (FluidSynth) when browser synthesis
+  isn't enough.
+
+## What it proves
+
+Frontend craft and retrieval engineering are the same discipline applied at two
+ends: the piano-roll renderer cares about frame budgets the way the search
+pipeline cares about recall. This is the project where I did both at once —
+a Vue 3 interface with heavy real-time canvas work, backed by the same
+embedding-and-rank machinery I use in [Meinrag](/projects/meinrag/).
+
+## Status
+
+Working platform in personal daily use; MIT-licensed codebase.
