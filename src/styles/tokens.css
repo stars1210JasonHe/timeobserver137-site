@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+
+/*
+ * Token seed only — the real design pass (palette ramps, type scale, CJK font
+ * stack via @fontsource) is Task 2.1. Accent starts at spec value #1977ff.
+ */
+@theme {
+  --color-bg: #0b0e14;
+  --color-surface: #131824;
+  --color-ink: #e7eaf2;
+  --color-muted: #8b93a7;
+  --color-accent: #1977ff;
+}
