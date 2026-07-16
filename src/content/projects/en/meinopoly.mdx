@@ -1,0 +1,30 @@
+---
+title: "Meinopoly — a moddable Monopoly-style game engine"
+tagline: "Not a game — an engine: every rule lives in a config file, ten AI-flavored characters, seasons and auctions, and a Game Boy Color skin. 278 unit tests say it actually works."
+lang: en
+role: "Builder"
+stack: ["JavaScript", "boardgame.io", "Jest (278 tests)", "Playwright E2E", "LLM characters"]
+links:
+  github: "https://github.com/stars1210JasonHe/Meinoploy"
+featured: false
+order: 6
+---
+
+A Monopoly-style engine built on boardgame.io where **the rules are data, not
+code**: prices, rent curves, victory conditions, even the board geometry (square,
+circle, hexagon, custom) live in a mod's config files. The shipped mod —
+*Dominion: Multi-dimensional World Property Council* — is a sci-fi table of ten
+characters, each with pixel-art portraits, six stats, passive abilities, and
+full backstories.
+
+Mechanics beyond the classic: a four-tier building system, a season cycle that
+moves prices and taxes every ten turns, property trading and round-robin
+auctions, mortgages with season-adjusted values, and three selectable victory
+conditions. Optional **LLM-powered characters** react to game events in
+persona.
+
+The engineering spine: **278 Jest unit tests + 18 Playwright E2E tests**
+covering the game mechanics — because a rules engine you can't trust is just a
+random-number generator with extra steps. 2–10 players, hot-seat or online.
+The whole thing wears a Game Boy Color aesthetic with three palettes and a CRT
+toggle, because engines are allowed to be fun.
