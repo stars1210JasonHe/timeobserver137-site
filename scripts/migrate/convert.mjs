@@ -130,10 +130,11 @@ function blockMd(node, ctx, out) {
       }
       return;
     }
-    // image card (or any figure with an img)
-    const img = node.querySelector('img');
-    if (img) {
-      out.push(imgMd(img));
+    // image card / gallery card (galleries hold multiple imgs in one figure —
+    // gate 2 caught EP5 losing 3 of them when only the first was emitted)
+    const imgs = node.querySelectorAll('img');
+    if (imgs.length > 0) {
+      imgs.forEach((img) => out.push(imgMd(img)));
       const cap = node.querySelector('figcaption');
       if (cap) {
         const capText = decodeOnce(cap.text).trim();
