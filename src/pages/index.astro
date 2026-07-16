@@ -1,19 +1,15 @@
 ---
-// Placeholder body — the real hero (GSAP) lands in Task 2.2.
 import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Monument from '../components/Monument.astro';
 ---
 
 <Base
   title="Yeqiu He — AI Systems Engineer"
-  description="Portfolio and writing of Yeqiu He (时间观察者): multi-agent systems, RAG pipelines, and science-history essays."
+  description="Portfolio and writing of Yeqiu He (时间观察者): multi-agent systems, RAG pipelines, and science-history essays on symmetry and Euler."
   lang="en"
   altHref="/zh/"
 >
-  <main class="mx-auto grid min-h-[70vh] max-w-5xl place-items-center px-6">
-    <div class="space-y-3 text-center">
-      <p class="text-sm uppercase tracking-widest text-muted">timeobserver137.cyou</p>
-      <h1 class="text-4xl font-semibold text-chalk">Yeqiu He — AI Systems Engineer</h1>
-      <p class="text-muted">I build multi-agent systems that remember. New site under construction.</p>
-    </div>
-  </main>
+  <Hero lang="en" />
+  <Monument lang="en" />
 </Base>
