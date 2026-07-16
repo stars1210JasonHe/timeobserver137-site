@@ -64,7 +64,7 @@ async function collect(page, { waitKatex }) {
       katexDisplay: q('article .katex-display, .post-content .katex-display, main .katex-display').length,
       katexErrors: q('.katex-error').length,
       rawDollars: (document.body.innerText.match(/\$\$/g) ?? []).length,
-      formulaTexts: q('article .katex, .post-content .katex, main .katex').map((k) => k.textContent ?? ''),
+      formulaTexts: q('article .katex, .post-content .katex, main .katex').map((k) => (k.querySelector('.katex-html') ?? k).textContent ?? ''),
       imgs: q('article img, .post-content img, main img').map((i) => ({
         src: i.getAttribute('src'),
         w: i.naturalWidth,
@@ -116,11 +116,20 @@ try {
       : neu.katexErrors === 0 && neu.rawDollars === 0 && neu.katexTotal === old.katexTotal && neu.katexDisplay === old.katexDisplay;
     let contentOk = true;
     let firstDiff = '';
-    const n = Math.min(old.formulaTexts.length, neu.formulaTexts.length);
+    let oldTexts = old.formulaTexts;
+    if (waiver?.dropOldNormed) {
+      // waived formulas exist on live but intentionally not on the new page —
+      // drop them from the old sequence so the content diff stays aligned
+      for (const d of waiver.dropOldNormed) {
+        const i = oldTexts.findIndex((f) => norm(f) === d);
+        if (i >= 0) oldTexts = oldTexts.slice(0, i).concat(oldTexts.slice(i + 1));
+      }
+    }
+    const n = Math.min(oldTexts.length, neu.formulaTexts.length);
     for (let i = 0; i < n; i++) {
-      if (norm(old.formulaTexts[i]) !== norm(neu.formulaTexts[i])) {
+      if (norm(oldTexts[i]) !== norm(neu.formulaTexts[i])) {
         contentOk = false;
-        firstDiff = `formula[${i}] old=${old.formulaTexts[i].slice(0, 40)} new=${neu.formulaTexts[i].slice(0, 40)}`;
+        firstDiff = `formula[${i}] old=${oldTexts[i].slice(0, 40)} new=${neu.formulaTexts[i].slice(0, 40)}`;
         break;
       }
     }

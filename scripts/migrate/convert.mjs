@@ -213,7 +213,19 @@ function blockMd(node, ctx, out) {
         out.push(node.toString());
         return;
       }
-      const cellMd = (c) => inlineMd(c, ctx).trim().replace(/\|/g, '\\|').replace(/\n+/g, ' ');
+      // escape pipes for the table — but INSIDE math use \vert: an escaped
+      // pipe within $..$ becomes KaTeX \| = ‖ (gate 1 caught |v| -> ‖v‖)
+      const cellMd = (c) =>
+        inlineMd(c, ctx)
+          .trim()
+          .replace(/\n+/g, ' ')
+          .split(/(\$\$[\s\S]*?\$\$|\$[^$]*\$)/)
+          .map((seg) =>
+            seg.startsWith('$')
+              ? seg.replace(/(?<!\\)\|/g, '\\vert ')
+              : seg.replace(/\|/g, '\\|'),
+          )
+          .join('');
       const lines = [];
       rows.forEach((tr, ri) => {
         const cells = tr.querySelectorAll('th, td').map(cellMd);
