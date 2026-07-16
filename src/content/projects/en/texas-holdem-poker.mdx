@@ -1,0 +1,25 @@
+---
+title: "Texas Hold'em — multiplayer poker with AI seats"
+tagline: "2–9 players in real time, AI opponents at three difficulty levels, and a Monte-Carlo equity engine running live under your cards."
+lang: en
+role: "Builder"
+stack: ["Python", "WebSocket", "Monte-Carlo simulation", "AI opponents"]
+links:
+  github: "https://github.com/stars1210JasonHe/texas-holdem-poker"
+featured: false
+order: 4
+---
+
+A browser-based multiplayer Texas Hold'em platform — no registration, type a
+nickname and sit down. Up to nine seats per table, any of them human or AI,
+with reconnection handling so a dropped connection doesn't fold your hand.
+
+The part I care most about is the **probability layer**: a Monte-Carlo
+simulation engine computes your live win equity as the board develops, a card
+tracker keeps the deck state visible, and the decision hints are derived from
+the numbers — not vibes. The AI opponents come in three difficulty levels and
+play the same probabilistic game you do.
+
+Details that make it feel finished: adaptive background music that follows the
+state of the hand, spectator mode for busted players, responsive layout down to
+phones.

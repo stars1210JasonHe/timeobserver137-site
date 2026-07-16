@@ -1,0 +1,37 @@
+---
+title: "Vibe Deutsch — an AI-powered German learning platform"
+tagline: "I moved to Germany and needed to learn German — so I built the tool I wished existed: 70K+ words, spaced repetition, and an AI tutor that corrects your typos before answering."
+lang: en
+role: "Builder"
+stack: ["Python", "FastAPI", "JWT auth", "spaced repetition", "LLM integration"]
+links:
+  github: "https://github.com/stars1210JasonHe/Deutsch_Learning_Platform"
+featured: false
+order: 5
+---
+
+## The problem
+
+Dictionary apps translate words; they don't teach a language. I wanted one tool
+that could take input in English, Chinese, or misspelled German ("gehn" →
+"gehen"), give me the full grammatical picture — conjugation tables, cases,
+examples — and then actually drill me on it.
+
+## What I built
+
+- **An intelligent translation pipeline** — auto language detection across
+  three input languages, German typo correction, database-first lookup over a
+  **70K+ word vocabulary** with AI fallback for anything unknown;
+- **Learning that closes the loop** — a spaced-repetition system for retention,
+  AI-generated exams with auto-grading, favorites and progress tracking;
+- **An AI tutor layer** — interactive chat with structured, example-rich
+  answers, and image generation for visual vocabulary;
+- **Production discipline** — JWT auth with refresh cycles, XSS/CSRF/rate-limit
+  protection, multi-tab session sync. Built to be used daily, not demoed once.
+
+## What it proves
+
+The same pattern as my other systems, pointed at a personal need: a curated
+knowledge base (the vocabulary DB), retrieval in front of generation
+(database-first, AI-fallback), and honest UX around what the machine knows.
+Also: living in a language is the best requirements document.
