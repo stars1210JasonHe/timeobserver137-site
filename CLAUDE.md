@@ -34,6 +34,7 @@ You are **PC** — the Claude Code session that builds this site. This repo is t
 
 ## Conventions
 
+- Owner: Yeqiu He / 贺冶秋 (never 何业秋 or other homophones).
 - Node LTS; npm (not bun/pnpm). Tests: vitest (`npm test`); parity tooling: Playwright.
 - TypeScript strict. Small focused files. Comments match surrounding density — explain why, not what.
 - The parity gates (plan Task 4.3) are the definition of "migrated" — a post is done only when `scripts/parity/gate.mjs <slug>` exits 0 against a preview URL.
