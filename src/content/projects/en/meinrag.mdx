@@ -1,0 +1,47 @@
+---
+title: "Meinrag — a multimodal RAG platform"
+tagline: "Document intelligence for PDFs that fight back: layout-aware parsing, hybrid retrieval with reranking, and an MCP layer so agents can use it as a tool."
+lang: en
+role: "Designer & builder"
+stack: ["Python", "FastAPI", "PostgreSQL", "FAISS", "Docling", "MCP", "Docker"]
+links:
+  github: "https://github.com/stars1210JasonHe/Meinrag"
+featured: true
+order: 2
+---
+
+## The problem
+
+Real-world document corpora are hostile to naive RAG: scanned PDFs, dense tables,
+figures that carry the actual answer, mixed languages, thousands of files. Chunk-
+and-embed alone retrieves the wrong paragraph with great confidence.
+
+## What I built
+
+A self-hosted RAG platform that treats retrieval quality as a pipeline, not a
+model call:
+
+- **Layout-aware ingestion** — Docling-based parsing that preserves tables and
+  figures instead of flattening them into word soup; content-hash dedup on
+  normalized text;
+- **Hybrid retrieval** — a query router in front of dense search, with a
+  cross-encoder **reranking stage** (the measured win came from reranking, not
+  from swapping embedding models);
+- **An MCP server layer** — agents consume `search` as a tool with auth and
+  audit logging, which turned the pipeline from an app into infrastructure other
+  systems build on;
+- **Operations** — Postgres + FAISS behind FastAPI, Docker-deployed on
+  always-on home infrastructure, serving a document corpus in the thousands.
+
+## What it proves
+
+Retrieval is an engineering discipline: parsing fidelity, retrieval staging, and
+honest evaluation move the needle more than model choice. The failure modes I
+hit — index/registry desync, dedup keyed on the wrong hash, per-article recall
+diluted by fixed-size chunking — each became a design rule, and several were
+found by measuring recall on real questions rather than eyeballing demos.
+
+## Status
+
+In production since spring 2026, queried daily — including by the
+[agent fleet](/projects/openclaw-fleet/), which uses it through the MCP layer.
