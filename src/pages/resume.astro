@@ -1,35 +1,81 @@
 ---
+/**
+ * Resume — sanitized public version (Yeqiu directive 2026-07-16).
+ * The full résumé PDF is NOT published: it carries contact details, visa
+ * status, location and availability. This page keeps only the professional
+ * essentials; the full document goes out privately per application.
+ */
 import Base from '../layouts/Base.astro';
+
+const skills: [string, string][] = [
+  ['AI / ML', 'LLM integration & orchestration (Claude, OpenAI, Codex) · RAG (FAISS, embeddings, re-ranking, hybrid BM25/dense) · MCP servers · multi-agent systems · model calibration & evaluation · vector search · Monte Carlo simulation'],
+  ['Programming', 'Python · TypeScript / JavaScript · C# · VB.NET · SQL · Fortran'],
+  ['Backend / Data', 'FastAPI · SQLAlchemy · PostgreSQL · MySQL · SQLite · ETL / data-pipeline design · REST APIs'],
+  ['Automation', 'UiPath · PowerShell · Windows automation · process optimisation'],
+  ['Infrastructure', 'Docker · Linux · Git · self-hosted ops (Raspberry Pi / NAS / VPS)'],
+  ['Frontend', 'Vue.js · React · Nuxt · Tailwind · Astro'],
+];
 ---
 
 <Base
-  title="Resume — Yeqiu He"
-  description="Resume of Yeqiu He — AI Systems Engineer."
+  title="Resume — 时间观察者 timeobserver137"
+  description="AI Systems Engineer — agentic systems, RAG, LLM integration. Professional summary and selected experience."
   lang="en"
   altHref="/zh/"
 >
   <main class="mx-auto max-w-2xl px-6 py-12">
     <h1 class="text-3xl font-semibold text-chalk">Resume</h1>
     <p class="mt-6 leading-relaxed text-ink">
-      <strong class="text-chalk">Yeqiu He</strong> — AI Systems Engineer. Multi-agent systems,
-      retrieval pipelines, full-stack builds. Theoretical physics background.
+      <strong class="text-chalk">Yeqiu (Jason) He</strong> — AI Systems Engineer: agentic systems,
+      RAG, LLM integration. Physics research background (2 first-author publications).
     </p>
-    <div class="mt-8 flex flex-wrap gap-3">
-      <a
-        href="/resume/Yeqiu_He_Resume_AU.pdf"
-        class="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-soft"
-        >Download PDF</a
-      >
-      <a
-        href="/projects/"
-        class="rounded-md border border-line px-4 py-2 text-sm text-ink transition-colors hover:border-accent-soft"
-        >See the work</a
-      >
-    </div>
-    <p class="mt-10 text-sm text-muted">
-      Highlights: an <a class="text-accent-soft underline underline-offset-2" href="/projects/openclaw-fleet/">eight-agent fleet</a>
-      with a versioned memory architecture · a <a class="text-accent-soft underline underline-offset-2" href="/projects/meinrag/">multimodal RAG platform</a>
-      in daily production · <a class="text-accent-soft underline underline-offset-2" href="/writing/">long-form technical writing</a>.
+
+    <h2 class="mt-10 text-lg font-semibold text-chalk">Summary</h2>
+    <p class="mt-3 leading-relaxed text-muted">
+      I design, ship and operate production LLM systems end-to-end — multi-agent orchestration,
+      retrieval-augmented generation and Model Context Protocol — owning the full lifecycle from
+      architecture through deployment to live operation on self-hosted infrastructure. I grew into
+      AI engineering from 5+ years shipping enterprise process automation (70–90% manual-processing
+      reduction across 30+ enterprise systems), then rebuilt that same systems-engineering and
+      evaluation discipline around LLMs.
+    </p>
+
+    <h2 class="mt-10 text-lg font-semibold text-chalk">Selected work</h2>
+    <ul class="mt-3 space-y-3 leading-relaxed text-muted">
+      <li>
+        <a class="text-accent-soft underline underline-offset-2" href="/projects/openclaw-fleet/">OpenClaw</a>
+        — a fleet of 8 specialised agents in continuous production: custom inter-agent bus protocol,
+        persistent anchor-based memory with hybrid semantic retrieval, multi-provider LLM routing with fallback.
+      </li>
+      <li>
+        <a class="text-accent-soft underline underline-offset-2" href="/projects/meinrag/">Meinrag</a>
+        — multimodal RAG platform serving a 3,300+ document legal corpus in production: hybrid retrieval
+        (BM25 + dense, RRF) with LLM re-ranking and PDF bounding-box citations — every claim traceable to source.
+      </li>
+      <li>
+        <a class="text-accent-soft underline underline-offset-2" href="/projects/">Five more open-source builds</a>
+        — music discovery, game platforms, language tools — each documented on the
+        <a class="text-accent-soft underline underline-offset-2" href="/writing/">technical blog</a> and YouTube.
+      </li>
+    </ul>
+
+    <h2 class="mt-10 text-lg font-semibold text-chalk">Skills</h2>
+    <dl class="mt-3 space-y-2">
+      {skills.map(([k, v]) => (
+        <div class="grid gap-1 sm:grid-cols-[8.5rem_1fr]">
+          <dt class="text-sm font-medium text-ink">{k}</dt>
+          <dd class="text-sm leading-relaxed text-muted">{v}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <h2 class="mt-10 text-lg font-semibold text-chalk">Languages</h2>
+    <p class="mt-3 text-muted">English (full professional proficiency) · Mandarin Chinese (native) · German (basic)</p>
+
+    <p class="mt-10 rounded-md border border-line bg-surface/50 p-4 text-sm leading-relaxed text-muted">
+      The full résumé — contact details, work rights and availability — goes out privately per
+      application. Reach me via
+      <a class="text-accent-soft underline underline-offset-2" href="https://github.com/stars1210JasonHe">GitHub</a>.
     </p>
   </main>
 </Base>
