@@ -38,16 +38,26 @@
   {
    "slug": "four-color-theorem",
    "migrated": true,
-   "gatedAt": "2026-07-16T16:06:24.081Z"
+   "gatedAt": "2026-07-16T16:14:50.510Z"
   },
   {
    "slug": "gauss-heptadecagon",
    "migrated": true,
-   "gatedAt": "2026-07-16T16:06:07.889Z"
+   "gatedAt": "2026-07-16T16:15:19.999Z"
   },
   {
    "slug": "e10-petersburg-ii-blind-years",
-   "migrated": false
+   "migrated": true,
+   "waivers": {
+    "katex": {
+     "newExpected": 1312,
+     "reason": "author wrote currency as math ($\\$10$); micromark math cannot parse escaped-$ inside math (known limitation) - rendered as plain-text $10, visually equivalent, formula count -1 vs live",
+     "dropOldNormed": [
+      "$10"
+     ]
+    }
+   },
+   "gatedAt": "2026-07-16T16:19:58.877Z"
   },
   {
    "slug": "gauss-i-am-gauss",
@@ -67,7 +77,8 @@
   },
   {
    "slug": "e09-berlin-iv-final",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T16:12:17.538Z"
   },
   {
    "slug": "silent-daemon",
