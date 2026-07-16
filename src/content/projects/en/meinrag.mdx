@@ -34,6 +34,10 @@ model call:
 - **An MCP server layer** — agents consume `search` as a tool with auth and
   audit logging, which turned the pipeline from an app into infrastructure other
   systems build on;
+- **A living corpus** — an agent-run monthly ingestion workflow
+  ([the fleet](/projects/openclaw-fleet/) watches sources, fetches, cleans,
+  verifies, ingests) keeps the knowledge base current — answers cite documents
+  as they stand today, including sources newer than any model's training cutoff;
 - **Operations** — Postgres + FAISS behind FastAPI, Docker-deployed on
   always-on home infrastructure, serving a document corpus in the thousands.
 
