@@ -40,7 +40,7 @@
 ## New-repo file structure (target state)
 
 ```
-F:\repos\timeobserver137-site\
+E:\timeobserver137-site\
 ├── astro.config.mjs            # i18n, markdown/KaTeX, sitemap, tailwind
 ├── src/
 │   ├── content.config.ts       # writing + projects collections (zod schemas)
@@ -122,12 +122,12 @@ page = get("pages/", {"limit":"all","formats":"html"})["pages"][0]  # /about/
 
 ### Task 0.4: Repo bootstrap + handoff drop `[EULER]`
 
-**Files:** Create `F:\repos\timeobserver137-site\` — `docs/` (spec r4, mother spec, this plan, 2 inventory JSONs), `migration/input/` (T0.2/T0.3 outputs), `CLAUDE.md`, `README.md`; `git init`, first commit; create **public** GitHub repo `stars1210JasonHe/timeobserver137-site`, push.
+**Files:** Create `E:\timeobserver137-site\` — `docs/` (spec r4, mother spec, this plan, 2 inventory JSONs), `migration/input/` (T0.2/T0.3 outputs), `CLAUDE.md`, `README.md`; `git init`, first commit; create **public** GitHub repo `stars1210JasonHe/timeobserver137-site`, push.
 
 - [ ] **Step 1:** Create dirs, copy the 7 handoff files listed above.
 - [ ] **Step 2:** Write `CLAUDE.md` for PC — contents: project one-liner, the **Global Constraints section of this plan copied verbatim**, lane note ("you are PC; fleet ops are not yours; ask Euler via Yeqiu for anything needing Ghost/NAS access"), commit discipline (branch→PR→preview URL in description).
 - [ ] **Step 3:** `git init && git add -A && git commit -m "chore: R-62 handoff package (spec r4 + baselines + sanitized exports)"`; create public GitHub repo; push. **Verify on github.com: no PII grep hits (`@gmail` etc), repo public.**
-- [ ] **Step 4:** Hand to Yeqiu: "open Claude Code at `F:\repos\timeobserver137-site` — that session is PC; its first task is T1.1."
+- [ ] **Step 4:** Hand to Yeqiu: "open Claude Code at `E:\timeobserver137-site` — that session is PC; its first task is T1.1."
 
 ---
 

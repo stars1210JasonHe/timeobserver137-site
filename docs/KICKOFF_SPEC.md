@@ -16,7 +16,7 @@
 | GitHub 仓 | **Public** | 站源码即前端作品样本；站仓不含任何私密内容（OpenClaw 私库另算、只写脱敏案例） |
 | 框架 | **Astro** | MDX + KaTeX + 可插 React island；默认项 |
 
-其余全部继承 Neo spec 已锁定项：单一三柱门户 / 域名不变 / i18n EN-first + `/zh/` / content-in-git MDX / backup→build→cutover / repo 落 F: / feature-branch→PR→Yeqiu 审。
+其余全部继承 Neo spec 已锁定项：单一三柱门户 / 域名不变 / i18n EN-first + `/zh/` / content-in-git MDX / backup→build→cutover / repo 落 **E:**（`E:\timeobserver137-site`；2026-07-16 Yeqiu 改定，覆盖母 spec 的 F: 决策——owner call，GitHub origin + 高频 push 兜底 USB 风险）/ feature-branch→PR→Yeqiu 审。
 
 ## 2. Verified 内容清单（live Ghost Admin API 实拉，2026-07-16；全量 JSON = 本目录 `ghost_inventory.json`）
 
@@ -85,7 +85,7 @@
 ## 7. 顺序（母 spec §7 + 本次细化）
 
 1. **验证过的完整备份**（动手第一步，cutover 前提）：DB dump + `ghost-content` bind-mount ~251M（按 `docker inspect .Mounts` 真实来源，核 size 非空 —— 6-16 空 tar 教训）+ Ghost JSON 导出 + **members 导出（§3 订阅用户行）** → NAS `/volume1/OpenClaw/Backups/ghost-blog/`
-2. F: 建 repo + Astro 脚手架 + Netlify 接 GitHub（Neo 执行）
+2. E: 建 repo + Astro 脚手架 + Netlify 接 GitHub（Neo 执行）
 3. 三柱骨架 + i18n + 设计系统（frontend-design / design-shotgun 实现期定）
 4. 内容迁移（§2 清单 **18 posts + 1 page**（19 published 减去弃置的 coming-soon）→ MDX，按 §2.5 逐篇裁定源）+ §5 parity gates 逐篇过闸。**媒体政策（Socrates R1 #6）：referenced-only 抽取**——只迁 18+1 篇正文实际引用的资产（从 HTML 提 URL 清单 + byte 审计），**绝不整包拷 ghost-content 进 public 仓**（251M 里含未发布/草稿资产 = 红线；且撞 GitHub 文件上限/Netlify build 预算）
 5. projects 柱内容（fleet 脱敏案例 / Meinrag / Meinmsc / 看板 / Kalman）+ about/resume (AU PDF)
