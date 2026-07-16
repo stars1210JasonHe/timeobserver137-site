@@ -1,6 +1,6 @@
 {
  "_note": "ghostOrigin points at the LIVE domain until Neo creates the ghost-origin alias (plan T3.1). MUST switch to https://ghost-origin.timeobserver137.cyou BEFORE DNS cutover or proxy lines self-loop.",
- "ghostOrigin": "https://timeobserver137.cyou",
+ "ghostOrigin": "https://ghost-origin.olympiadproblembank.top",
  "posts": [
   {
    "slug": "symmetry-monster-ep6",

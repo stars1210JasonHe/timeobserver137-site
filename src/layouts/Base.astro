@@ -21,6 +21,15 @@ const { title, description, lang, altHref, ogImage } = Astro.props;
 <html lang={lang === 'zh' ? 'zh-CN' : 'en'}>
   <head>
     <HeadMeta {title} {description} {lang} {ogImage} path={Astro.url.pathname} />
+    <script is:inline>
+      // Theme + JS flags before first paint (no FOUC). Stored choice wins;
+      // otherwise the dark brand is the default on every surface.
+      (() => {
+        const t = localStorage.getItem('theme');
+        if (t === 'light') document.documentElement.dataset.theme = 'light';
+        document.documentElement.classList.add('js');
+      })();
+    </script>
   </head>
   <body class="bg-bg font-sans text-ink antialiased">
     <Nav {lang} {altHref} />

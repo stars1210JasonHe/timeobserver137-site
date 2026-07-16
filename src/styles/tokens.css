@@ -40,3 +40,34 @@ html {
 ::selection {
   background: color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
+
+/*
+ * Light reading theme (Ciechanowski-calibrated warm paper). Toggled via
+ * html[data-theme='light']; default follows the dark brand. All component
+ * colors flow through these tokens, so the theme is one block, not a sweep.
+ */
+html[data-theme='light'] {
+  --color-bg: #faf7f2;
+  --color-surface: #f1ede5;
+  --color-surface-2: #e9e4d9;
+  --color-line: #ddd6c8;
+
+  --color-ink: #2a2d34;
+  --color-muted: #6b6f7c;
+  --color-faint: #979caa;
+
+  --color-accent: #1465db;
+  --color-accent-soft: #2f7ae5;
+  --color-chalk: #1c1e24; /* "chalk" inverts to near-black ink on paper */
+  --color-gold: #b97f35;
+}
+html[data-theme='light'] .lagrange svg { filter: invert(0.92) hue-rotate(180deg); }
+
+html.theme-anim,
+html.theme-anim body { transition: background-color 0.25s ease, color 0.25s ease; }
+
+/* scroll-reveal targets: hidden pre-JS only when JS is present (no-JS = visible) */
+html.js [data-reveal] { opacity: 0; transform: translateY(18px); }
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] { opacity: 1; transform: none; }
+}
