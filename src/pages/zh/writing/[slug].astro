@@ -1,0 +1,25 @@
+---
+import { getCollection, render } from 'astro:content';
+import Post from '../../../layouts/Post.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('writing', (e) => e.data.lang === 'zh');
+  return posts.map((entry) => ({ params: { slug: entry.data.ghostSlug ?? entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+
+<Post
+  title={d.title}
+  description={d.excerpt ?? `${d.title} — 时间观察者`}
+  lang="zh"
+  altHref="/writing/"
+  date={d.date}
+  tags={d.tags}
+  ogImage={d.cover}
+>
+  <Content />
+</Post>

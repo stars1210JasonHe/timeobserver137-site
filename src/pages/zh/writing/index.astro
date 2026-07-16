@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import WritingCard from '../../../components/WritingCard.astro';
+
+const posts = (await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<Base title="写作 — 时间观察者" description="科学史随笔：对称与怪兽、欧拉系列、及更多。" lang="zh" altHref="/writing/">
+  <main class="mx-auto max-w-3xl px-6 py-12">
+    <h1 class="mb-8 text-3xl font-semibold text-chalk">写作</h1>
+    {posts.length === 0 && <p class="text-muted">文章迁移中 —— 完整存档暂在 <a class="text-accent-soft underline" href="https://timeobserver137.cyou">旧站</a>。</p>}
+    <div class="grid gap-4">
+      {posts.map((p) => (
+        <WritingCard
+          href={`/zh/writing/${p.data.ghostSlug ?? p.id}/`}
+          title={p.data.title}
+          date={p.data.date}
+          excerpt={p.data.excerpt}
+          tags={p.data.tags}
+        />
+      ))}
+    </div>
+  </main>
+</Base>
