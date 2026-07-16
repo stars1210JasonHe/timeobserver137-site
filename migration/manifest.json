@@ -28,7 +28,8 @@
   },
   {
    "slug": "shou-ye-ren",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T15:22:20.116Z"
   },
   {
    "slug": "symmetry-monster-ep1",
@@ -48,11 +49,19 @@
   },
   {
    "slug": "gauss-i-am-gauss",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T15:24:02.925Z"
   },
   {
    "slug": "escher-drawing-hands",
-   "migrated": false
+   "migrated": true,
+   "waivers": {
+    "katex": {
+     "newExpected": 0,
+     "reason": "live renders currency $0.10..$20 as math via auto-render (live bug); migration escapes them - 0 formulas is CORRECT"
+    }
+   },
+   "gatedAt": "2026-07-16T15:25:45.773Z"
   },
   {
    "slug": "e09-berlin-iv-final",
@@ -60,19 +69,23 @@
   },
   {
    "slug": "silent-daemon",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T15:22:31.008Z"
   },
   {
    "slug": "bu-xiang",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T15:22:16.005Z"
   },
   {
    "slug": "wo-shi-euler",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T15:22:12.393Z"
   },
   {
    "slug": "qi-shi-wo-ye-bu-zhi-dao-yao-xie-shi-yao",
-   "migrated": false
+   "migrated": true,
+   "gatedAt": "2026-07-16T15:22:33.055Z"
   }
  ],
  "aboutMigrated": false,
