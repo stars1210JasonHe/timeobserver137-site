@@ -1,0 +1,60 @@
+---
+/**
+ * Homepage motion layer (polish phase). Two effects, both guarded:
+ * 1. GSAP ScrollTrigger reveals every [data-reveal] block (0.6s rise-in, once).
+ * 2. Pointer parallax on the hero's Lagrange figure — interaction-driven, so
+ *    the spec's draw-once-then-still rule (WCAG 2.2.2) is untouched: nothing
+ *    moves unless the visitor moves.
+ * prefers-reduced-motion ⇒ neither runs; the tokens.css fallback keeps all
+ * [data-reveal] content visible.
+ */
+---
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    for (const el of document.querySelectorAll('[data-reveal]')) {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+      });
+    }
+
+    // Monument digits: a single brief settle-in when the 54 digits enter.
+    const monument = document.querySelector('.monument');
+    if (monument) {
+      gsap.from(monument, {
+        opacity: 0,
+        letterSpacing: '0.35em',
+        duration: 1.1,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: monument, start: 'top 80%', once: true },
+      });
+    }
+
+    // Hero figure parallax — pointer-driven only.
+    const fig = document.querySelector<HTMLElement>('.lagrange');
+    const hero = document.querySelector<HTMLElement>('.hero');
+    if (fig && hero && matchMedia('(pointer: fine)').matches) {
+      const setX = gsap.quickTo(fig, 'rotationY', { duration: 0.6, ease: 'power2.out' });
+      const setY = gsap.quickTo(fig, 'rotationX', { duration: 0.6, ease: 'power2.out' });
+      gsap.set(fig, { transformPerspective: 900 });
+      hero.addEventListener('pointermove', (ev) => {
+        const r = hero.getBoundingClientRect();
+        setX(((ev.clientX - r.left) / r.width - 0.5) * 7);
+        setY(-((ev.clientY - r.top) / r.height - 0.5) * 5);
+      });
+      hero.addEventListener('pointerleave', () => {
+        setX(0);
+        setY(0);
+      });
+    }
+  }
+</script>

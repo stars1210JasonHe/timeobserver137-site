@@ -1,0 +1,82 @@
+---
+/**
+ * Homepage narrative strips (polish phase, 「太单调」 calibration):
+ * after the hero's identity claim and the monument's proof-of-craft, the page
+ * must answer "show me" — three featured projects and three latest essays,
+ * each strip one glance deep with an exit to the full index. Server-rendered;
+ * [data-reveal] hooks are consumed by the homepage scroll script (JS absent
+ * ⇒ everything visible, nothing depends on GSAP).
+ */
+import { getCollection } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+import WritingCard from './WritingCard.astro';
+
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+
+const projects = (await getCollection('projects', (e) => e.data.lang === lang))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+
+const posts = (await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const projHref = zh ? '/zh/projects/' : '/projects/';
+const writeHref = zh ? '/zh/writing/' : '/writing/';
+const postHref = (e: (typeof posts)[number]) => `/zh/writing/${e.data.ghostSlug ?? e.id}/`;
+const projectHref = (e: (typeof projects)[number]) =>
+  `${projHref}${e.id.split('/').pop()}/`;
+---
+
+<section class="mx-auto max-w-6xl px-6 py-20">
+  <div class="flex items-baseline justify-between" data-reveal>
+    <h2 class="text-2xl font-semibold text-chalk">{zh ? '精选项目' : 'Featured work'}</h2>
+    <a href={projHref} class="text-sm text-muted transition-colors hover:text-ink"
+      >{zh ? '全部 7 个 →' : 'All 7 →'}</a
+    >
+  </div>
+  <div class="mt-8 grid gap-5 md:grid-cols-3">
+    {
+      projects.map((p) => (
+        <div data-reveal>
+          <ProjectCard
+            href={projectHref(p)}
+            title={p.data.title}
+            tagline={p.data.tagline}
+            stack={p.data.stack}
+            featured={p.data.featured}
+          />
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-6 pb-24">
+  <div class="flex items-baseline justify-between" data-reveal>
+    <h2 class="text-2xl font-semibold text-chalk">{zh ? '最新写作' : 'Latest writing'}</h2>
+    <a href={writeHref} class="text-sm text-muted transition-colors hover:text-ink"
+      >{zh ? '全部文章 →' : 'All essays →'}</a
+    >
+  </div>
+  <div class="mt-8 grid gap-5 md:grid-cols-3">
+    {
+      posts.map((e) => (
+        <div data-reveal>
+          <WritingCard
+            href={postHref(e)}
+            title={e.data.title}
+            date={e.data.date}
+            excerpt={e.data.excerpt}
+            tags={e.data.tags}
+            langBadge={zh ? undefined : '中文'}
+          />
+        </div>
+      ))
+    }
+  </div>
+</section>
