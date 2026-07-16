@@ -11,6 +11,7 @@ const writing = defineCollection({
     excerpt: z.string().optional(),
     cover: z.string().optional(),        // maps Ghost feature_image (4 posts have one)
     ghostSlug: z.string().optional(),    // original slug — drives redirects + parity
+    draft: z.boolean().default(false),   // regression fixtures / WIP — rendered in dev, excluded from indexes+sitemap
   }),
 });
 
