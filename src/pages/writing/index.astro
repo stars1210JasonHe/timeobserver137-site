@@ -1,0 +1,42 @@
+---
+/**
+ * EN writing index — summary cards linking into the /zh/ tree (spec §4:
+ * the corpus is Chinese; EN side gets translated-summary cards with a 中文 badge.
+ * Translated titles/excerpts land during the content pass; until then the
+ * original title carries the card.)
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import WritingCard from '../../components/WritingCard.astro';
+
+const posts = (await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<Base
+  title="Writing — 时间观察者"
+  description="Science-history essays (in Chinese): the Symmetry & Monster series, the Euler series, and more."
+  lang="en"
+  altHref="/zh/writing/"
+>
+  <main class="mx-auto max-w-3xl px-6 py-12">
+    <h1 class="mb-2 text-3xl font-semibold text-chalk">Writing</h1>
+    <p class="mb-8 text-sm text-muted">
+      Long-form science history, written in Chinese — from Galois to the Monster group.
+    </p>
+    {posts.length === 0 && <p class="text-muted">Essays are being migrated — the full archive lives at the <a class="text-accent-soft underline" href="https://timeobserver137.cyou">current site</a> meanwhile.</p>}
+    <div class="grid gap-4">
+      {posts.map((p) => (
+        <WritingCard
+          href={`/zh/writing/${p.data.ghostSlug ?? p.id}/`}
+          title={p.data.title}
+          date={p.data.date}
+          excerpt={p.data.excerpt}
+          tags={p.data.tags}
+          langBadge="中文"
+        />
+      ))}
+    </div>
+  </main>
+</Base>
