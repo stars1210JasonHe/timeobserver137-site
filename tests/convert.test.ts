@@ -150,7 +150,10 @@ describe('structure', () => {
     expect(md).toContain('| 符号 | 含义 |');
     expect(md).toContain('| --- | --- |');
     expect(md).toContain('| $V, E, F$ |');
-    expect(md).toContain('$\\|M\\|$'); // pipes inside cells escaped
+    // pipes INSIDE math become \vert (escaped \| would render as ‖);
+    // pipes outside math are markdown-escaped
+    expect(md).toContain('$\\vert M\\vert $');
+    expect(md).not.toContain('$\\|M\\|$');
     expect(md).not.toContain('<table>');
   });
 
