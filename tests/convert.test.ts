@@ -62,7 +62,7 @@ describe('math + entity audit (Escher gotcha #1)', () => {
     // arrives as "&amp;lt;" in the html field.
     const html = '<p>$$ 0 &amp;lt; x &amp;lt; 1 $$</p>';
     const { md, entityAudit } = conv(html);
-    expect(md).toContain('$$ 0 < x < 1 $$');
+    expect(md).toContain('$$' + String.fromCharCode(10) + '0 < x < 1' + String.fromCharCode(10) + '$$');
     expect(entityAudit.length).toBe(1);
     expect(entityAudit[0].entities).toContain('&lt;');
   });
@@ -79,6 +79,25 @@ describe('math + entity audit (Escher gotcha #1)', () => {
     const { md, entityAudit } = conv('<p>因为 $n &amp;gt; 2$ 时成立。</p>');
     expect(md).toContain('$n > 2$');
     expect(entityAudit.length).toBe(1);
+  });
+});
+
+describe('display math extraction', () => {
+  it('mid-paragraph $$..$$ becomes a standalone multi-line display block (\tag survives)', () => {
+    const { md } = conv('<p><strong>引理</strong>. <em>连通平面图满足</em> $$V - E + F = 2. \\tag{3.1}$$ 证明见下。</p>');
+    expect(md).toContain('$$\nV - E + F = 2. \\tag{3.1}\n$$');
+    expect(md).toContain('**引理**. *连通平面图满足*');
+    expect(md).toContain('证明见下。');
+  });
+});
+
+describe('display math inside list items', () => {
+  it('li with $$..$$ gets an indented display block (live renders display)', () => {
+    const html = '<ul><li><strong>第一步:</strong> 由上界 $$ [K:F] \\le 2 $$ 但还不能写等号。</li></ul>';
+    const { md } = conv(html);
+    expect(md).toContain('- **第一步:** 由上界');
+    expect(md).toContain('  $$\n  [K:F] \\le 2\n  $$');
+    expect(md).toContain('  但还不能写等号。');
   });
 });
 
@@ -123,11 +142,22 @@ describe('structure', () => {
     expect(md).toContain('```');
   });
 
-  it('tables preserved as raw html block (10 occurrences in corpus)', () => {
-    const html = '<table><thead><tr><th>列</th></tr></thead><tbody><tr><td>值</td></tr></tbody></table>';
+  it('simple tables become markdown pipe tables (math in cells must reach remark-math)', () => {
+    const html =
+      '<table><thead><tr><th>符号</th><th>含义</th></tr></thead>' +
+      '<tbody><tr><td>$V, E, F$</td><td>顶点数、边数、面数（绝对值 $|M|$ 含竖线）</td></tr></tbody></table>';
+    const { md } = conv(html);
+    expect(md).toContain('| 符号 | 含义 |');
+    expect(md).toContain('| --- | --- |');
+    expect(md).toContain('| $V, E, F$ |');
+    expect(md).toContain('$\\|M\\|$'); // pipes inside cells escaped
+    expect(md).not.toContain('<table>');
+  });
+
+  it('complex tables (rowspan) stay raw html', () => {
+    const html = '<table><tbody><tr><td rowspan="2">跨</td><td>a</td></tr><tr><td>b</td></tr></tbody></table>';
     const { md } = conv(html);
     expect(md).toContain('<table>');
-    expect(md).toContain('<td>值</td>');
   });
 });
 

@@ -97,10 +97,24 @@ function imgMd(node) {
   return `![${alt}](${src})`;
 }
 
+/** push text, extracting $$..$$ spans into standalone multi-line display blocks */
+function pushWithMathBlocks(t, out) {
+  const parts = t.split(/(\$\$[\s\S]+?\$\$)/);
+  if (parts.length === 1) {
+    out.push(t);
+    return;
+  }
+  for (const part of parts) {
+    const m = part.match(/^\$\$([\s\S]+?)\$\$$/);
+    if (m) out.push('$$\n' + m[1].trim() + '\n$$');
+    else if (part.trim()) out.push(part.trim());
+  }
+}
+
 function blockMd(node, ctx, out) {
   if (node.nodeType === 3) {
     const t = decodeOnce(node.rawText).trim();
-    if (t) out.push(t);
+    if (t) pushWithMathBlocks(t, out);
     return;
   }
   const tag = node.rawTagName?.toLowerCase();
@@ -141,7 +155,10 @@ function blockMd(node, ctx, out) {
     }
     case 'p': {
       const t = inlineMd(node, ctx).trim();
-      if (t) out.push(t);
+      if (!t) return;
+      // display math must be its own multi-line block for remark-math
+      // (mid-paragraph $$..$$ parses as inline; \tag only works in display)
+      pushWithMathBlocks(t, out);
       return;
     }
     case 'blockquote': {
@@ -159,7 +176,21 @@ function blockMd(node, ctx, out) {
       const items = node.childNodes.filter((c) => c.rawTagName?.toLowerCase() === 'li');
       out.push(
         items
-          .map((li, i) => `${ordered ? `${i + 1}.` : '-'} ${inlineMd(li, ctx).trim()}`)
+          .map((li, i) => {
+            const marker = ordered ? `${i + 1}.` : '-';
+            const parts = [];
+            pushWithMathBlocks(inlineMd(li, ctx).trim(), parts);
+            // first part carries the marker; the rest (display blocks / prose
+            // after mid-item math) become indented continuation lines
+            return parts
+              .map((p, j) =>
+                p
+                  .split('\n')
+                  .map((line, k) => (j === 0 && k === 0 ? `${marker} ${line}` : `  ${line}`))
+                  .join('\n'),
+              )
+              .join('\n');
+          })
           .join('\n'),
       );
       return;
@@ -171,9 +202,27 @@ function blockMd(node, ctx, out) {
       out.push(`\`\`\`${lang}\n${body}\n\`\`\``);
       return;
     }
-    case 'table':
-      out.push(node.toString()); // raw HTML passthrough (10 tables in corpus)
+    case 'table': {
+      // Simple tables become markdown pipe tables so remark-math processes
+      // cell content ($V, E, F$ etc. — raw-HTML tables are invisible to the
+      // math pipeline; gate 1 caught 9 unrendered formulas in 4CT's symbol table).
+      const rows = node.querySelectorAll('tr');
+      const complex = node.querySelector('[rowspan], [colspan], table table') || rows.length === 0;
+      if (complex) {
+        console.warn('  WARN complex table kept as raw html');
+        out.push(node.toString());
+        return;
+      }
+      const cellMd = (c) => inlineMd(c, ctx).trim().replace(/\|/g, '\\|').replace(/\n+/g, ' ');
+      const lines = [];
+      rows.forEach((tr, ri) => {
+        const cells = tr.querySelectorAll('th, td').map(cellMd);
+        lines.push('| ' + cells.join(' | ') + ' |');
+        if (ri === 0) lines.push('|' + cells.map(() => ' --- ').join('|') + '|');
+      });
+      out.push(lines.join('\n'));
       return;
+    }
     case 'img':
       out.push(imgMd(node));
       return;
