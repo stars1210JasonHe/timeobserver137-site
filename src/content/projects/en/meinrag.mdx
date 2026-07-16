@@ -27,6 +27,10 @@ model call:
 - **Hybrid retrieval** — a query router in front of dense search, with a
   cross-encoder **reranking stage** (the measured win came from reranking, not
   from swapping embedding models);
+- **A relatedness graph over the corpus** — graph and mind-map views (per-document
+  and multi-document) that make inter-document relationships *visible*: you can see
+  which documents cluster around a topic and walk the neighbors, instead of only
+  querying the corpus blind;
 - **An MCP server layer** — agents consume `search` as a tool with auth and
   audit logging, which turned the pipeline from an app into infrastructure other
   systems build on;
