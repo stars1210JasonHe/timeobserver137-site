@@ -109,6 +109,6 @@
   }
  ],
  "aboutMigrated": true,
- "rssMigrated": false,
+ "rssMigrated": true,
  "imagesLocal": true
 }
