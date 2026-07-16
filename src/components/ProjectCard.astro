@@ -1,0 +1,29 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  tagline: string;
+  stack: string[];
+  featured?: boolean;
+}
+const { href, title, tagline, stack, featured = false } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    'block rounded-lg border p-6 transition-colors',
+    featured
+      ? 'border-accent-soft/50 bg-surface hover:border-accent-soft'
+      : 'border-line/70 bg-surface/40 hover:border-accent-soft/60 hover:bg-surface',
+  ]}
+>
+  <div class="flex items-baseline justify-between gap-4">
+    <h3 class="text-lg font-semibold text-chalk">{title}</h3>
+    {featured && <span class="shrink-0 rounded border border-gold/50 px-1.5 py-0.5 text-xs text-gold">featured</span>}
+  </div>
+  <p class="mt-2 text-sm leading-relaxed text-muted">{tagline}</p>
+  <p class="mt-4 flex flex-wrap gap-2">
+    {stack.slice(0, 6).map((s) => <span class="rounded bg-surface-2 px-2 py-0.5 text-xs text-faint">{s}</span>)}
+  </p>
+</a>

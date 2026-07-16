@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import ProjectCard from '../../../components/ProjectCard.astro';
+
+const projects = (await getCollection('projects', (e) => e.data.lang === 'zh')).sort(
+  (a, b) => Number(b.data.featured) - Number(a.data.featured) || a.data.order - b.data.order,
+);
+---
+
+<Base title="项目 — 贺冶秋" description="多智能体系统、检索管线与全栈作品。" lang="zh" altHref="/projects/">
+  <main class="mx-auto max-w-4xl px-6 py-12">
+    <h1 class="mb-2 text-3xl font-semibold text-chalk">项目</h1>
+    <p class="mb-8 text-sm text-muted">我构建并持续运行的系统 —— 智能体、检索，偶尔还有棋盘。</p>
+    <div class="grid gap-4 sm:grid-cols-2">
+      {projects.map((p) => (
+        <ProjectCard
+          href={`/zh/projects/${p.id.split('/').pop()!.replace(/\.mdx?$/, '')}/`}
+          title={p.data.title}
+          tagline={p.data.tagline}
+          stack={p.data.stack}
+          featured={p.data.featured}
+        />
+      ))}
+    </div>
+  </main>
+</Base>
