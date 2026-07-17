@@ -1,0 +1,77 @@
+---
+/**
+ * Subscribe — the Ghost portal's signup, rebuilt (2026-07-17 pre-cutover gate).
+ * Cover = the site cover (same asset Ghost's portal used); email lands in the
+ * SUBSCRIBERS KV via /api/subscribe. RSS offered as the zero-trust alternative.
+ */
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Subscribe — 时间观察者"
+  description="Subscribe to 时间观察者 — new essays straight to your inbox, or via RSS."
+  lang="en"
+  altHref="/zh/subscribe/"
+>
+  <main class="mx-auto max-w-xl px-6 py-16 text-center">
+    <img
+      src="/og/timeobserver-og-fixed.png"
+      alt="时间观察者"
+      class="no-zoom mx-auto w-full max-w-md rounded-lg border border-line"
+    />
+    <h1 class="mt-8 text-3xl font-semibold text-chalk">Subscribe</h1>
+    <p class="mt-3 leading-relaxed text-muted">
+      Get new essays the moment they publish — Symmetry &amp; the Monster, science-history longform, and the fleet behind the site.
+    </p>
+
+    <form id="subscribe-form" class="mx-auto mt-8 flex max-w-md gap-2" method="post" action="/api/subscribe">
+      <input
+        type="email"
+        name="email"
+        required
+        placeholder="you@example.com"
+        class="min-w-0 flex-1 rounded-md border border-line bg-surface px-4 py-2.5 text-ink placeholder:text-faint focus:border-accent-soft focus:outline-none"
+      />
+      <button
+        type="submit"
+        class="shrink-0 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-soft"
+      >
+        Subscribe
+      </button>
+    </form>
+    <p id="subscribe-msg" class="mt-4 hidden text-sm"></p>
+
+    <p class="mt-10 text-sm text-muted">
+      Prefer a reader? <a class="text-accent-soft underline underline-offset-2" href="/rss.xml">RSS</a> updates just as fast.
+    </p>
+  </main>
+</Base>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const form = document.getElementById('subscribe-form') as HTMLFormElement | null;
+    const msg = document.getElementById('subscribe-msg');
+    if (!form || !msg || form.dataset.wired) return;
+    form.dataset.wired = '1';
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.classList.remove('hidden');
+      msg.textContent = '……';
+      try {
+        const res = await fetch('/api/subscribe', { method: 'POST', body: new FormData(form) });
+        const data = await res.json();
+        if (data.ok) {
+          msg.textContent = 'Subscribed — welcome aboard.';
+          msg.className = 'mt-4 text-sm text-accent-soft';
+          form.reset();
+        } else {
+          msg.textContent = data.error === 'invalid email' ? 'That email looks off — take another look?' : 'Could not subscribe just now — try again later.';
+          msg.className = 'mt-4 text-sm text-gold';
+        }
+      } catch {
+        msg.textContent = 'Network hiccup — try again later.';
+        msg.className = 'mt-4 text-sm text-gold';
+      }
+    });
+  });
+</script>

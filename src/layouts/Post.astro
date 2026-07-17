@@ -142,8 +142,13 @@ const dateStr = date.toISOString().slice(0, 10);
 
 <script>
   import mediumZoom from 'medium-zoom';
-  mediumZoom('.article img:not(.no-zoom)', {
-    background: 'rgba(6, 8, 12, 0.94)',
-    margin: 24,
+  // astro:page-load (fires on initial load too, ClientRouter present) — a bare
+  // module call would leave zoom dead after any client-side navigation.
+  document.addEventListener('astro:page-load', () => {
+    if (!document.querySelector('.article')) return;
+    mediumZoom('.article img:not(.no-zoom)', {
+      background: 'rgba(6, 8, 12, 0.94)',
+      margin: 24,
+    });
   });
 </script>

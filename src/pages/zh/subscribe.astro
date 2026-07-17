@@ -1,0 +1,77 @@
+---
+/**
+ * Subscribe — the Ghost portal's signup, rebuilt (2026-07-17 pre-cutover gate).
+ * Cover = the site cover (same asset Ghost's portal used); email lands in the
+ * SUBSCRIBERS KV via /api/subscribe. RSS offered as the zero-trust alternative.
+ */
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  title="订阅 — 时间观察者"
+  description="订阅时间观察者：新文章第一时间送达你的邮箱，或用 RSS。"
+  lang="zh"
+  altHref="/subscribe/"
+>
+  <main class="mx-auto max-w-xl px-6 py-16 text-center">
+    <img
+      src="/og/timeobserver-og-fixed.png"
+      alt="时间观察者"
+      class="no-zoom mx-auto w-full max-w-md rounded-lg border border-line"
+    />
+    <h1 class="mt-8 text-3xl font-semibold text-chalk">订阅时间观察者</h1>
+    <p class="mt-3 leading-relaxed text-muted">
+      新文章发布时第一时间通知你 —— 对称与怪兽、科学史长文、以及一支 AI 舰队的幕后。
+    </p>
+
+    <form id="subscribe-form" class="mx-auto mt-8 flex max-w-md gap-2" method="post" action="/api/subscribe">
+      <input
+        type="email"
+        name="email"
+        required
+        placeholder="you@example.com"
+        class="min-w-0 flex-1 rounded-md border border-line bg-surface px-4 py-2.5 text-ink placeholder:text-faint focus:border-accent-soft focus:outline-none"
+      />
+      <button
+        type="submit"
+        class="shrink-0 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-soft"
+      >
+        订阅
+      </button>
+    </form>
+    <p id="subscribe-msg" class="mt-4 hidden text-sm"></p>
+
+    <p class="mt-10 text-sm text-muted">
+      更喜欢阅读器？<a class="text-accent-soft underline underline-offset-2" href="/rss.xml">RSS 订阅</a> 同样第一时间更新。
+    </p>
+  </main>
+</Base>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const form = document.getElementById('subscribe-form') as HTMLFormElement | null;
+    const msg = document.getElementById('subscribe-msg');
+    if (!form || !msg || form.dataset.wired) return;
+    form.dataset.wired = '1';
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.classList.remove('hidden');
+      msg.textContent = '……';
+      try {
+        const res = await fetch('/api/subscribe', { method: 'POST', body: new FormData(form) });
+        const data = await res.json();
+        if (data.ok) {
+          msg.textContent = '订阅成功 — 欢迎来到时间观察者。';
+          msg.className = 'mt-4 text-sm text-accent-soft';
+          form.reset();
+        } else {
+          msg.textContent = data.error === 'invalid email' ? '邮箱格式不对，再看一眼？' : '暂时没能订阅上，稍后再试。';
+          msg.className = 'mt-4 text-sm text-gold';
+        }
+      } catch {
+        msg.textContent = '网络开小差了，稍后再试。';
+        msg.className = 'mt-4 text-sm text-gold';
+      }
+    });
+  });
+</script>
