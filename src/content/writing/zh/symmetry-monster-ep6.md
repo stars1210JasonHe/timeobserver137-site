@@ -2,6 +2,8 @@
 title: "对称与怪兽（六）·潘多拉的魔盒"
 date: 2026-07-14
 lang: zh
+series: symmetry-monster
+seriesOrder: 6
 ghostSlug: symmetry-monster-ep6
 ---
 

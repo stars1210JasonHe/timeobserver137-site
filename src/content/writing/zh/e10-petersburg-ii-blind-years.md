@@ -15,6 +15,8 @@ tags:
   - quadratic-reciprocity
   - mersenne-primes
   - lagrange-points
+series: euler
+seriesOrder: 10
 ghostSlug: e10-petersburg-ii-blind-years
 ---
 

@@ -4,6 +4,8 @@ date: 2026-06-16
 lang: zh
 tags:
   - symmetry-monster
+series: symmetry-monster
+seriesOrder: 2
 ghostSlug: symmetry-monster-ep2
 ---
 

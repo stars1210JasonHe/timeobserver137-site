@@ -11,6 +11,8 @@ const writing = defineCollection({
     excerpt: z.string().optional(),
     cover: z.string().optional(),        // maps Ghost feature_image (4 posts have one)
     ghostSlug: z.string().optional(),    // original slug — drives redirects + parity
+    series: z.string().optional(),       // series id (see src/data/series.ts)
+    seriesOrder: z.number().optional(),  // episode number within the series
     draft: z.boolean().default(false),   // regression fixtures / WIP — rendered in dev, excluded from indexes+sitemap
   }),
 });

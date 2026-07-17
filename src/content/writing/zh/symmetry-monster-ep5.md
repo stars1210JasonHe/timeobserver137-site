@@ -2,6 +2,8 @@
 title: "对称与怪兽（五）：三十年，一万页，与一个没人读得完的证明"
 date: 2026-07-09
 lang: zh
+series: symmetry-monster
+seriesOrder: 5
 ghostSlug: symmetry-monster-ep5
 ---
 

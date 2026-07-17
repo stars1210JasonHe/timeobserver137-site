@@ -4,6 +4,8 @@ date: 2026-06-11
 lang: zh
 tags:
   - symmetry-monster
+series: symmetry-monster
+seriesOrder: 1
 ghostSlug: symmetry-monster-ep1
 ---
 

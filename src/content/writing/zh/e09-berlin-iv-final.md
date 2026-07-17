@@ -6,6 +6,8 @@ tags:
   - timeobserver137
   - math-companion
   - e09
+series: euler
+seriesOrder: 9
 ghostSlug: e09-berlin-iv-final
 ---
 

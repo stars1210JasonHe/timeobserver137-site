@@ -1,0 +1,41 @@
+---
+/**
+ * Series index — /zh/series/ (growth plan 2026-07-17: series are first-class;
+ * this page grows itself from the registry + frontmatter).
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import { SERIES } from '../../../data/series';
+
+const posts = await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft && e.data.series);
+const bySeries = new Map<string, typeof posts>();
+for (const p of posts) {
+  const arr = bySeries.get(p.data.series!) ?? [];
+  arr.push(p);
+  bySeries.set(p.data.series!, arr);
+}
+---
+
+<Base title="系列 — 时间观察者" description="成系列的科学史长文：对称与怪兽、欧拉、及更多。" lang="zh" altHref="/zh/writing/">
+  <main class="mx-auto max-w-3xl px-6 py-12">
+    <h1 class="text-3xl font-semibold text-chalk">系列</h1>
+    <p class="mt-2 text-muted">成体系的长文，按集连载。</p>
+    <div class="mt-8 grid gap-5 sm:grid-cols-2">
+      {
+        SERIES.map((s) => {
+          const eps = (bySeries.get(s.id) ?? []).sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
+          return (
+            <a href={`/zh/series/${s.id}/`} class="block rounded-lg border border-line/70 bg-surface/40 p-6 transition-colors hover:border-accent-soft/60 hover:bg-surface">
+              <div class="flex items-baseline justify-between gap-3">
+                <h2 class="text-xl font-semibold text-chalk">{s.title}</h2>
+                <span class:list={['shrink-0 rounded border px-1.5 py-0.5 text-xs', s.status === '连载中' ? 'border-accent-soft/60 text-accent-soft' : 'border-line text-muted']}>{s.status}</span>
+              </div>
+              <p class="mt-3 text-sm leading-relaxed text-muted">{s.description}</p>
+              <p class="mt-4 text-xs text-faint">{eps.length} 篇{s.note ? ' · ' + s.note : ''}</p>
+            </a>
+          );
+        })
+      }
+    </div>
+  </main>
+</Base>

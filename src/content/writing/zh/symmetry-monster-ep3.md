@@ -2,6 +2,8 @@
 title: "对称与怪兽（三）：不可分解的原子 · A₅"
 date: 2026-06-24
 lang: zh
+series: symmetry-monster
+seriesOrder: 3
 ghostSlug: symmetry-monster-ep3
 ---
 

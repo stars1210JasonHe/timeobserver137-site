@@ -52,3 +52,17 @@ Netlify builds `main` automatically. The build regenerates:
 After deploy: paste the URL into a Discord/Telegram message box — the preview
 must show title + excerpt + cover (or the timeobserver card). Programmatic:
 `curl -s <url> | grep 'og:image'`.
+
+## Series (added 2026-07-17)
+
+An episode of a series adds two frontmatter lines:
+
+```yaml
+series: symmetry-monster   # id from src/data/series.ts
+seriesOrder: 7
+```
+
+That alone updates: the series page's episode list, the 系列 index card
+count, the article's breadcrumb (第 N 篇 / 共 M 篇) and its 上一篇/下一篇
+navigation. A NEW series = one entry in `src/data/series.ts` (id, title,
+description, status) — nothing else.

@@ -2,6 +2,8 @@
 title: "对称与怪兽（四）：被当成间谍的数学家，与他接着伽罗瓦做的梦"
 date: 2026-06-29
 lang: zh
+series: symmetry-monster
+seriesOrder: 4
 ghostSlug: symmetry-monster-ep4
 ---
 
