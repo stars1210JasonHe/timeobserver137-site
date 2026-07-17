@@ -31,6 +31,24 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Cosmic stage (研究 §6.7: the void is a GRADIENT stage, not flat paint) —
+   three barely-there radial glows give the deep blue depth without stars:
+   a cool breath upper-left, a fainter warm one lower-right (the gold family
+   of the L-points), and an edge vignette that pools darkness in the corners. */
+body {
+  background-image:
+    radial-gradient(1100px 700px at 18% 8%, rgb(42 74 158 / 0.16), transparent 65%),
+    radial-gradient(900px 620px at 85% 88%, rgb(221 162 91 / 0.05), transparent 62%),
+    radial-gradient(140% 120% at 50% 45%, transparent 55%, rgb(3 6 16 / 0.55) 100%);
+  background-attachment: fixed;
+}
+html[data-theme='light'] body {
+  background-image:
+    radial-gradient(1100px 700px at 18% 8%, rgb(20 101 219 / 0.06), transparent 65%),
+    radial-gradient(140% 120% at 50% 45%, transparent 60%, rgb(180 170 150 / 0.18) 100%);
+  background-attachment: fixed;
+}
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
