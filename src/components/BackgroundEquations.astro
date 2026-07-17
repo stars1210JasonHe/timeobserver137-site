@@ -1,16 +1,28 @@
 ---
 /**
  * BackgroundEquations — the four equations as COSMIC background.
- * v3 (Yeqiu: 「没动，也看不太清」): SMIL-driven turbulence — Chrome does not
- * reliably repaint an HTML element when JS mutates its SVG filter's internals
- * (v2 verified the *attribute* changed, not the *pixels*; classic
- * measured-one-field-vouched-for-another). SMIL animation of feTurbulence /
- * feDisplacementMap is invalidated natively by the browser. Each equation
- * carries its own tiny <svg> so pauseAnimations() can freeze ONE equation on
- * hover. Visibility raised (opacity/glow/scale).
+ *
+ * v4 (Yeqiu 2026-07-17): each equation's click-burst enacts ITS OWN physics:
+ *   Noether   → a symmetry operation (full rotation) around an unmoving
+ *               conservation ring — the thing that stays fixed IS the point;
+ *   Path int. → sum over histories: ghost copies fan out along different
+ *               paths and interfere back into one;
+ *   Dirac     → pair creation: a colour-inverted anti-equation splits off,
+ *               returns, annihilates in a flash;
+ *   EFE       → spacetime quake + expanding gravitational-wave rings.
+ * Ambient motion stays SMIL-driven (Chrome repaint reliability, v3 lesson);
+ * hover still freezes a single equation (per-svg pauseAnimations).
+ *
+ * variant="ambient" (article pages): non-interactive, quieter, fixed — the
+ * cosmos sits behind long reads without inviting play (研究 §3.1: 长读面安静).
  */
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
+
+interface Props {
+  variant?: 'hero' | 'ambient';
+}
+const { variant = 'hero' } = Astro.props;
 
 const eqs = [
   { tex: String.raw`\frac{d}{dt}\!\left(\frac{\partial L}{\partial \dot q}\,\delta q\right)=0`, cls: 'eq-noether' },
@@ -18,14 +30,16 @@ const eqs = [
   { tex: String.raw`(i\gamma^\mu\partial_\mu-m)\,\psi=0`, cls: 'eq-dirac' },
   { tex: String.raw`G_{\mu\nu}+\Lambda g_{\mu\nu}=\frac{8\pi G}{c^4}T_{\mu\nu}`, cls: 'eq-efe' },
 ].map((e, i) => ({ ...e, i, html: katex.renderToString(e.tex, { throwOnError: false, output: 'html' }) }));
+
+const uid = variant; // ids must differ if both variants ever co-exist on a page
 ---
 
-<div class="bg-equations pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+<div class:list={['bg-equations', variant, 'pointer-events-none', variant === 'hero' ? 'absolute' : 'fixed', 'inset-0', 'overflow-hidden']} aria-hidden="true">
   {
     eqs.map((e) => (
       <div class:list={['bg-eq', e.cls]} data-eq={e.i}>
         <svg width="0" height="0" class="eq-filter-host" aria-hidden="true">
-          <filter id={`eq-warp-${e.i}`} x="-25%" y="-60%" width="150%" height="220%">
+          <filter id={`eq-warp-${uid}-${e.i}`} x="-25%" y="-60%" width="150%" height="220%">
             <feTurbulence type="fractalNoise" baseFrequency="0.014 0.026" numOctaves="2" seed={e.i * 7 + 1}>
               <animate
                 attributeName="baseFrequency"
@@ -40,77 +54,161 @@ const eqs = [
             </feDisplacementMap>
           </filter>
         </svg>
-        <span class="eq-text" style={`filter:url(#eq-warp-${e.i})`} set:html={e.html} />
+        <span class="eq-text" style={`filter:url(#eq-warp-${uid}-${e.i})`} set:html={e.html} />
       </div>
     ))
   }
 </div>
 
 <script>
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const wraps = [...document.querySelectorAll<HTMLElement>('.bg-eq')];
-  for (const el of wraps) {
-    const svg = el.querySelector('svg') as SVGSVGElement | null;
-    const text = el.querySelector<HTMLElement>('.eq-text');
-    if (!svg || !text) continue;
-    if (reduced) {
-      svg.pauseAnimations();
-      text.style.filter = 'none';
-      continue;
-    }
-    // hover freezes THIS equation only (2.2.2 stop mechanism, per-element)
-    el.addEventListener('pointerenter', () => svg.pauseAnimations());
-    el.addEventListener('pointerleave', () => svg.unpauseAnimations());
+  function initEquations() {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    for (const root of document.querySelectorAll<HTMLElement>('.bg-equations')) {
+      if (root.dataset.eqInit) continue;
+      root.dataset.eqInit = '1';
+      const interactive = root.classList.contains('hero');
+      const wraps = [...root.querySelectorAll<HTMLElement>('.bg-eq')];
 
-    // click = gravitational-wave burst: quake spike + expanding rings + flare
-    el.addEventListener('click', () => {
-      svg.unpauseAnimations(); // a quake needs live spacetime even mid-hover
-      (svg.querySelector('.eq-quake') as any)?.beginElement?.();
-      text.animate(
-        [
-          { filter: 'brightness(1)', opacity: 1 },
-          { filter: 'brightness(2.4)', opacity: 1, offset: 0.18 },
-          { filter: 'brightness(1)', opacity: 1 },
-        ],
-        { duration: 900, easing: 'ease-out' },
-      );
-      for (const delay of [0, 180]) {
-        const ring = document.createElement('span');
-        ring.className = 'eq-ring';
-        el.appendChild(ring);
-        ring
-          .animate(
-            [
-              { transform: 'translate(-50%,-50%) scale(0.15)', opacity: 0.55 },
-              { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 },
-            ],
-            { duration: 1100, delay, easing: 'cubic-bezier(0.2,0.6,0.3,1)', fill: 'forwards' },
-          )
-          .finished.then(() => ring.remove());
-      }
-    });
-  }
-  // park all shimmer while the hero is off-screen (WebKit perf guidance)
-  const hero = document.querySelector('.hero');
-  if (hero && !reduced) {
-    new IntersectionObserver(([e]) => {
       for (const el of wraps) {
         const svg = el.querySelector('svg') as SVGSVGElement | null;
-        if (!svg) continue;
-        e.isIntersecting ? svg.unpauseAnimations() : svg.pauseAnimations();
+        const text = el.querySelector<HTMLElement>('.eq-text');
+        if (!svg || !text) continue;
+        if (reduced) {
+          svg.pauseAnimations();
+          text.style.filter = 'none';
+          continue;
+        }
+        if (!interactive) continue;
+
+        el.addEventListener('pointerenter', () => svg.pauseAnimations());
+        el.addEventListener('pointerleave', () => svg.unpauseAnimations());
+        el.addEventListener('click', () => burst(Number(el.dataset.eq), el, svg, text));
       }
-    }).observe(hero);
+
+      // park shimmer while the host section is off-screen (WebKit guidance)
+      const anchorEl = interactive ? document.querySelector('.hero') : root;
+      if (anchorEl && !reduced) {
+        new IntersectionObserver(([e]) => {
+          for (const el of wraps) {
+            const svg = el.querySelector('svg') as SVGSVGElement | null;
+            svg && (e.isIntersecting ? svg.unpauseAnimations() : svg.pauseAnimations());
+          }
+        }).observe(anchorEl);
+      }
+    }
   }
+
+  function ring(el: HTMLElement, delay = 0, size = '34rem') {
+    const r = document.createElement('span');
+    r.className = 'eq-ring';
+    r.style.width = size;
+    r.style.height = size;
+    el.appendChild(r);
+    r.animate(
+      [
+        { transform: 'translate(-50%,-50%) scale(0.15)', opacity: 0.55 },
+        { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 },
+      ],
+      { duration: 1100, delay, easing: 'cubic-bezier(0.2,0.6,0.3,1)', fill: 'forwards' },
+    ).finished.then(() => r.remove());
+  }
+
+  function flare(text: HTMLElement, peak = 2.4, dur = 900) {
+    text.animate(
+      [{ filter: 'brightness(1)' }, { filter: `brightness(${peak})`, offset: 0.18 }, { filter: 'brightness(1)' }],
+      { duration: dur, easing: 'ease-out' },
+    );
+  }
+
+  function ghost(text: HTMLElement): HTMLElement {
+    const g = text.cloneNode(true) as HTMLElement;
+    g.style.position = 'absolute';
+    g.style.left = '0';
+    g.style.top = '0';
+    g.style.pointerEvents = 'none';
+    text.parentElement!.appendChild(g);
+    return g;
+  }
+
+  function burst(i: number, el: HTMLElement, svg: SVGSVGElement, text: HTMLElement) {
+    svg.unpauseAnimations();
+    if (i === 0) {
+      // NOETHER — perform the symmetry operation; the conservation ring holds still.
+      const r = document.createElement('span');
+      r.className = 'eq-ring eq-ring-conserved';
+      el.appendChild(r);
+      r.animate([{ opacity: 0 }, { opacity: 0.5, offset: 0.2 }, { opacity: 0.5, offset: 0.8 }, { opacity: 0 }], {
+        duration: 1400,
+        easing: 'ease-in-out',
+      }).finished.then(() => r.remove());
+      text.animate(
+        [
+          { transform: 'rotate(0deg) scale(1)' },
+          { transform: 'rotate(180deg) scale(0.92)', offset: 0.5 },
+          { transform: 'rotate(360deg) scale(1)' },
+        ],
+        { duration: 1300, easing: 'cubic-bezier(0.5,0,0.3,1)' },
+      );
+      flare(text, 1.8, 1300);
+    } else if (i === 1) {
+      // PATH INTEGRAL — every history contributes: ghosts fan out, interfere back.
+      const paths = [
+        { x: -70, y: -46, rot: -10 },
+        { x: 60, y: -60, rot: 8 },
+        { x: -50, y: 55, rot: 6 },
+        { x: 75, y: 40, rot: -7 },
+      ];
+      for (const pth of paths) {
+        const g = ghost(text);
+        g.animate(
+          [
+            { transform: 'translate(0,0) rotate(0deg)', opacity: 0.5 },
+            { transform: `translate(${pth.x}px,${pth.y}px) rotate(${pth.rot}deg)`, opacity: 0.28, offset: 0.45 },
+            { transform: 'translate(0,0) rotate(0deg)', opacity: 0 },
+          ],
+          { duration: 1250, easing: 'cubic-bezier(0.4,0,0.4,1)' },
+        ).finished.then(() => g.remove());
+      }
+      flare(text, 2.0, 1250);
+    } else if (i === 2) {
+      // DIRAC — pair creation: the anti-equation splits off, returns, annihilates.
+      const anti = ghost(text);
+      anti.style.filter = 'invert(1) hue-rotate(180deg)';
+      anti.animate(
+        [
+          { transform: 'translate(0,0) scaleX(1)', opacity: 0.7 },
+          { transform: 'translate(90px,-34px) scaleX(-1)', opacity: 0.55, offset: 0.45 },
+          { transform: 'translate(0,0) scaleX(-1)', opacity: 0.9, offset: 0.85 },
+          { transform: 'translate(0,0) scaleX(1)', opacity: 0 },
+        ],
+        { duration: 1200, easing: 'cubic-bezier(0.45,0,0.4,1)' },
+      ).finished.then(() => {
+        anti.remove();
+        flare(text, 3, 500); // annihilation flash
+        ring(el, 0, '16rem');
+      });
+    } else {
+      // EFE — spacetime quake + gravitational waves.
+      (svg.querySelector('.eq-quake') as any)?.beginElement?.();
+      flare(text);
+      ring(el, 0);
+      ring(el, 180);
+    }
+  }
+
+  document.addEventListener('astro:page-load', initEquations);
 </script>
 
 <style>
   .bg-eq {
     position: absolute;
     user-select: none;
-    pointer-events: auto; /* hover-to-freeze + click-burst need hit-testing */
-    cursor: pointer;
     animation: eq-emerge 1.8s ease forwards;
     opacity: 0;
+  }
+  .bg-equations.hero .bg-eq {
+    pointer-events: auto; /* hover-freeze + click-burst need hit-testing */
+    cursor: pointer;
   }
   :global(.eq-ring) {
     position: absolute;
@@ -126,6 +224,13 @@ const eqs = [
     pointer-events: none;
     transform: translate(-50%, -50%) scale(0.15);
     opacity: 0;
+  }
+  :global(.eq-ring-conserved) {
+    width: 15rem;
+    height: 15rem;
+    transform: translate(-50%, -50%);
+    border-color: color-mix(in srgb, var(--color-gold) 75%, transparent);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-gold) 40%, transparent);
   }
   .eq-text {
     display: inline-block;
@@ -149,6 +254,26 @@ const eqs = [
   @keyframes eq-emerge-light {
     to {
       opacity: 0.22;
+    }
+  }
+  /* ambient variant (article pages): quieter, further back */
+  .bg-equations.ambient {
+    z-index: -1;
+  }
+  .bg-equations.ambient .bg-eq {
+    animation-name: eq-emerge-ambient;
+  }
+  @keyframes eq-emerge-ambient {
+    to {
+      opacity: 0.13;
+    }
+  }
+  html[data-theme='light'] .bg-equations.ambient .bg-eq {
+    animation-name: eq-emerge-ambient-light;
+  }
+  @keyframes eq-emerge-ambient-light {
+    to {
+      opacity: 0.09;
     }
   }
   .eq-noether {
@@ -179,10 +304,19 @@ const eqs = [
     transform: rotate(-2deg);
     animation-delay: 1.55s;
   }
+  .bg-equations.ambient .eq-noether {
+    top: 12%;
+  }
+  .bg-equations.ambient .eq-dirac {
+    bottom: 12%;
+  }
   @media (prefers-reduced-motion: reduce) {
     .bg-eq {
       animation: none;
       opacity: 0.28;
+    }
+    .bg-equations.ambient .bg-eq {
+      opacity: 0.1;
     }
   }
   @media (max-width: 1024px) {

@@ -2,6 +2,7 @@
 import '../styles/tokens.css';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/noto-sans-sc';
+import { ClientRouter } from 'astro:transitions';
 import HeadMeta from '../components/HeadMeta.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -21,13 +22,19 @@ const { title, description, lang, altHref, ogImage } = Astro.props;
 <html lang={lang === 'zh' ? 'zh-CN' : 'en'}>
   <head>
     <HeadMeta {title} {description} {lang} {ogImage} path={Astro.url.pathname} />
+    <ClientRouter />
     <script is:inline>
       // Theme + JS flags before first paint (no FOUC). Stored choice wins;
       // otherwise the dark brand is the default on every surface.
       (() => {
-        const t = localStorage.getItem('theme');
-        if (t === 'light') document.documentElement.dataset.theme = 'light';
-        document.documentElement.classList.add('js');
+        const apply = () => {
+          const t = localStorage.getItem('theme');
+          if (t === 'light') document.documentElement.dataset.theme = 'light';
+          else delete document.documentElement.dataset.theme;
+          document.documentElement.classList.add('js');
+        };
+        apply();
+        document.addEventListener('astro:after-swap', apply);
       })();
     </script>
   </head>

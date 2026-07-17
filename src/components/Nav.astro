@@ -71,12 +71,13 @@ const current = Astro.url.pathname;
 </style>
 
 <script>
-  const hdr = document.querySelector('header');
-  const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 8);
-  onScroll();
-  addEventListener('scroll', onScroll, { passive: true });
+  function initNav() {
+    const hdr = document.querySelector('header');
+    const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 8);
+    onScroll();
+    addEventListener('scroll', onScroll, { passive: true });
 
-  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    document.getElementById('theme-toggle')?.addEventListener('click', () => {
     const el = document.documentElement;
     el.classList.add('theme-anim');
     const light = el.dataset.theme === 'light';
@@ -88,4 +89,8 @@ const current = Astro.url.pathname;
       localStorage.setItem('theme', 'light');
     }
   });
+  }
+  // astro:page-load fires on the initial load too (ClientRouter present) —
+  // a manual first call would double-bind the theme toggle.
+  document.addEventListener('astro:page-load', initNav);
 </script>

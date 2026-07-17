@@ -16,7 +16,12 @@
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  function initHome() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // every navigation replaces the DOM — old triggers point at dead nodes,
+    // so always kill and rebuild; no pathname guard (returning home must re-init).
+    ScrollTrigger.getAll().forEach((st) => st.kill());
+    if (!document.querySelector('.hero')) return;
     gsap.registerPlugin(ScrollTrigger);
 
     // --- phase 3: hero entrance — one brief stagger on load (<1s total) ---
@@ -87,4 +92,6 @@
       });
     }
   }
+
+  document.addEventListener('astro:page-load', initHome);
 </script>
