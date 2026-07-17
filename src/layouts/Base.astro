@@ -38,6 +38,39 @@ const { title, description, lang, altHref, ogImage } = Astro.props;
       })();
     </script>
   </head>
+  <script>
+    // Stardust transition overlay: particles slowly surface on click-nav,
+    // drift, and dissolve once the new page has condensed.
+    function stardust() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const layer = document.createElement('div');
+      layer.className = 'stardust-layer';
+      const gold = getComputedStyle(document.documentElement).getPropertyValue('--color-gold').trim() || '#dda25b';
+      for (let i = 0; i < 42; i++) {
+        const s = document.createElement('span');
+        const size = 1 + Math.random() * 2.6;
+        s.style.width = `${size}px`;
+        s.style.height = `${size}px`;
+        s.style.left = `${Math.random() * 100}%`;
+        s.style.top = `${Math.random() * 100}%`;
+        if (Math.random() < 0.18) s.style.setProperty('--sd-color', gold);
+        layer.appendChild(s);
+        s.animate(
+          [
+            { opacity: 0, transform: 'translateY(6px) scale(0.6)' },
+            { opacity: 0.9, transform: 'translateY(-4px) scale(1)', offset: 0.45 },
+            { opacity: 0, transform: `translateY(-${10 + Math.random() * 14}px) scale(0.7)` },
+          ],
+          { duration: 1000 + Math.random() * 500, delay: Math.random() * 320, easing: 'ease-in-out', fill: 'forwards' },
+        );
+      }
+      document.body.appendChild(layer);
+      setTimeout(() => layer.remove(), 2100);
+    }
+    // after-swap: the old body (and anything appended to it) is discarded at
+    // the swap — particles must live on the NEW body to be seen at all.
+    document.addEventListener('astro:after-swap', stardust);
+  </script>
   <body class="bg-bg font-sans text-ink antialiased">
     <Nav {lang} {altHref} />
     <slot />
