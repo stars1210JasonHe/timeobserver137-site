@@ -34,6 +34,27 @@ const eqs = [
     opacity: 0.07;
     white-space: nowrap;
     user-select: none;
+    /* write-on: each equation is "written" left-to-right once, then still —
+       construction semantics per the cosmos research (§6 效果矩阵: 描画, not
+       漂浮; declarative CSS so the browser can optimize it away off-screen;
+       whole sequence ends < 5s => 2.2.2-safe like the Lagrange draw). */
+    clip-path: inset(0 100% 0 0);
+    animation: eq-write 1.6s cubic-bezier(0.3, 0, 0.4, 1) forwards;
+  }
+  .eq-noether { animation-delay: 0.2s; }
+  .eq-dirac   { animation-delay: 0.9s; }
+  .eq-efe     { animation-delay: 1.6s; }
+  .eq-path    { animation-delay: 2.3s; }
+  @keyframes eq-write {
+    to {
+      clip-path: inset(0 -2% 0 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bg-eq {
+      animation: none;
+      clip-path: none;
+    }
   }
   html[data-theme='light'] .bg-eq {
     opacity: 0.06;
