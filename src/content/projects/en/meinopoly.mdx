@@ -1,30 +1,39 @@
 ---
-title: "Meinopoly — a moddable Monopoly-style game engine"
-tagline: "Not a game — an engine: every rule lives in a config file, ten AI-flavored characters, seasons and auctions, and a Game Boy Color skin. 278 unit tests say it actually works."
+title: "Meinopoly — turn any book into a playable world"
+tagline: "A moddable Monopoly-style strategy engine: one command and an AI pipeline reads a novel into characters, boards, portraits and balance-tuned rules; LLM agents even take real seats at the table over MCP. 1,489 unit tests + 45 E2E."
 lang: en
-role: "Builder"
-stack: ["JavaScript", "boardgame.io", "Jest (278 tests)", "Playwright E2E", "LLM characters"]
+role: "Design & implementation"
+stack: ["JavaScript", "boardgame.io", "LLM pipeline (extract/build/art/balance)", "MCP server", "Jest (1,489 tests)", "Playwright E2E"]
 links:
   github: "https://github.com/stars1210JasonHe/Meinoploy"
-featured: false
-order: 6
+featured: true
+order: 3
 ---
 
-A Monopoly-style engine built on boardgame.io where **the rules are data, not
-code**: prices, rent curves, victory conditions, even the board geometry (square,
-circle, hexagon, custom) live in a mod's config files. The shipped mod —
-*Dominion: Multi-dimensional World Property Council* — is a sci-fi table of ten
-characters, each with pixel-art portraits, six stats, passive abilities, and
-full backstories.
+The engine is constant — **worlds are mods**: characters, boards, art, rules,
+even victory conditions are data. Six worlds ship in the box, and a new one can
+be **generated from a book by AI, end to end**:
 
-Mechanics beyond the classic: a four-tier building system, a season cycle that
-moves prices and taxes every ten turns, property trading and round-robin
-auctions, mortgages with season-adjusted values, and three selectable victory
-conditions. Optional **LLM-powered characters** react to game events in
-persona.
+```
+npm run create-mod -- mybook.txt --from-book --portraits --boardbg --auto-balance
+```
 
-The engineering spine: **278 Jest unit tests + 18 Playwright E2E tests**
-covering the game mechanics — because a rules engine you can't trust is just a
-random-number generator with extra steps. 2–10 players, hot-seat or online.
-The whole thing wears a Game Boy Color aesthetic with three palettes and a CRT
-toggle, because engines are allowed to be fun.
+Four resumable stages: **extract** (map-reduce over the whole book — characters,
+places, factions) → **build** (six gameplay stats + a passive + personal lore
+per character; real places get real coordinates, fictional worlds get AI
+layouts) → **art** (pixel portraits for the whole cast + an era-styled board) →
+**balance** (a headless tournament simulator plays hundreds of games and
+hill-climbs the roster until no character is statistically over- or
+under-powered — it once caught a 67%-win-rate outlier before any player met
+it). Cost plans print before any API spend; a full novel runs about $0.5–1.
+
+Play grows past roll-and-buy: **rent duels** (challenge the landlord instead of
+paying — 2d6 + stamina + luck÷2), player trading and round-robin auctions,
+seasons that shift prices every ten turns, four building tiers, three victory
+modes. Three renderers: the classic ring, a **war-room atlas** with glowing
+routes and forked paths, and a **pixel globe** you play on.
+
+The favourite layer: an **MCP server that seats LLM agents as real players** —
+nine tools covering match lifecycle, seat-scoped state, legal-move listing
+(drift-oracle-tested against the engine), move execution and an event cursor.
+After `claude mcp add meinopoly`, Claude sees only its own seat — and plays.
