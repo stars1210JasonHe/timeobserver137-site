@@ -3,7 +3,7 @@ title: "对称与怪兽（一）：对称的语言，从五个立体说起"
 date: 2026-06-11
 lang: zh
 tags:
-  - 对称与怪兽
+  - symmetry-monster
 ghostSlug: symmetry-monster-ep1
 ---
 

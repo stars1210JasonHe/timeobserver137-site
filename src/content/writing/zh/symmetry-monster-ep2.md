@@ -3,7 +3,7 @@ title: "对称与怪兽（二）：决斗前夜——伽罗瓦与解不开的方
 date: 2026-06-16
 lang: zh
 tags:
-  - 对称与怪兽
+  - symmetry-monster
 ghostSlug: symmetry-monster-ep2
 ---
 

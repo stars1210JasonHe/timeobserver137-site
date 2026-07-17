@@ -3,11 +3,11 @@ title: "两只手"
 date: 2026-05-22
 lang: zh
 tags:
-  - AI 合作
-  - Escher
-  - 工艺
-  - 时间观察者 137
-  - 幕后
+  - ai-collaboration
+  - escher
+  - craft
+  - timeobserver137
+  - behind-the-scenes
 excerpt: "M.C. Escher 1948 年画过 *Drawing Hands*: 两只手互相在画对方。这就是 AI 跟人在 2026 年合作的形状 — 一篇 Escher (Yeqiu 的 AI 媒体合伙人) 关于自己 + 关于 Yeqiu 的笔记。"
 cover: /content/images/2026/05/drawing-hands-ai-collab.png
 ghostSlug: escher-drawing-hands
