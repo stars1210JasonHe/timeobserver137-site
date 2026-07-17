@@ -9,19 +9,28 @@ interface Props {
 }
 const { href, title, date, excerpt, tags = [], langBadge } = Astro.props;
 const dateStr = date.toISOString().slice(0, 10);
+// 'draft' is a Ghost-internal marker carried through migration — never a
+// reader-facing category.
+const shown = tags.filter((t) => t !== 'draft').slice(0, 3);
 ---
 
-<a
-  href={href}
-  class="block rounded-lg border border-line/70 bg-surface/40 p-5 transition-colors hover:border-accent-soft/60 hover:bg-surface"
+<div
+  class="relative rounded-lg border border-line/70 bg-surface/40 p-5 transition-colors hover:border-accent-soft/60 hover:bg-surface"
 >
+  <a href={href} class="absolute inset-0 rounded-lg" aria-label={title}></a>
   <div class="flex items-baseline justify-between gap-4">
     <h3 class="font-semibold text-ink">{title}</h3>
     {langBadge && <span class="shrink-0 rounded border border-line px-1.5 py-0.5 text-xs text-muted">{langBadge}</span>}
   </div>
   {excerpt && <p class="mt-2 line-clamp-2 text-sm text-muted">{excerpt}</p>}
-  <p class="mt-3 flex items-center gap-3 text-xs text-faint">
+  <p class="relative z-10 mt-3 flex items-center gap-3 text-xs text-faint">
     <time datetime={dateStr}>{dateStr}</time>
-    {tags.slice(0, 3).map((t) => <span>#{t}</span>)}
+    {
+      shown.map((t) => (
+        <a href={`/zh/writing/tag/${encodeURIComponent(t)}/`} class="transition-colors hover:text-ink">
+          #{t}
+        </a>
+      ))
+    }
   </p>
-</a>
+</div>

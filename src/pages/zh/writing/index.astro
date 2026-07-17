@@ -6,11 +6,22 @@ import WritingCard from '../../../components/WritingCard.astro';
 const posts = (await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
+// tag cloud — counts across all posts; 'draft' is Ghost-internal, never shown
+const tagCounts = new Map();
+for (const p of posts) for (const t of p.data.tags) if (t !== 'draft') tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
 ---
 
 <Base title="写作 — 时间观察者" description="科学史随笔：对称与怪兽、欧拉系列、及更多。" lang="zh" altHref="/writing/">
   <main class="mx-auto max-w-3xl px-6 py-12">
-    <h1 class="mb-8 text-3xl font-semibold text-chalk">写作</h1>
+    <h1 class="mb-4 text-3xl font-semibold text-chalk">写作</h1>
+    <p class="mb-8 flex flex-wrap gap-x-3 gap-y-1.5 text-sm">
+      {tags.map(([t, n]) => (
+        <a href={`/zh/writing/tag/${encodeURIComponent(t)}/`} class="text-muted transition-colors hover:text-ink">
+          #{t}<span class="text-faint ml-0.5">{n}</span>
+        </a>
+      ))}
+    </p>
     {posts.length === 0 && <p class="text-muted">文章迁移中 —— 完整存档暂在 <a class="text-accent-soft underline" href="https://timeobserver137.cyou">旧站</a>。</p>}
     <div class="grid gap-4">
       {posts.map((p) => (

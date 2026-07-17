@@ -11,6 +11,7 @@
  * can't read the zh essay; the label is what makes the star legible as earned).
  */
 import lagrangeSvg from '../assets/lagrange-hero.svg?raw';
+import BackgroundEquations from './BackgroundEquations.astro';
 
 interface Props {
   lang: 'en' | 'zh';
@@ -21,7 +22,8 @@ const zh = lang === 'zh';
 const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
 ---
 
-<section class="hero mx-auto grid min-h-[88vh] max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+<section class="hero relative mx-auto grid min-h-[88vh] max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+  <BackgroundEquations />
   <div class="max-w-xl">
     <p class="text-sm uppercase tracking-[0.25em] text-muted">时间观察者 · timeobserver137</p>
     <h1 class="mt-4 text-4xl font-semibold leading-tight text-chalk sm:text-5xl">

@@ -1,0 +1,52 @@
+---
+/**
+ * Tag archive — /zh/writing/tag/<tag>/ (Yeqiu 2026-07-17: 文章分类 tag).
+ * Tags come straight from post frontmatter (Ghost-migrated); 'draft' is a
+ * Ghost-internal marker and never gets a page.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../../../layouts/Base.astro';
+import WritingCard from '../../../../components/WritingCard.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft);
+  const tags = new Set(posts.flatMap((p) => p.data.tags).filter((t) => t !== 'draft'));
+  return [...tags].map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter((p) => p.data.tags.includes(tag))
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<Base
+  title={`#${tag} — 写作 — 时间观察者`}
+  description={`标签「${tag}」下的 ${posts.length} 篇文章。`}
+  lang="zh"
+  altHref="/writing/"
+>
+  <main class="mx-auto max-w-3xl px-6 py-12">
+    <p class="text-sm text-muted"><a href="/zh/writing/" class="hover:text-ink">写作</a> / 标签</p>
+    <h1 class="mt-2 text-3xl font-semibold text-chalk">#{tag}</h1>
+    <p class="mt-2 text-muted">{posts.length} 篇</p>
+    <div class="mt-8 space-y-4">
+      {
+        posts.map((e) => (
+          <WritingCard
+            href={`/zh/writing/${e.data.ghostSlug ?? e.id}/`}
+            title={e.data.title}
+            date={e.data.date}
+            excerpt={e.data.excerpt}
+            tags={e.data.tags}
+          />
+        ))
+      }
+    </div>
+  </main>
+</Base>

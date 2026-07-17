@@ -1,0 +1,74 @@
+---
+/**
+ * BackgroundEquations — the four equations as *background*, not content
+ * (Yeqiu 2026-07-17: 「4个方程我是需要你融入背景的，不是让你直接写文档里」).
+ *
+ * Four physics equations rendered build-time (KaTeX) and scattered through the
+ * hero void as faint chalk marks — part of the「虚空当场，他的数学当星」stage,
+ * not a document section. No captions, no series links, aria-hidden.
+ * The scroll narrative (HomeMotion) drifts them at different speeds for depth.
+ */
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+
+const eqs = [
+  // Noether
+  { tex: String.raw`\frac{d}{dt}\!\left(\frac{\partial L}{\partial \dot q}\,\delta q\right)=0`, cls: 'eq-noether' },
+  // Path integral
+  { tex: String.raw`\langle x_f|e^{-iHt/\hbar}|x_i\rangle=\int\!\mathcal{D}[x(t)]\,e^{iS[x]/\hbar}`, cls: 'eq-path' },
+  // Dirac
+  { tex: String.raw`(i\gamma^\mu\partial_\mu-m)\,\psi=0`, cls: 'eq-dirac' },
+  // Einstein field equations
+  { tex: String.raw`G_{\mu\nu}+\Lambda g_{\mu\nu}=\frac{8\pi G}{c^4}T_{\mu\nu}`, cls: 'eq-efe' },
+].map((e) => ({ ...e, html: katex.renderToString(e.tex, { throwOnError: false, output: 'html' }) }));
+---
+
+<div class="bg-equations pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+  {eqs.map((e) => <div class:list={['bg-eq', e.cls]} set:html={e.html} data-depth />)}
+</div>
+
+<style>
+  .bg-eq {
+    position: absolute;
+    color: var(--color-chalk);
+    opacity: 0.07;
+    white-space: nowrap;
+    user-select: none;
+  }
+  html[data-theme='light'] .bg-eq {
+    opacity: 0.06;
+  }
+  .eq-noether {
+    top: 6%;
+    left: 3%;
+    font-size: 1.15rem;
+    transform: rotate(-4deg);
+  }
+  .eq-path {
+    bottom: 10%;
+    right: 2%;
+    font-size: 1.3rem;
+    transform: rotate(2.5deg);
+  }
+  .eq-dirac {
+    bottom: 22%;
+    left: 8%;
+    font-size: 1.05rem;
+    transform: rotate(3deg);
+  }
+  .eq-efe {
+    top: 12%;
+    right: 6%;
+    font-size: 1.2rem;
+    transform: rotate(-2deg);
+  }
+  @media (max-width: 1024px) {
+    .eq-path,
+    .eq-efe {
+      display: none; /* keep the void airy on small screens */
+    }
+    .bg-eq {
+      font-size: 0.95rem;
+    }
+  }
+</style>
