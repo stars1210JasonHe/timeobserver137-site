@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import WritingCard from '../../../components/WritingCard.astro';
+import { tagLabel } from '../../../data/tagLabels';
 
 const posts = (await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
@@ -21,7 +22,7 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
     <p class="mb-8 flex flex-wrap gap-x-3 gap-y-1.5 text-sm">
       {tags.map(([t, n]) => (
         <a href={`/zh/writing/tag/${encodeURIComponent(t)}/`} class="text-muted transition-colors hover:text-ink">
-          #{t}<span class="text-faint ml-0.5">{n}</span>
+          #{tagLabel(t)}<span class="text-faint ml-0.5">{n}</span>
         </a>
       ))}
     </p>

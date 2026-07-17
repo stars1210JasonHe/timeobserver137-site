@@ -8,6 +8,7 @@ interface Props {
   cover?: string;
   langBadge?: string; // e.g. "中文" on the EN index
 }
+import { tagLabel } from '../data/tagLabels';
 const { href, title, date, excerpt, tags = [], cover, langBadge } = Astro.props;
 const dateStr = date.toISOString().slice(0, 10);
 // 'draft' is a Ghost-internal marker carried through migration — never a
@@ -30,7 +31,7 @@ const shown = tags.filter((t) => t !== 'draft').slice(0, 3);
     {
       shown.map((t) => (
         <a href={`/zh/writing/tag/${encodeURIComponent(t)}/`} class="transition-colors hover:text-ink">
-          #{t}
+          #{tagLabel(t)}
         </a>
       ))
     }
