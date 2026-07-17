@@ -71,6 +71,11 @@ const current = Astro.url.pathname;
 </style>
 
 <script>
+  const hdr = document.querySelector('header');
+  const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll();
+  addEventListener('scroll', onScroll, { passive: true });
+
   document.getElementById('theme-toggle')?.addEventListener('click', () => {
     const el = document.documentElement;
     el.classList.add('theme-anim');
