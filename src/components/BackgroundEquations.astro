@@ -80,8 +80,10 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
         }
         if (!interactive) continue;
 
-        el.addEventListener('pointerenter', () => svg.pauseAnimations());
-        el.addEventListener('pointerleave', () => svg.unpauseAnimations());
+        // hover keeps the shimmer running and warms it up (Yeqiu 2026-07-17:
+        // 悬停让动画继续 — the freeze is gone; reduced-motion remains the stop).
+        el.addEventListener('pointerenter', () => el.classList.add('eq-hot'));
+        el.addEventListener('pointerleave', () => el.classList.remove('eq-hot'));
         el.addEventListener('click', () => burst(Number(el.dataset.eq), el, svg, text));
       }
 
@@ -207,8 +209,17 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
     opacity: 0;
   }
   .bg-equations.hero .bg-eq {
-    pointer-events: auto; /* hover-freeze + click-burst need hit-testing */
+    pointer-events: auto; /* hover-glow + click-burst need hit-testing */
     cursor: pointer;
+    transition: opacity 0.35s ease;
+  }
+  .bg-equations.hero .bg-eq.eq-hot {
+    opacity: 0.55 !important;
+  }
+  .bg-eq.eq-hot .eq-text {
+    text-shadow:
+      0 0 26px color-mix(in srgb, var(--color-accent) 90%, transparent),
+      0 0 6px rgba(230, 238, 255, 0.9);
   }
   :global(.eq-ring) {
     position: absolute;

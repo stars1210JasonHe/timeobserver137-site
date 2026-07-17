@@ -34,3 +34,17 @@ const seriesUrl = 'https://timeobserver137.cyou/symmetry-monster-ep6/';
     )}
   </p>
 </section>
+
+<style>
+  /* the 54 digits keep a slow starlight breath (text-shadow/opacity family) */
+  .monument {
+    animation: mon-breathe 7s ease-in-out infinite;
+  }
+  @keyframes mon-breathe {
+    0%, 100% { text-shadow: 0 0 0 transparent; }
+    50% { text-shadow: 0 0 22px color-mix(in srgb, var(--color-accent) 35%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .monument { animation: none; }
+  }
+</style>

@@ -93,6 +93,17 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
       opacity: 1;
     }
   }
+  /* after the construction settles, the system LIVES: L-points breathe
+     (opacity-only — outside WCAG 2.2.2's motion definition) */
+  .lagrange :global(.lpoints) {
+    animation:
+      appear 0.7s ease 3.7s forwards,
+      lp-breathe 5.5s ease-in-out 6s infinite;
+  }
+  @keyframes lp-breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
   @media (prefers-reduced-motion: reduce) {
     .lagrange :global(.contours path),
     .lagrange :global(.sun),
@@ -104,3 +115,43 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     }
   }
 </style>
+
+<script>
+  // Test particle coasting along an equipotential (Yeqiu 2026-07-17: 进站动画
+  // 多一点). SMIL animateMotion — browser-invalidated, the v3 lesson. Enters
+  // after the draw-on finishes: construction first, then the system lives.
+  document.addEventListener('astro:page-load', () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const svg = document.querySelector<SVGSVGElement>('.lagrange svg');
+    if (!svg || svg.querySelector('.orbiter')) return;
+    const paths = [...svg.querySelectorAll<SVGPathElement>('.contours path')];
+    if (!paths.length) return;
+    const sorted = paths
+      .map((el) => ({ el, len: el.getTotalLength() }))
+      .sort((a, b) => a.len - b.len);
+    const orbit = sorted[Math.floor(sorted.length * 0.45)].el; // a mid ring
+    orbit.id = 'orbit-path';
+    const NS = 'http://www.w3.org/2000/svg';
+    const dot = document.createElementNS(NS, 'circle');
+    dot.setAttribute('r', '2.4');
+    dot.setAttribute('fill', '#dda25b');
+    dot.setAttribute('class', 'orbiter');
+    dot.setAttribute('opacity', '0');
+    const fade = document.createElementNS(NS, 'animate');
+    fade.setAttribute('attributeName', 'opacity');
+    fade.setAttribute('values', '0;0.9');
+    fade.setAttribute('dur', '1.2s');
+    fade.setAttribute('begin', '5s');
+    fade.setAttribute('fill', 'freeze');
+    const motion = document.createElementNS(NS, 'animateMotion');
+    motion.setAttribute('dur', '30s');
+    motion.setAttribute('repeatCount', 'indefinite');
+    motion.setAttribute('rotate', '0');
+    const mpath = document.createElementNS(NS, 'mpath');
+    mpath.setAttribute('href', '#orbit-path');
+    motion.appendChild(mpath);
+    dot.appendChild(fade);
+    dot.appendChild(motion);
+    svg.appendChild(dot);
+  });
+</script>
