@@ -1,92 +1,157 @@
 ---
 /**
- * BackgroundEquations — the four equations as *background*, not content
- * (Yeqiu 2026-07-17: 「4个方程我是需要你融入背景的，不是让你直接写文档里」).
+ * BackgroundEquations — the four equations as COSMIC background (Yeqiu
+ * 2026-07-17 v2: 「不需要粉笔，需要宇宙背景；以动态扭曲的文字展现，鼠标移上去
+ * 停止动态」).
  *
- * Four physics equations rendered build-time (KaTeX) and scattered through the
- * hero void as faint chalk marks — part of the「虚空当场，他的数学当星」stage,
- * not a document section. No captions, no series links, aria-hidden.
- * The scroll narrative (HomeMotion) drifts them at different speeds for depth.
+ * Rendering: build-time KaTeX, starlight styling (cool glow, not chalk).
+ * Motion: each equation shimmers under its own feTurbulence+feDisplacementMap
+ * filter — spacetime-distortion semantics; hovering an equation FREEZES it
+ * (per-equation pause = the 2.2.2 stop mechanism, plus prefers-reduced-motion
+ * disables all of it). rAF derives dt from timestamps (never assumes 16.67ms)
+ * and the whole loop parks when the hero leaves the viewport / tab hides —
+ * both straight from the cosmos-research §4.7 performance sources.
  */
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
 const eqs = [
-  // Noether
   { tex: String.raw`\frac{d}{dt}\!\left(\frac{\partial L}{\partial \dot q}\,\delta q\right)=0`, cls: 'eq-noether' },
-  // Path integral
   { tex: String.raw`\langle x_f|e^{-iHt/\hbar}|x_i\rangle=\int\!\mathcal{D}[x(t)]\,e^{iS[x]/\hbar}`, cls: 'eq-path' },
-  // Dirac
   { tex: String.raw`(i\gamma^\mu\partial_\mu-m)\,\psi=0`, cls: 'eq-dirac' },
-  // Einstein field equations
   { tex: String.raw`G_{\mu\nu}+\Lambda g_{\mu\nu}=\frac{8\pi G}{c^4}T_{\mu\nu}`, cls: 'eq-efe' },
-].map((e) => ({ ...e, html: katex.renderToString(e.tex, { throwOnError: false, output: 'html' }) }));
+].map((e, i) => ({ ...e, i, html: katex.renderToString(e.tex, { throwOnError: false, output: 'html' }) }));
 ---
 
 <div class="bg-equations pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-  {eqs.map((e) => <div class:list={['bg-eq', e.cls]} set:html={e.html} data-depth />)}
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    {
+      eqs.map((e) => (
+        <filter id={`eq-warp-${e.i}`} x="-20%" y="-40%" width="140%" height="180%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.024" numOctaves="2" seed={e.i * 7 + 1} result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      ))
+    }
+  </svg>
+  {
+    eqs.map((e) => (
+      <div class:list={['bg-eq', e.cls]} style={`filter:url(#eq-warp-${e.i})`} data-eq={e.i} set:html={e.html} />
+    ))
+  }
 </div>
+
+<script>
+  // Spacetime shimmer: slowly morph each filter's turbulence; hover freezes
+  // that equation; loop parks off-viewport and under reduced-motion.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const filters = [...document.querySelectorAll('.bg-equations filter feTurbulence')] as SVGFETurbulenceElement[];
+    const eqEls = [...document.querySelectorAll<HTMLElement>('.bg-eq')];
+    const paused = new Array(filters.length).fill(false);
+    eqEls.forEach((el) => {
+      const i = Number(el.dataset.eq);
+      el.addEventListener('pointerenter', () => (paused[i] = true));
+      el.addEventListener('pointerleave', () => (paused[i] = false));
+    });
+
+    let inView = true;
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+      new IntersectionObserver(([e]) => (inView = e.isIntersecting)).observe(heroSection);
+    }
+
+    let t = 0;
+    let last: number | null = null;
+    let rafId = 0;
+    const tick = (now: number) => {
+      const dt = last === null ? 0 : (now - last) / 1000; // real elapsed, never assume 16.67ms
+      last = now;
+      if (inView) {
+        t += dt;
+        filters.forEach((f, i) => {
+          if (paused[i]) return;
+          const bx = 0.012 + 0.006 * Math.sin(t * 0.35 + i * 1.7);
+          const by = 0.024 + 0.01 * Math.sin(t * 0.27 + i * 2.3);
+          f.setAttribute('baseFrequency', `${bx.toFixed(4)} ${by.toFixed(4)}`);
+        });
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+  }
+</script>
 
 <style>
   .bg-eq {
     position: absolute;
-    color: var(--color-chalk);
-    opacity: 0.07;
+    /* starlight, not chalk: cool glow pulled from the accent family */
+    color: color-mix(in srgb, var(--color-accent-soft) 45%, #dfe9ff);
+    opacity: 0.16;
+    text-shadow:
+      0 0 14px color-mix(in srgb, var(--color-accent) 55%, transparent),
+      0 0 3px rgba(223, 233, 255, 0.55);
     white-space: nowrap;
     user-select: none;
-    /* write-on: each equation is "written" left-to-right once, then still —
-       construction semantics per the cosmos research (§6 效果矩阵: 描画, not
-       漂浮; declarative CSS so the browser can optimize it away off-screen;
-       whole sequence ends < 5s => 2.2.2-safe like the Lagrange draw). */
-    clip-path: inset(0 100% 0 0);
-    animation: eq-write 1.6s cubic-bezier(0.3, 0, 0.4, 1) forwards;
+    pointer-events: auto; /* hover-to-freeze needs hit-testing */
+    animation: eq-emerge 2s ease forwards;
+    opacity: 0;
   }
-  .eq-noether { animation-delay: 0.2s; }
-  .eq-dirac   { animation-delay: 0.9s; }
-  .eq-efe     { animation-delay: 1.6s; }
-  .eq-path    { animation-delay: 2.3s; }
-  @keyframes eq-write {
+  html[data-theme='light'] .bg-eq {
+    color: color-mix(in srgb, var(--color-accent) 60%, #1c2440);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+  @keyframes eq-emerge {
     to {
-      clip-path: inset(0 -2% 0 0);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .bg-eq {
-      animation: none;
-      clip-path: none;
+      opacity: 0.16;
     }
   }
   html[data-theme='light'] .bg-eq {
-    opacity: 0.06;
+    animation-name: eq-emerge-light;
+  }
+  @keyframes eq-emerge-light {
+    to {
+      opacity: 0.12;
+    }
   }
   .eq-noether {
     top: 6%;
     left: 3%;
     font-size: 1.15rem;
     transform: rotate(-4deg);
+    animation-delay: 0.2s;
   }
   .eq-path {
     bottom: 10%;
     right: 2%;
     font-size: 1.3rem;
     transform: rotate(2.5deg);
+    animation-delay: 1.1s;
   }
   .eq-dirac {
     bottom: 22%;
     left: 8%;
     font-size: 1.05rem;
     transform: rotate(3deg);
+    animation-delay: 0.65s;
   }
   .eq-efe {
     top: 12%;
     right: 6%;
     font-size: 1.2rem;
     transform: rotate(-2deg);
+    animation-delay: 1.55s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bg-eq {
+      animation: none;
+      opacity: 0.14;
+      filter: none !important;
+    }
   }
   @media (max-width: 1024px) {
     .eq-path,
     .eq-efe {
-      display: none; /* keep the void airy on small screens */
+      display: none;
     }
     .bg-eq {
       font-size: 0.95rem;
