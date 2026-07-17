@@ -177,6 +177,10 @@ const dateStr = date.toISOString().slice(0, 10);
     border-top: 1px solid var(--color-line);
     margin-block: 2em;
   }
+  /* smooth hand-off when the lightbox pauses/fades the ambient layer */
+  :global(.bg-equations) {
+    transition: opacity 0.25s ease;
+  }
 </style>
 
 <script>
@@ -187,9 +191,27 @@ const dateStr = date.toISOString().slice(0, 10);
     const article = document.querySelector<HTMLElement>('.article');
     if (!article || article.dataset.zoomWired) return;
     article.dataset.zoomWired = '1';
-    mediumZoom('.article img:not(.no-zoom)', {
+    const zoom = mediumZoom('.article img:not(.no-zoom)', {
       background: 'rgba(6, 8, 12, 0.94)',
       margin: 24,
+    });
+    // the ambient equation layer runs SVG turbulence filters continuously —
+    // heavy enough to steal frames from the zoom transition on slower
+    // machines. Pause it (and fade it) while the lightbox is up.
+    const ambient = () => [...document.querySelectorAll<SVGSVGElement>('.bg-equations svg')];
+    zoom.on('open', () => {
+      ambient().forEach((s) => {
+        s.pauseAnimations?.();
+        const layer = s.closest<HTMLElement>('.bg-equations');
+        if (layer) layer.style.opacity = '0';
+      });
+    });
+    zoom.on('closed', () => {
+      ambient().forEach((s) => {
+        s.unpauseAnimations?.();
+        const layer = s.closest<HTMLElement>('.bg-equations');
+        if (layer) layer.style.opacity = '';
+      });
     });
   };
   // register for future swaps AND run now — if this script was swapped in

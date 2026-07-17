@@ -154,18 +154,18 @@ const zh = lang === 'zh';
       return q;
     })();
 
-    type Level = { pat: Pat; ops: string[]; word?: string; target?: Pat; showPar?: boolean };
+    type Level = { name: string; en: string; pat: Pat; ops: string[]; word?: string; target?: Pat; showPar?: boolean };
     const LEVELS: Level[] = [
-      { pat: P1, word: 'r', ops: ['r', 'l', 'h', 'v'], showPar: true },
-      { pat: P1, word: 'h', ops: ['r', 'l', 'h', 'v'], showPar: true },
-      { pat: P1, word: 'rr', ops: ['r', 'l', 'h', 'v'], showPar: true },
-      { pat: P2, word: 'rh', ops: ['r', 'l', 'h', 'v'], showPar: true },
-      { pat: P2, word: 'h', ops: ['r', 'l'] },          // chirality: rotations never mirror
-      { pat: P2, word: 'l', ops: ['r', 'h'] },          // par 3: rrr or hrh
-      { pat: P3, word: 'rhr', ops: ['r', 'h'] },        // par 3
-      { pat: P3, target: T_ALTERED, ops: ['r', 'l', 'h', 'v'] }, // invariant: repainted cell
-      { pat: P1, word: 'h', ops: ['l', 'v'] },          // par 3 with odd generators
-      { pat: P3, word: 'rh', ops: ['r', 'l'] },         // finale chirality on the busiest tile
+      { name: '转一下', en: 'One turn', pat: P1, word: 'r', ops: ['r', 'l', 'h', 'v'], showPar: true },
+      { name: '照镜子', en: 'Mirror', pat: P1, word: 'h', ops: ['r', 'l', 'h', 'v'], showPar: true },
+      { name: '转半圈', en: 'Half turn', pat: P1, word: 'rr', ops: ['r', 'l', 'h', 'v'], showPar: true },
+      { name: '斜着照', en: 'Diagonal', pat: P2, word: 'rh', ops: ['r', 'l', 'h', 'v'], showPar: true },
+      { name: '镜中世界', en: 'Mirror world', pat: P2, word: 'h', ops: ['r', 'l'] },   // chirality: rotations never mirror
+      { name: '绕远路', en: 'The long way', pat: P2, word: 'l', ops: ['r', 'h'] },     // par 3: rrr or hrh
+      { name: '三步一镜', en: 'Three for one', pat: P3, word: 'rhr', ops: ['r', 'h'] }, // par 3
+      { name: '冒牌货', en: 'The impostor', pat: P3, target: T_ALTERED, ops: ['r', 'l', 'h', 'v'] }, // invariant: repainted cell
+      { name: '别扭的工具', en: 'Odd tools', pat: P1, word: 'h', ops: ['l', 'v'] },    // par 3 with odd generators
+      { name: '左手与右手', en: 'Left hand, right hand', pat: P3, word: 'rh', ops: ['r', 'l'] }, // finale chirality
     ];
     const goalOf = (l: Level) => l.target ?? apply(l.pat, l.word!);
 
@@ -245,10 +245,10 @@ const zh = lang === 'zh';
     const renderLevelDots = () => {
       levelsEl.innerHTML = '';
       const done = store.read().done;
-      LEVELS.forEach((_, i) => {
+      LEVELS.forEach((l, i) => {
         const b = document.createElement('button');
         b.className = 'os-lvl';
-        b.textContent = String(i + 1);
+        b.textContent = `${i + 1}. ${zh ? l.name : l.en}`;
         b.classList.toggle('active', i === cur);
         b.classList.toggle('done', done.includes(i));
         b.addEventListener('click', () => { cur = i; setup(); });

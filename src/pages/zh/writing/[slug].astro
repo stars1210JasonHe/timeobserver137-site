@@ -5,7 +5,9 @@ import { seriesById } from '../../../data/series';
 import { postSlug } from '../../../data/slug';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('writing', (e) => e.data.lang === 'zh');
+  // drafts render in dev for preview but are NOT built in production — a
+  // built draft page would be publicly reachable and leak into the sitemap
+  const posts = await getCollection('writing', (e) => e.data.lang === 'zh' && (import.meta.env.DEV || !e.data.draft));
   return posts.map((entry) => ({
     params: { slug: postSlug(entry) },
     props: { entry, all: posts },

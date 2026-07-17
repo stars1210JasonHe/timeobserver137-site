@@ -32,30 +32,36 @@ const skills: [string, string][] = [
 
     <h2 class="mt-10 text-lg font-semibold text-chalk">Summary</h2>
     <p class="mt-3 leading-relaxed text-muted">
-      I design, ship and operate production LLM systems end-to-end — multi-agent orchestration,
-      retrieval-augmented generation and Model Context Protocol — owning the full lifecycle from
-      architecture through deployment to live operation on self-hosted infrastructure. I grew into
-      AI engineering from 5+ years shipping enterprise process automation (70–90% manual-processing
-      reduction across 30+ enterprise systems), then rebuilt that same systems-engineering and
-      evaluation discipline around LLMs.
+      I spent five years building process automation for enterprise IT — unglamorous work that
+      taught me how production systems actually live: they ship, they break, someone has to notice,
+      and someone has to fix them. When LLMs arrived I was too curious to watch from the side, so I
+      learned the way I always have — by building real things and running them myself: a small
+      fleet of agents on a Raspberry Pi that helps organize my day, a retrieval system a working
+      lawyer relies on, this site. Most of what I know about agentic systems and RAG comes from
+      operating these for months and studying how they fail — not from any course.
     </p>
 
     <h2 class="mt-10 text-lg font-semibold text-chalk">Selected work</h2>
     <ul class="mt-3 space-y-3 leading-relaxed text-muted">
       <li>
         <a class="text-accent-soft underline underline-offset-2" href="/projects/openclaw-fleet/">OpenClaw</a>
-        — a fleet of 8 specialised agents in continuous production: custom inter-agent bus protocol,
-        persistent anchor-based memory with hybrid semantic retrieval, multi-provider LLM routing with fallback.
+        — eight agents I run at home, built largely to find out what breaks when agents must
+        remember and cooperate over months. They handle my daily briefings, my publishing flow, and
+        much of this site's upkeep. The memory architecture and inter-agent protocol are mine; the
+        lessons were mostly taught by the failures.
       </li>
       <li>
         <a class="text-accent-soft underline underline-offset-2" href="/projects/meinrag/">Meinrag</a>
-        — multimodal RAG platform serving a 3,300+ document legal corpus in production: hybrid retrieval
-        (BM25 + dense, RRF) with LLM re-ranking and PDF bounding-box citations — every claim traceable to source.
+        — a RAG system a practicing lawyer uses daily over a 3,300-document corpus. The part I care
+        most about is not the retrieval stack but a principle: every answer must cite its source,
+        down to the exact box on the PDF page — a system someone relies on professionally should
+        show its work.
       </li>
       <li>
-        <a class="text-accent-soft underline underline-offset-2" href="/projects/">Five more open-source builds</a>
-        — music discovery, game platforms, language tools — each documented on the
-        <a class="text-accent-soft underline underline-offset-2" href="/writing/">technical blog</a> and YouTube.
+        <a class="text-accent-soft underline underline-offset-2" href="/projects/">Five smaller builds</a>
+        — music discovery, board-game engines, language tools — each one an excuse to understand
+        something; documented on the
+        <a class="text-accent-soft underline underline-offset-2" href="/writing/">blog</a> and YouTube.
       </li>
     </ul>
 
@@ -72,7 +78,14 @@ const skills: [string, string][] = [
     <h2 class="mt-10 text-lg font-semibold text-chalk">Languages</h2>
     <p class="mt-3 text-muted">English (full professional proficiency) · Mandarin Chinese (native) · German (basic)</p>
 
-    <p class="mt-10 rounded-md border border-line bg-surface/50 p-4 text-sm leading-relaxed text-muted">
+    <p class="mt-10 leading-relaxed text-muted">
+      <em class="text-ink">In place of a cover letter:</em> I treat AI as a tool for curiosity, not
+      a substitute for thinking. Most of what is on this site exists because I wanted to understand
+      something, and building is how I read. I am aware of how much I don't know yet — the projects
+      above are my way of finding out.
+    </p>
+
+    <p class="mt-8 rounded-md border border-line bg-surface/50 p-4 text-sm leading-relaxed text-muted">
       The full résumé — contact details, work rights and availability — goes out privately per
       application. Reach me via
       <a class="text-accent-soft underline underline-offset-2" href="https://github.com/stars1210JasonHe">GitHub</a>.

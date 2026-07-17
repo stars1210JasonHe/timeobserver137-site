@@ -50,8 +50,13 @@ Netlify builds `main` automatically. The build regenerates:
 - **Tags: English only**, kebab-case (`fleet-philosophy`, not `fleet 哲学`).
   Existing taxonomy: see the tag cloud on `/zh/writing/`. `draft` is reserved
   (Ghost-internal, hidden everywhere).
-- `draft: true` in frontmatter = renders in dev, excluded from index/RSS/
-  sitemap/tag pages.
+- `draft: true` in frontmatter — **tested 2026-07-17, all five surfaces**:
+  in production builds the page is not built at all (no URL, not in RSS,
+  not in sitemap, not on the writing index, not on the homepage). Preview
+  locally with `npx astro dev` → `/zh/writing/<slug>/`. If dev 404s a
+  draft you just added, delete the `.astro/` cache dir and restart dev —
+  a stale content-layer cache from a previous build hides new entries.
+  Publish = delete the `draft: true` line, commit, deploy.
 - `ghostSlug` is for migrated legacy posts only — never set it on new posts.
 - Anchor rule for headings inside the body: normal Markdown, no restrictions
   (the `[TYPE:id]` head norm is a fleet-memory convention, not a site one).
