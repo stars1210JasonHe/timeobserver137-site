@@ -1,16 +1,13 @@
 ---
 /**
- * BackgroundEquations — the four equations as COSMIC background (Yeqiu
- * 2026-07-17 v2: 「不需要粉笔，需要宇宙背景；以动态扭曲的文字展现，鼠标移上去
- * 停止动态」).
- *
- * Rendering: build-time KaTeX, starlight styling (cool glow, not chalk).
- * Motion: each equation shimmers under its own feTurbulence+feDisplacementMap
- * filter — spacetime-distortion semantics; hovering an equation FREEZES it
- * (per-equation pause = the 2.2.2 stop mechanism, plus prefers-reduced-motion
- * disables all of it). rAF derives dt from timestamps (never assumes 16.67ms)
- * and the whole loop parks when the hero leaves the viewport / tab hides —
- * both straight from the cosmos-research §4.7 performance sources.
+ * BackgroundEquations — the four equations as COSMIC background.
+ * v3 (Yeqiu: 「没动，也看不太清」): SMIL-driven turbulence — Chrome does not
+ * reliably repaint an HTML element when JS mutates its SVG filter's internals
+ * (v2 verified the *attribute* changed, not the *pixels*; classic
+ * measured-one-field-vouched-for-another). SMIL animation of feTurbulence /
+ * feDisplacementMap is invalidated natively by the browser. Each equation
+ * carries its own tiny <svg> so pauseAnimations() can freeze ONE equation on
+ * hover. Visibility raised (opacity/glow/scale).
  */
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -24,85 +21,81 @@ const eqs = [
 ---
 
 <div class="bg-equations pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    {
-      eqs.map((e) => (
-        <filter id={`eq-warp-${e.i}`} x="-20%" y="-40%" width="140%" height="180%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.024" numOctaves="2" seed={e.i * 7 + 1} result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      ))
-    }
-  </svg>
   {
     eqs.map((e) => (
-      <div class:list={['bg-eq', e.cls]} style={`filter:url(#eq-warp-${e.i})`} data-eq={e.i} set:html={e.html} />
+      <div class:list={['bg-eq', e.cls]} data-eq={e.i}>
+        <svg width="0" height="0" class="eq-filter-host" aria-hidden="true">
+          <filter id={`eq-warp-${e.i}`} x="-25%" y="-60%" width="150%" height="220%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.014 0.026" numOctaves="2" seed={e.i * 7 + 1}>
+              <animate
+                attributeName="baseFrequency"
+                dur={`${5.5 + e.i * 1.3}s`}
+                values="0.014 0.026;0.026 0.05;0.014 0.026"
+                repeatCount="indefinite"
+              />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" scale="12" xChannelSelector="R" yChannelSelector="G">
+              <animate attributeName="scale" dur={`${4 + e.i}s`} values="9;16;9" repeatCount="indefinite" />
+            </feDisplacementMap>
+          </filter>
+        </svg>
+        <span class="eq-text" style={`filter:url(#eq-warp-${e.i})`} set:html={e.html} />
+      </div>
     ))
   }
 </div>
 
 <script>
-  // Spacetime shimmer: slowly morph each filter's turbulence; hover freezes
-  // that equation; loop parks off-viewport and under reduced-motion.
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const filters = [...document.querySelectorAll('.bg-equations filter feTurbulence')] as SVGFETurbulenceElement[];
-    const eqEls = [...document.querySelectorAll<HTMLElement>('.bg-eq')];
-    const paused = new Array(filters.length).fill(false);
-    eqEls.forEach((el) => {
-      const i = Number(el.dataset.eq);
-      el.addEventListener('pointerenter', () => (paused[i] = true));
-      el.addEventListener('pointerleave', () => (paused[i] = false));
-    });
-
-    let inView = true;
-    const heroSection = document.querySelector('.hero');
-    if (heroSection) {
-      new IntersectionObserver(([e]) => (inView = e.isIntersecting)).observe(heroSection);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wraps = [...document.querySelectorAll<HTMLElement>('.bg-eq')];
+  for (const el of wraps) {
+    const svg = el.querySelector('svg') as SVGSVGElement | null;
+    const text = el.querySelector<HTMLElement>('.eq-text');
+    if (!svg || !text) continue;
+    if (reduced) {
+      svg.pauseAnimations();
+      text.style.filter = 'none';
+      continue;
     }
-
-    let t = 0;
-    let last: number | null = null;
-    let rafId = 0;
-    const tick = (now: number) => {
-      const dt = last === null ? 0 : (now - last) / 1000; // real elapsed, never assume 16.67ms
-      last = now;
-      if (inView) {
-        t += dt;
-        filters.forEach((f, i) => {
-          if (paused[i]) return;
-          const bx = 0.012 + 0.006 * Math.sin(t * 0.35 + i * 1.7);
-          const by = 0.024 + 0.01 * Math.sin(t * 0.27 + i * 2.3);
-          f.setAttribute('baseFrequency', `${bx.toFixed(4)} ${by.toFixed(4)}`);
-        });
+    // hover freezes THIS equation only (2.2.2 stop mechanism, per-element)
+    el.addEventListener('pointerenter', () => svg.pauseAnimations());
+    el.addEventListener('pointerleave', () => svg.unpauseAnimations());
+  }
+  // park all shimmer while the hero is off-screen (WebKit perf guidance)
+  const hero = document.querySelector('.hero');
+  if (hero && !reduced) {
+    new IntersectionObserver(([e]) => {
+      for (const el of wraps) {
+        const svg = el.querySelector('svg') as SVGSVGElement | null;
+        if (!svg) continue;
+        e.isIntersecting ? svg.unpauseAnimations() : svg.pauseAnimations();
       }
-      rafId = requestAnimationFrame(tick);
-    };
-    rafId = requestAnimationFrame(tick);
+    }).observe(hero);
   }
 </script>
 
 <style>
   .bg-eq {
     position: absolute;
-    /* starlight, not chalk: cool glow pulled from the accent family */
-    color: color-mix(in srgb, var(--color-accent-soft) 45%, #dfe9ff);
-    opacity: 0.16;
-    text-shadow:
-      0 0 14px color-mix(in srgb, var(--color-accent) 55%, transparent),
-      0 0 3px rgba(223, 233, 255, 0.55);
-    white-space: nowrap;
     user-select: none;
     pointer-events: auto; /* hover-to-freeze needs hit-testing */
-    animation: eq-emerge 2s ease forwards;
+    animation: eq-emerge 1.8s ease forwards;
     opacity: 0;
   }
-  html[data-theme='light'] .bg-eq {
-    color: color-mix(in srgb, var(--color-accent) 60%, #1c2440);
-    text-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  .eq-text {
+    display: inline-block;
+    color: color-mix(in srgb, var(--color-accent-soft) 55%, #e6eeff);
+    text-shadow:
+      0 0 18px color-mix(in srgb, var(--color-accent) 70%, transparent),
+      0 0 4px rgba(230, 238, 255, 0.7);
+  }
+  html[data-theme='light'] .eq-text {
+    color: color-mix(in srgb, var(--color-accent) 70%, #16203a);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 35%, transparent);
   }
   @keyframes eq-emerge {
     to {
-      opacity: 0.16;
+      opacity: 0.34;
     }
   }
   html[data-theme='light'] .bg-eq {
@@ -110,42 +103,41 @@ const eqs = [
   }
   @keyframes eq-emerge-light {
     to {
-      opacity: 0.12;
+      opacity: 0.22;
     }
   }
   .eq-noether {
     top: 6%;
     left: 3%;
-    font-size: 1.15rem;
+    font-size: 1.35rem;
     transform: rotate(-4deg);
     animation-delay: 0.2s;
   }
   .eq-path {
-    bottom: 10%;
+    bottom: 9%;
     right: 2%;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     transform: rotate(2.5deg);
     animation-delay: 1.1s;
   }
   .eq-dirac {
-    bottom: 22%;
+    bottom: 21%;
     left: 8%;
-    font-size: 1.05rem;
+    font-size: 1.25rem;
     transform: rotate(3deg);
     animation-delay: 0.65s;
   }
   .eq-efe {
-    top: 12%;
+    top: 11%;
     right: 6%;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     transform: rotate(-2deg);
     animation-delay: 1.55s;
   }
   @media (prefers-reduced-motion: reduce) {
     .bg-eq {
       animation: none;
-      opacity: 0.14;
-      filter: none !important;
+      opacity: 0.28;
     }
   }
   @media (max-width: 1024px) {
@@ -154,7 +146,7 @@ const eqs = [
       display: none;
     }
     .bg-eq {
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
   }
 </style>
