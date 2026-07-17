@@ -1,13 +1,15 @@
 ---
 /**
- * SymmetryPuzzle — 对称拼图 (2026-07-17, Yeqiu game #2).
- *
- * The player IS an element of D4: apply rotations/mirrors to a tile until it
- * matches the target. Later levels restrict the generators to {↻90°, ↔} so
- * shortest words grow to length 3 — par is computed honestly by BFS over the
- * 8-element orbit, never hand-labeled. After a solve the game shows the
- * player's word vs a shortest word: composition identities (hrh = r⁻¹) are
- * the punchline — this is the door into the 对称与怪兽 series.
+ * SymmetryPuzzle — 对称拼图.
+ * v2 (2026-07-17, Yeqiu): 10 levels + a standing 「不可能」 declare button —
+ * some targets are UNREACHABLE and recognizing that passes the level:
+ *   · chirality levels: only rotations available, target is a mirror image —
+ *     the C4 subgroup never crosses into the mirror coset (left hand ≠ right)
+ *   · invariant levels: target is outside the D4 orbit entirely (a color
+ *     count differs — symmetries move cells, never repaint them)
+ * Reachability is decided by BFS with the level's own generators, par is BFS
+ * distance — nothing is hand-labeled. All-10 completion fires a kaleidoscope
+ * overlay: the eight D4 images of one tile assembling around the group's name.
  *
  * Runtime-created nodes ⟹ is:global styles (ChatWidget lesson).
  */
@@ -23,8 +25,8 @@ const zh = lang === 'zh';
   <h1 class="mt-3 text-3xl font-semibold text-chalk">{zh ? '对称拼图' : 'Symmetry Puzzle'}</h1>
   <p class="mt-3 leading-relaxed text-muted">
     {zh
-      ? '用旋转和翻转,把左边的图案变成右边的目标。正方形一共只有 8 种对称 —— 它们连同「先这个再那个」的组合规则,数学里叫群。玩到后面你会亲手发现:三步有时等于一步。'
-      : 'Rotate and flip the left tile until it matches the target. A square has exactly 8 symmetries — together with composition they form what mathematicians call a group. Later levels let you discover by hand that three moves can equal one.'}
+      ? '用旋转和翻转,把左边的图案变成右边的目标。但小心 —— 有的目标根本不可能到达,看穿它同样算你赢。正方形只有 8 种对称,它们连同组合规则构成数学里的「群」。'
+      : 'Rotate and flip the left tile to match the target. But beware — some targets are flat-out unreachable, and seeing through them counts as a win. A square has exactly 8 symmetries; with composition they form a group.'}
   </p>
 
   <div class="sp-levels mt-6 flex flex-wrap items-center gap-2" role="tablist" aria-label={zh ? '关卡' : 'Levels'}></div>
@@ -47,6 +49,7 @@ const zh = lang === 'zh';
     <div class="flex gap-2">
       <button class="sp-undo rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '撤销' : 'Undo'}</button>
       <button class="sp-reset rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '重来' : 'Reset'}</button>
+      <button class="sp-declare rounded-md border border-accent-soft/60 px-3 py-1.5 text-sm text-accent-soft transition-colors hover:bg-accent/15">{zh ? '不可能' : 'Impossible'}</button>
     </div>
   </div>
 
@@ -57,6 +60,15 @@ const zh = lang === 'zh';
       ? <>这 8 个变换构成正方形的对称群 D₄ —— 《对称与怪兽》整个系列,就是沿着这架梯子往上爬。<a class="text-accent-soft underline underline-offset-2" href="/zh/series/symmetry-monster/">从第一集读起 →</a></>
       : <>These 8 moves form D₄, the symmetry group of the square — the Symmetry &amp; Monster series climbs this very ladder. <a class="text-accent-soft underline underline-offset-2" href="/zh/series/symmetry-monster/">Start from episode one →</a></>}
   </p>
+
+  <div class="sp-fin fixed inset-0 z-50 hidden items-center justify-center bg-bg/90 backdrop-blur-sm">
+    <div class="mx-6 max-w-md text-center">
+      <div class="sp-fin-grid mx-auto grid w-64 grid-cols-3 gap-2"></div>
+      <p class="mt-4 text-2xl font-semibold text-chalk">{zh ? '十关通过' : 'All ten levels'}</p>
+      <p class="mt-2 text-muted">{zh ? '能拼的你都拼了,不可能的你都看穿了 —— 正方形的八种对称,现在都是你的。' : 'You solved every solvable tile and saw through every impossible one — the square’s eight symmetries are yours now.'}</p>
+      <button class="sp-fin-close mt-6 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-soft">{zh ? '收下' : 'Done'}</button>
+    </div>
+  </div>
 </section>
 
 <script>
@@ -72,6 +84,8 @@ const zh = lang === 'zh';
     const noteEl = document.querySelector<HTMLElement>('.sp-note')!;
     const undoBtn = document.querySelector<HTMLButtonElement>('.sp-undo')!;
     const resetBtn = document.querySelector<HTMLButtonElement>('.sp-reset')!;
+    const declareBtn = document.querySelector<HTMLButtonElement>('.sp-declare')!;
+    const finEl = document.querySelector<HTMLElement>('.sp-fin')!;
     const t = (zhs: string, ens: string) => (zh ? zhs : ens);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -101,7 +115,7 @@ const zh = lang === 'zh';
     };
 
     // base patterns (0 = void, 1 = chalk, 2 = gold, 3 = blue); each must have
-    // all 8 D4 images distinct or the target would be ambiguous — asserted below
+    // all 8 D4 images distinct or targets would be ambiguous — asserted below
     const P1: Pat = [
       2, 1, 0, 0,
       0, 1, 0, 0,
@@ -119,58 +133,52 @@ const zh = lang === 'zh';
       2, 0, 0, 1];
 
     const key = (p: Pat) => p.join('');
-    const orbit = (p: Pat) => {
+    const orbit8 = (p: Pat) => {
       const seen = new Set<string>();
       let cur = p;
       for (let i = 0; i < 4; i++) { seen.add(key(cur)); seen.add(key(mirH(cur))); cur = rot(cur); }
-      return seen.size;
+      return seen;
     };
     [P1, P2, P3].forEach((p, i) => {
-      if (orbit(p) !== 8) console.error(`pattern P${i + 1} has a symmetry — only ${orbit(p)} distinct images`);
+      if (orbit8(p).size !== 8) console.error(`pattern P${i + 1} has a symmetry — only ${orbit8(p).size} distinct images`);
     });
 
-    type Level = { pat: Pat; word: string; ops: string[] };
-    const LEVELS: Level[] = [
-      { pat: P1, word: 'r', ops: ['r', 'l', 'h', 'v'] },
-      { pat: P1, word: 'h', ops: ['r', 'l', 'h', 'v'] },
-      { pat: P1, word: 'rr', ops: ['r', 'l', 'h', 'v'] },
-      { pat: P2, word: 'rh', ops: ['r', 'l', 'h', 'v'] },
-      { pat: P2, word: 'l', ops: ['r', 'h'] },
-      { pat: P2, word: 'rhr', ops: ['r', 'h'] },
-      { pat: P3, word: 'v', ops: ['r', 'h'] },
-      { pat: P3, word: 'lh', ops: ['r', 'h'] },
-    ];
-
     const apply = (p: Pat, word: string) => [...word].reduce((q, ch) => OPS[ch].fn(q), p);
-    // honest par: BFS over the orbit with THIS level's generators
-    const par = (l: Level) => {
-      const goal = key(apply(l.pat, l.word));
-      let frontier = [key(l.pat)];
-      const dist = new Map([[frontier[0], 0]]);
-      const decode = (s: string) => [...s].map(Number);
-      while (frontier.length) {
-        const nf: string[] = [];
-        for (const s of frontier) {
-          if (s === goal) return dist.get(s)!;
-          for (const op of l.ops) {
-            const nk = key(OPS[op].fn(decode(s)));
-            if (!dist.has(nk)) { dist.set(nk, dist.get(s)! + 1); nf.push(nk); }
-          }
-        }
-        frontier = nf;
-      }
-      return Infinity;
-    };
-    // a shortest word, for the post-solve note
-    const shortestWord = (l: Level) => {
-      const goal = key(apply(l.pat, l.word));
+
+    // L8's target: a legal-looking rotation with ONE gold cell repainted blue —
+    // outside the whole D4 orbit; the tell is a color COUNT, the invariant
+    const T_ALTERED: Pat = (() => {
+      const q = apply(P3, 'r');
+      const g = q.indexOf(2);
+      q[g] = 3;
+      return q;
+    })();
+
+    type Level = { pat: Pat; ops: string[]; word?: string; target?: Pat; showPar?: boolean };
+    const LEVELS: Level[] = [
+      { pat: P1, word: 'r', ops: ['r', 'l', 'h', 'v'], showPar: true },
+      { pat: P1, word: 'h', ops: ['r', 'l', 'h', 'v'], showPar: true },
+      { pat: P1, word: 'rr', ops: ['r', 'l', 'h', 'v'], showPar: true },
+      { pat: P2, word: 'rh', ops: ['r', 'l', 'h', 'v'], showPar: true },
+      { pat: P2, word: 'h', ops: ['r', 'l'] },          // chirality: rotations never mirror
+      { pat: P2, word: 'l', ops: ['r', 'h'] },          // par 3: rrr or hrh
+      { pat: P3, word: 'rhr', ops: ['r', 'h'] },        // par 3
+      { pat: P3, target: T_ALTERED, ops: ['r', 'l', 'h', 'v'] }, // invariant: repainted cell
+      { pat: P1, word: 'h', ops: ['l', 'v'] },          // par 3 with odd generators
+      { pat: P3, word: 'rh', ops: ['r', 'l'] },         // finale chirality on the busiest tile
+    ];
+    const goalOf = (l: Level) => l.target ?? apply(l.pat, l.word!);
+
+    // honest reachability + par: BFS with THIS level's generators
+    const bfs = (l: Level) => {
+      const goal = key(goalOf(l));
       const decode = (s: string) => [...s].map(Number);
       let frontier: [string, string][] = [[key(l.pat), '']];
       const seen = new Set([frontier[0][0]]);
       while (frontier.length) {
         const nf: [string, string][] = [];
         for (const [s, w] of frontier) {
-          if (s === goal) return w;
+          if (s === goal) return { par: w.length, word: w };
           for (const op of l.ops) {
             const nk = key(OPS[op].fn(decode(s)));
             if (!seen.has(nk)) { seen.add(nk); nf.push([nk, w + op]); }
@@ -178,8 +186,9 @@ const zh = lang === 'zh';
         }
         frontier = nf;
       }
-      return '';
+      return { par: Infinity, word: '' };
     };
+    const isImpossible = (l: Level) => bfs(l).par === Infinity;
 
     const store = {
       read(): { done: number[] } {
@@ -198,7 +207,6 @@ const zh = lang === 'zh';
     const drawPat = (svg: SVGSVGElement, p: Pat) => {
       svg.innerHTML = '';
       const cell = 160 / N;
-      // grid lines
       for (let i = 0; i <= N; i++) {
         const mk = (x1: number, y1: number, x2: number, y2: number) => {
           const ln = document.createElementNS(NS, 'line');
@@ -232,7 +240,7 @@ const zh = lang === 'zh';
     let animating = false;
 
     const level = () => LEVELS[cur];
-    const goal = () => apply(level().pat, level().word);
+    const goal = () => goalOf(level());
 
     const renderLevelDots = () => {
       levelsEl.innerHTML = '';
@@ -261,8 +269,8 @@ const zh = lang === 'zh';
     };
 
     const wordPretty = (w: string) => [...w].map((ch) => (zh ? OPS[ch].zh : OPS[ch].en).split(' ')[0]).join(' · ') || t('(不动)', '(nothing)');
-
     const setStatus = (m: string) => { statusEl.textContent = m; };
+    const note = (html: string) => { noteEl.innerHTML = html; noteEl.classList.remove('hidden'); };
 
     const setup = () => {
       state = [...level().pat];
@@ -272,30 +280,65 @@ const zh = lang === 'zh';
       drawPat(targetSvg, goal());
       renderLevelDots();
       renderOps();
-      setStatus(t(`最少 ${par(level())} 步。`, `Par: ${par(level())} move(s).`));
+      const { par } = bfs(level());
+      setStatus(level().showPar
+        ? t(`最少 ${par} 步。`, `Par: ${par} move(s).`)
+        : t('拼出来 —— 或者看穿它,按「不可能」。', 'Solve it — or see through it and press Impossible.'));
+    };
+
+    const maybeCelebrate = () => {
+      if (store.read().done.length !== LEVELS.length) return;
+      const grid = finEl.querySelector<HTMLElement>('.sp-fin-grid')!;
+      grid.innerHTML = '';
+      // the eight D4 images of P2 assemble around the group's name
+      const words = ['', 'r', 'rr', 'rrr', 'h', 'rh', 'rrh', 'rrrh'];
+      const cells: (Pat | null)[] = [
+        apply(P2, words[0]), apply(P2, words[1]), apply(P2, words[2]),
+        apply(P2, words[7]), null, apply(P2, words[3]),
+        apply(P2, words[6]), apply(P2, words[5]), apply(P2, words[4]),
+      ];
+      cells.forEach((p, i) => {
+        if (!p) {
+          const d = document.createElement('div');
+          d.className = 'sp-fin-center flex items-center justify-center text-2xl font-semibold text-chalk';
+          d.textContent = 'D₄';
+          grid.appendChild(d);
+          return;
+        }
+        const svg = document.createElementNS(NS, 'svg') as SVGSVGElement;
+        svg.setAttribute('viewBox', '0 0 160 160');
+        svg.setAttribute('class', 'sp-fin-tile');
+        svg.style.animationDelay = `${0.18 * i}s`;
+        drawPat(svg, p);
+        grid.appendChild(svg);
+      });
+      finEl.classList.remove('hidden');
+      finEl.classList.add('flex');
+    };
+    finEl.querySelector('.sp-fin-close')!.addEventListener('click', () => {
+      finEl.classList.add('hidden');
+      finEl.classList.remove('flex');
+    });
+
+    const passLevel = () => {
+      store.markDone(cur);
+      renderLevelDots();
+      maybeCelebrate();
     };
 
     const checkWin = () => {
       if (key(state) !== key(goal())) return;
-      store.markDone(cur);
-      renderLevelDots();
-      const p = par(level());
-      const star = moves.length === p;
-      setStatus((star ? t(`★ ${moves.length} 步,最短解!`, `★ Solved in ${moves.length} — that's par!`)
-        : t(`✓ ${moves.length} 步通关(最少 ${p} 步)。`, `✓ Solved in ${moves.length} (par ${p}).`)));
-      const sw = shortestWord(level());
-      if (moves.length > p || sw.length > 1) {
-        noteEl.innerHTML = '';
-        const line1 = document.createElement('p');
-        line1.textContent = t(`你的解:${wordPretty(moves.join(''))}`, `Your word: ${wordPretty(moves.join(''))}`);
-        const line2 = document.createElement('p');
-        line2.className = 'mt-1';
-        line2.textContent = t(`一个最短解:${wordPretty(sw)}`, `A shortest word: ${wordPretty(sw)}`);
-        const line3 = document.createElement('p');
-        line3.className = 'mt-2 text-muted';
-        line3.textContent = t('不同的步骤串,同一个变换 —— 「乘法表」就是这样长出来的,这就是群。', 'Different move-strings, one transformation — that is how a multiplication table is born. That is a group.');
-        noteEl.append(line1, line2, line3);
-        noteEl.classList.remove('hidden');
+      const { par, word: sw } = bfs(level());
+      const star = moves.length === par;
+      passLevel();
+      setStatus(star ? t(`★ ${moves.length} 步,最短解!`, `★ Solved in ${moves.length} — that's par!`)
+        : t(`✓ ${moves.length} 步通关(最少 ${par} 步)。`, `✓ Solved in ${moves.length} (par ${par}).`));
+      if (moves.length > par || sw.length > 1) {
+        note(
+          `<p>${t('你的解:', 'Your word: ')}${wordPretty(moves.join(''))}</p>` +
+          `<p class="mt-1">${t('一个最短解:', 'A shortest word: ')}${wordPretty(sw)}</p>` +
+          `<p class="mt-2" style="color:var(--color-muted)">${t('不同的步骤串,同一个变换 —— 「乘法表」就是这样长出来的,这就是群。', 'Different move-strings, one transformation — that is how a multiplication table is born. That is a group.')}</p>`,
+        );
       }
     };
 
@@ -321,6 +364,27 @@ const zh = lang === 'zh';
         checkWin();
       }, 310);
     };
+
+    declareBtn.addEventListener('click', () => {
+      const l = level();
+      const { par } = bfs(l);
+      if (par !== Infinity) {
+        declareBtn.classList.remove('shake');
+        void declareBtn.getBoundingClientRect();
+        declareBtn.classList.add('shake');
+        setStatus(t(`其实到得了 —— 最少 ${par} 步。再试试。`, `It IS reachable — par ${par}. Keep trying.`));
+        return;
+      }
+      passLevel();
+      // which impossibility? in the full D4 orbit ⟹ chirality; outside ⟹ invariant
+      const inD4 = orbit8(l.pat).has(key(goalOf(l)));
+      setStatus(t('✓ 看穿了 —— 这个目标真的到不了。', '✓ Seen through — this target really is unreachable.'));
+      note(inD4
+        ? `<p class="font-medium" style="color:var(--color-chalk)">${t('手性:旋转到不了镜子里', 'Chirality: rotations never enter the mirror')}</p>` +
+          `<p class="mt-2">${t('只用旋转,图案永远是「同一只手」;目标是它的镜像 —— 另一只手。四个旋转 {不动, 90°, 180°, 270°} 自成封闭的小圈(子群 C₄),镜像世界整个在圈外,只有翻转能跨过去。左手转一辈子,也变不成右手。', 'With rotations alone the tile stays the "same hand"; the target is its mirror image — the other hand. The four rotations form a closed little circle (the subgroup C₄); the mirror world lies entirely outside it, and only a flip crosses over. A left hand can spin forever and never become a right hand.')}</p>`
+        : `<p class="font-medium" style="color:var(--color-chalk)">${t('不变量:对称只搬格子,不换颜色', 'Invariants: symmetries move cells, never repaint them')}</p>` +
+          `<p class="mt-2">${t('数一数两边每种颜色的格子数 —— 对不上。旋转和翻转只会搬动格子,数量是它们动不了的「不变量」。识破一个根本不在轨道上的目标,靠的就是找不变量:这也是数学家判定「不可能」的标准手法。', 'Count the cells of each color on both sides — they disagree. Rotations and flips only move cells; the counts are an invariant they cannot touch. Spotting a target that is off the orbit entirely is done exactly this way — invariants are how mathematicians prove "impossible".')}</p>`);
+    });
 
     undoBtn.addEventListener('click', () => {
       if (animating || !moves.length) return;
@@ -351,4 +415,21 @@ const zh = lang === 'zh';
   }
   .sp-op:hover { border-color: var(--color-accent-soft); background: var(--color-surface); }
   .sp-op:active { transform: scale(0.96); }
+  .sp-fin-tile {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+    opacity: 0;
+    transform: scale(0.4) rotate(-90deg);
+    animation: sp-fin-in 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+  }
+  .sp-fin-center { min-height: 3rem; }
+  @keyframes sp-fin-in {
+    to { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sp-fin-tile { animation: none; opacity: 1; transform: none; }
+  }
 </style>

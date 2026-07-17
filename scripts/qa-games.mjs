@@ -45,26 +45,49 @@ finShown ? ok('one-stroke: completion overlay fires on 10/10') : fail('one-strok
 const dash = await page.$eval('.os-fin-path', (el) => el.style.strokeDashoffset);
 dash === '0' ? ok('one-stroke: celebration stroke animates to 0') : ok('one-stroke: stroke mid-draw (offset ' + dash + ')');
 
-// ---------- Symmetry ----------
+// ---------- Symmetry v2 ----------
 await page.goto(BASE + '/zh/play/symmetry/', { waitUntil: 'networkidle' });
 await page.waitForSelector('.sp-op');
+const spLvls = await page.$$('.os-lvl');
+spLvls.length === 10 ? ok('symmetry: 10 levels') : fail(`symmetry: ${spLvls.length} levels, want 10`);
 st = await page.textContent('.sp-status');
 st.includes('最少 1 步') ? ok('symmetry: BFS par=1 shown for L1') : fail(`symmetry L1 par: ${st}`);
+// wrong declare on solvable L1 → rebutted with real par
+await page.click('.sp-declare');
+st = await page.textContent('.sp-status');
+st.includes('其实到得了') && st.includes('1 步') ? ok('symmetry: wrong declare rebutted with real par') : fail(`wrong declare: ${st}`);
 // L1 target = r → click ↻
 await page.click('.sp-ops .sp-op:nth-child(1)');
 await page.waitForTimeout(400);
 st = await page.textContent('.sp-status');
 st.includes('★') ? ok('symmetry: L1 solved at par with star') : fail(`symmetry L1: ${st}`);
-// L5: ops restricted to {r,h}, target l=r³ → par 3
+// L5: rotations only, target is a mirror → chirality, declare passes
 await page.click('.os-lvl:nth-child(5)');
 const opCount = await page.$$eval('.sp-ops .sp-op', (els) => els.length);
-opCount === 2 ? ok('symmetry: L5 restricted to 2 generators') : fail(`symmetry L5 ops: ${opCount}`);
+opCount === 2 ? ok('symmetry: L5 rotations-only generators') : fail(`symmetry L5 ops: ${opCount}`);
+await page.click('.sp-declare');
 st = await page.textContent('.sp-status');
-st.includes('最少 3 步') ? ok('symmetry: L5 BFS par=3 (three moves = one)') : fail(`symmetry L5 par: ${st}`);
-// solve L5 via r r r
+let noteTxt = await page.textContent('.sp-note');
+st.includes('看穿了') && noteTxt.includes('手性') ? ok('symmetry: L5 chirality declared, coset reveal') : fail(`L5 declare: ${st} | ${noteTxt.slice(0, 40)}`);
+// L6: {r,h}, target l=r³ → solve rrr at par 3
+await page.click('.os-lvl:nth-child(6)');
 for (let i = 0; i < 3; i++) { await page.click('.sp-ops .sp-op:nth-child(1)'); await page.waitForTimeout(380); }
 st = await page.textContent('.sp-status');
-st.includes('★') ? ok('symmetry: L5 rrr solves at par') : fail(`symmetry L5 solve: ${st}`);
+st.includes('★') ? ok('symmetry: L6 rrr solves at par 3') : fail(`symmetry L6: ${st}`);
+// L8: altered target outside D4 orbit → invariant reveal
+await page.click('.os-lvl:nth-child(8)');
+await page.click('.sp-declare');
+noteTxt = await page.textContent('.sp-note');
+noteTxt.includes('不变量') ? ok('symmetry: L8 invariant declared, counting reveal') : fail(`L8 note: ${noteTxt.slice(0, 40)}`);
+// celebration on 10/10: seed 9 done, finish finale (L10 chirality) by declare
+await page.evaluate(() => localStorage.setItem('symmetry-v1', JSON.stringify({ done: [0, 1, 2, 3, 4, 5, 6, 7, 8] })));
+await page.reload({ waitUntil: 'networkidle' });
+await page.click('.os-lvl:nth-child(10)');
+await page.click('.sp-declare');
+await page.waitForTimeout(400);
+const spFin = await page.$eval('.sp-fin', (el) => !el.classList.contains('hidden'));
+const tiles = await page.$$eval('.sp-fin-tile', (els) => els.length);
+spFin && tiles === 8 ? ok('symmetry: kaleidoscope overlay fires with 8 D4 images') : fail(`symmetry fin: shown=${spFin} tiles=${tiles}`);
 
 // ---------- Rubik's ----------
 await page.goto(BASE + '/zh/play/rubiks/', { waitUntil: 'networkidle' });
