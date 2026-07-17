@@ -5,6 +5,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import { SERIES } from '../../../data/series';
+import { postSlug } from '../../../data/slug';
 
 export async function getStaticPaths() {
   const posts = await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft && e.data.series);
@@ -36,7 +37,7 @@ const { meta, eps } = Astro.props;
       {
         eps.map((e) => (
           <li>
-            <a href={`/zh/writing/${e.data.ghostSlug ?? e.id}/`} class="group flex items-baseline gap-4 rounded-lg border border-line/70 bg-surface/40 p-4 transition-colors hover:border-accent-soft/60 hover:bg-surface">
+            <a href={`/zh/writing/${postSlug(e)}/`} class="group flex items-baseline gap-4 rounded-lg border border-line/70 bg-surface/40 p-4 transition-colors hover:border-accent-soft/60 hover:bg-surface">
               <span class="shrink-0 font-mono text-sm text-faint">{String(e.data.seriesOrder).padStart(2, '0')}</span>
               <span class="flex-1">
                 <span class="font-medium text-ink group-hover:text-chalk">{e.data.title}</span>

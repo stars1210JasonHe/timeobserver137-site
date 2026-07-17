@@ -8,6 +8,7 @@
  * ⇒ everything visible, nothing depends on GSAP).
  */
 import { getCollection } from 'astro:content';
+import { postSlug } from '../data/slug';
 import ProjectCard from './ProjectCard.astro';
 import WritingCard from './WritingCard.astro';
 
@@ -27,7 +28,7 @@ const posts = (await getCollection('writing', (e) => e.data.lang === 'zh' && !e.
 
 const projHref = zh ? '/zh/projects/' : '/projects/';
 const writeHref = zh ? '/zh/writing/' : '/writing/';
-const postHref = (e: (typeof posts)[number]) => `/zh/writing/${e.data.ghostSlug ?? e.id}/`;
+const postHref = (e: (typeof posts)[number]) => `/zh/writing/${postSlug(e)}/`;
 const projectHref = (e: (typeof projects)[number]) =>
   `${projHref}${e.id.split('/').pop()}/`;
 ---

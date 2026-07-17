@@ -6,6 +6,7 @@
  */
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
+import { postSlug } from '../data/slug';
 
 export async function GET(context) {
   const posts = (await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft)).sort(
@@ -19,7 +20,7 @@ export async function GET(context) {
       title: entry.data.title,
       pubDate: entry.data.date,
       description: entry.data.excerpt ?? '',
-      link: `/zh/writing/${entry.data.ghostSlug ?? entry.id}/`,
+      link: `/zh/writing/${postSlug(entry)}/`,
       categories: entry.data.tags,
     })),
     customData: '<language>zh-cn</language>',

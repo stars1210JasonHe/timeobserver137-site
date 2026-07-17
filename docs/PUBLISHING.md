@@ -23,6 +23,15 @@ cover: /content/images/2026/08/cover.png   # optional; omit to use the site shar
 正文。KaTeX 数学用 $...$ / $$...$$，构建时渲染。
 ```
 
+URL slug = 文件名（`postSlug()` in `src/data/slug.ts` 会剥掉 `zh/` 目录前缀；
+2026-07-17 前这条路径从没走过 — 老文章全靠 `ghostSlug` — 首个探针文章即触发
+"Missing parameter: slug" 构建崩溃，已修）。
+
+数学块内裸 `<` / `>` **安全**（2026-07-17 正样本实测：行内 `$d<m$`、展示式
+`$$p<q>r$$` 渲染页均正确，KaTeX 输出数字实体 `&#x3C;`。本管线是
+remark-math→KaTeX，无 html→lexical 步 — Ghost 时代的实体转义规矩不适用。
+注意核渲染页时搜 `&#x3C;` 而非 `&lt;`）。
+
 2. Images go under `public/content/images/<year>/<month>/`.
 3. `git add` + `git commit` + `git push origin main`.
 

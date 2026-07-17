@@ -2,11 +2,12 @@
 import { getCollection, render } from 'astro:content';
 import Post from '../../../layouts/Post.astro';
 import { seriesById } from '../../../data/series';
+import { postSlug } from '../../../data/slug';
 
 export async function getStaticPaths() {
   const posts = await getCollection('writing', (e) => e.data.lang === 'zh');
   return posts.map((entry) => ({
-    params: { slug: entry.data.ghostSlug ?? entry.id },
+    params: { slug: postSlug(entry) },
     props: { entry, all: posts },
   }));
 }
@@ -23,7 +24,7 @@ if (d.series) {
     .filter((p) => p.data.series === d.series && !p.data.draft)
     .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
   const idx = eps.findIndex((p) => p.id === entry.id);
-  const link = (p) => `/zh/writing/${p.data.ghostSlug ?? p.id}/`;
+  const link = (p) => `/zh/writing/${postSlug(p)}/`;
   seriesCtx = meta && {
     id: d.series,
     title: meta.title,

@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { postSlug } from '../../../data/slug';
 import Base from '../../../layouts/Base.astro';
 import WritingCard from '../../../components/WritingCard.astro';
 import { tagLabel } from '../../../data/tagLabels';
@@ -30,7 +31,7 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
     <div class="grid gap-4">
       {posts.map((p) => (
         <WritingCard
-          href={`/zh/writing/${p.data.ghostSlug ?? p.id}/`}
+          href={`/zh/writing/${postSlug(p)}/`}
           title={p.data.title}
           date={p.data.date}
           excerpt={p.data.excerpt}

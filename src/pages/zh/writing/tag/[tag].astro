@@ -5,6 +5,7 @@
  * Ghost-internal marker and never gets a page.
  */
 import { getCollection } from 'astro:content';
+import { postSlug } from '../../../../data/slug';
 import Base from '../../../../layouts/Base.astro';
 import WritingCard from '../../../../components/WritingCard.astro';
 import { tagLabel } from '../../../../data/tagLabels';
@@ -41,7 +42,7 @@ const label = tagLabel(tag);
       {
         posts.map((e) => (
           <WritingCard
-            href={`/zh/writing/${e.data.ghostSlug ?? e.id}/`}
+            href={`/zh/writing/${postSlug(e)}/`}
             title={e.data.title}
             date={e.data.date}
             excerpt={e.data.excerpt}
