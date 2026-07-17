@@ -50,6 +50,10 @@ await page.goto(BASE + '/zh/play/symmetry/', { waitUntil: 'networkidle' });
 await page.waitForSelector('.sp-op');
 const spLvls = await page.$$('.os-lvl');
 spLvls.length === 10 ? ok('symmetry: 10 levels') : fail(`symmetry: ${spLvls.length} levels, want 10`);
+// review 2026-07-17: these classes once lived only in OneStroke's CSS and were
+// unstyled on this standalone page — verify the STYLE, not just the element
+const pill = await page.$eval('.os-lvl', (el) => getComputedStyle(el).borderRadius);
+pill && pill !== '0px' ? ok('symmetry: level pills actually styled on own page') : fail(`os-lvl unstyled on symmetry page: ${pill}`);
 st = await page.textContent('.sp-status');
 st.includes('最少 1 步') ? ok('symmetry: BFS par=1 shown for L1') : fail(`symmetry L1 par: ${st}`);
 // wrong declare on solvable L1 → rebutted with real par

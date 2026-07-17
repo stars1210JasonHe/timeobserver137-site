@@ -1,8 +1,15 @@
 /**
- * POST /api/chat — site chatbot on Cloudflare Workers AI (llama-3.1-8b).
+ * POST /api/chat — site chatbot on Cloudflare Workers AI
+ * (@cf/mistralai/mistral-small-3.1-24b-instruct — 24B; budget estimates
+ * should assume this, not a small model).
  * Runs entirely inside the owner's CF account: no external API keys.
  * Guards: input/history caps, per-IP daily budget in KV (shares the
  * SUBSCRIBERS namespace under a ratelimit: prefix, 24h TTL).
+ * Known accepted limitation (review 2026-07-17): the KV read-then-write
+ * limiter is not atomic — a concurrent burst from one IP can exceed the
+ * numeric cap (TOCTOU). Accepted on the free plan: the Workers-AI free
+ * daily allocation is the hard backstop, worst case is same-day chat
+ * unavailability at $0. Durable Objects would fix it if this ever matters.
  */
 
 const SYSTEM_PROMPT = `You are the site assistant of 时间观察者 (timeobserver137.cyou), the portfolio and writing home of Yeqiu (Jason) He (Chinese name: 贺冶秋 — ALWAYS write it exactly 贺冶秋, never any other characters) — an AI systems engineer.
@@ -26,16 +33,28 @@ export async function onRequestPost({ request, env }) {
   try {
     if (!env.AI) return json({ ok: false, error: 'ai not configured' }, 503);
 
-    // per-IP daily budget
+    // oversized bodies never reach the JSON parser — measured on the actual
+    // bytes, not the client-supplied content-length header
+    const raw = await request.text();
+    if (raw.length > 32_768) return json({ ok: false, error: 'too large' }, 413);
+
+    // per-IP daily budget. KV errors (e.g. free-tier write quota exhausted)
+    // fail OPEN on purpose: chat stays up, and the Workers-AI free allocation
+    // is itself a hard daily cap, so the worst case is bounded and costs $0 —
+    // whereas failing closed would let a KV-quota attack take chat down.
     const ip = request.headers.get('cf-connecting-ip') || 'unknown';
     if (env.SUBSCRIBERS) {
-      const key = `ratelimit:chat:${ip}:${new Date().toISOString().slice(0, 10)}`;
-      const used = parseInt((await env.SUBSCRIBERS.get(key)) || '0', 10);
-      if (used >= 40) return json({ ok: false, error: 'daily limit' }, 429);
-      await env.SUBSCRIBERS.put(key, String(used + 1), { expirationTtl: 86400 });
+      try {
+        const key = `ratelimit:chat:${ip}:${new Date().toISOString().slice(0, 10)}`;
+        const used = parseInt((await env.SUBSCRIBERS.get(key)) || '0', 10);
+        if (used >= 40) return json({ ok: false, error: 'daily limit' }, 429);
+        await env.SUBSCRIBERS.put(key, String(used + 1), { expirationTtl: 86400 });
+      } catch {
+        // limiter degraded — see note above
+      }
     }
 
-    const body = await request.json();
+    const body = JSON.parse(raw);
     let history = Array.isArray(body.messages) ? body.messages : [];
     history = history
       .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')

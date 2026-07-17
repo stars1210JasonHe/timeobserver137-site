@@ -115,6 +115,9 @@ const zh = lang === 'zh';
       l.e.forEach(([a, b]) => { deg[a]++; deg[b]++; });
       return deg.filter((d) => d % 2 === 1).length;
     };
+    // NOTE: an Euler trail also requires the graph to be CONNECTED — this
+    // check assumes it (true for all 10 shipped levels, review-verified
+    // 2026-07-17). A future disconnected level would need a connectivity check.
     const isImpossible = (l: Level) => oddCount(l) > 2;
 
     const NS = 'http://www.w3.org/2000/svg';
@@ -309,17 +312,7 @@ const zh = lang === 'zh';
 </script>
 
 <style is:global>
-  .os-lvl {
-    border: 1px solid var(--color-line);
-    border-radius: 999px;
-    padding: 0.25rem 0.7rem;
-    font-size: 0.8rem;
-    color: var(--color-muted);
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .os-lvl:hover { color: var(--color-ink); border-color: var(--color-accent-soft); }
-  .os-lvl.active { color: var(--color-chalk); border-color: var(--color-accent-soft); }
-  .os-lvl.done::after { content: ' ✓'; color: var(--color-accent-soft); }
+  /* .os-lvl and .shake live in tokens.css — shared with SymmetryPuzzle */
   .os-edge {
     fill: none;
     stroke: var(--color-line);
@@ -349,14 +342,7 @@ const zh = lang === 'zh';
     stroke: #dda25b;
     filter: drop-shadow(0 0 10px rgba(221, 162, 91, 0.7));
   }
-  .shake { animation: os-shake 0.3s; }
-  @keyframes os-shake {
-    0%, 100% { transform: translateX(0); }
-    30% { transform: translateX(-4px); }
-    60% { transform: translateX(4px); }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .shake { animation: none; }
     .os-fin-path { transition: none !important; stroke-dashoffset: 0 !important; }
   }
 </style>

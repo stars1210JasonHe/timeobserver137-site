@@ -184,33 +184,63 @@ const dateStr = date.toISOString().slice(0, 10);
 </style>
 
 <script>
-  import mediumZoom from 'medium-zoom';
-  // astro:page-load (fires on initial load too, ClientRouter present) — a bare
-  // module call would leave zoom dead after any client-side navigation.
+  import PhotoSwipe from 'photoswipe';
+  import 'photoswipe/style.css';
+
+  // Full viewer per Yeqiu 2026-07-17: click to open, free zoom in/out
+  // (wheel / pinch / double-tap), drag to pan, × / Esc to exit.
+  // medium-zoom (fixed fit-zoom only) retired.
   const __initOnLoad = () => {
     const article = document.querySelector<HTMLElement>('.article');
     if (!article || article.dataset.zoomWired) return;
     article.dataset.zoomWired = '1';
-    const zoom = mediumZoom('.article img:not(.no-zoom)', {
-      background: 'rgba(6, 8, 12, 0.94)',
-      margin: 24,
-    });
+    const imgs = [...article.querySelectorAll<HTMLImageElement>('img:not(.no-zoom)')];
+    if (!imgs.length) return;
+
     // the ambient equation layer runs SVG turbulence filters continuously —
-    // heavy enough to steal frames from the zoom transition on slower
-    // machines. Pause it (and fade it) while the lightbox is up.
-    const ambient = () => [...document.querySelectorAll<SVGSVGElement>('.bg-equations svg')];
-    zoom.on('open', () => {
-      ambient().forEach((s) => {
-        s.pauseAnimations?.();
-        const layer = s.closest<HTMLElement>('.bg-equations');
-        if (layer) layer.style.opacity = '0';
+    // heavy enough to steal frames from the viewer on slower machines
+    const ambientSet = (running: boolean) => {
+      document.querySelectorAll<HTMLElement>('.bg-equations').forEach((layer) => {
+        const svg = layer.querySelector('svg') as SVGSVGElement | null;
+        if (running) {
+          svg?.unpauseAnimations?.();
+          layer.style.opacity = '';
+        } else {
+          svg?.pauseAnimations?.();
+          layer.style.opacity = '0';
+        }
       });
-    });
-    zoom.on('closed', () => {
-      ambient().forEach((s) => {
-        s.unpauseAnimations?.();
-        const layer = s.closest<HTMLElement>('.bg-equations');
-        if (layer) layer.style.opacity = '';
+    };
+
+    imgs.forEach((img, i) => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => {
+        const dataSource = imgs.map((m) => ({
+          src: m.currentSrc || m.src,
+          width: m.naturalWidth || 1600,
+          height: m.naturalHeight || 1200,
+          alt: m.alt,
+        }));
+        const pswp = new PhotoSwipe({
+          dataSource,
+          index: i,
+          wheelToZoom: true,
+          // default max zoom = the image's natural size, which leaves small
+          // figures with NO zoom range at all — allow magnifying past 1:1
+          maxZoomLevel: 4,
+          secondaryZoomLevel: 2,
+          bgOpacity: 0.95,
+          padding: { top: 24, bottom: 24, left: 16, right: 16 },
+          closeTitle: '退出',
+          zoomTitle: '缩放',
+          arrowPrevTitle: '上一张',
+          arrowNextTitle: '下一张',
+        });
+        pswp.on('openingAnimationStart', () => ambientSet(false));
+        pswp.on('destroy', () => ambientSet(true));
+        pswp.init();
+        (window as any).__pswp = pswp; // QA/debug handle
+
       });
     });
   };

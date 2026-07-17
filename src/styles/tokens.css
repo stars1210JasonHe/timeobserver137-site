@@ -134,3 +134,28 @@ header.scrolled { box-shadow: 0 1px 0 var(--color-line), 0 8px 24px -16px rgb(0 
   box-shadow: 0 0 8px var(--sd-color, #cfe0ff);
   opacity: 0;
 }
+
+/* shared mini-game UI — level pills + rejection shake. Lives here (the one
+   truly global sheet) because BOTH OneStroke and SymmetryPuzzle create these
+   nodes at runtime, and per-component styles only ship on pages that render
+   that component (review finding 2026-07-17: symmetry page had them unstyled). */
+.os-lvl {
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+.os-lvl:hover { color: var(--color-ink); border-color: var(--color-accent-soft); }
+.os-lvl.active { color: var(--color-chalk); border-color: var(--color-accent-soft); }
+.os-lvl.done::after { content: ' ✓'; color: var(--color-accent-soft); }
+.shake { animation: os-shake 0.3s; }
+@keyframes os-shake {
+  0%, 100% { transform: translateX(0); }
+  30% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shake { animation: none; }
+}

@@ -20,7 +20,7 @@
     "astro": "^5.18.2",
     "gsap": "^3.15.0",
     "katex": "^0.17.0",
-    "medium-zoom": "^1.1.0",
+    "photoswipe": "^5.4.4",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "tailwindcss": "^4.3.2",

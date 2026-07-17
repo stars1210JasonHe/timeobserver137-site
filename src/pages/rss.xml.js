@@ -21,8 +21,10 @@ export async function GET(context) {
       pubDate: entry.data.date,
       description: entry.data.excerpt ?? '',
       link: `/zh/writing/${postSlug(entry)}/`,
-      categories: entry.data.tags,
+      categories: entry.data.tags.filter((t) => t !== 'draft'), // Ghost-internal marker, not public taxonomy
     })),
     customData: '<language>zh-cn</language>',
+    // readable page when a human opens the feed in a browser (readers ignore it)
+    stylesheet: '/rss-style.xsl',
   });
 }

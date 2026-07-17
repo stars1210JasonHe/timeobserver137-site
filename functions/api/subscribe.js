@@ -14,7 +14,7 @@ export async function onRequestPost({ request, env }) {
       email = (await request.formData()).get('email') || '';
     }
     email = String(email).trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return new Response(JSON.stringify({ ok: false, error: 'invalid email' }), {
         status: 400, headers: { 'content-type': 'application/json' },
       });
@@ -23,6 +23,23 @@ export async function onRequestPost({ request, env }) {
       return new Response(JSON.stringify({ ok: false, error: 'storage not configured' }), {
         status: 503, headers: { 'content-type': 'application/json' },
       });
+    }
+    // per-IP daily cap: a signup spammer would otherwise fill the subscriber
+    // list AND burn the shared KV write quota (which chat's limiter also uses).
+    // Same accepted TOCTOU as chat.js: the read-then-write count is not atomic,
+    // a concurrent burst can exceed 5 — bounded by KV's own daily write quota.
+    try {
+      const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+      const rlKey = `ratelimit:sub:${ip}:${new Date().toISOString().slice(0, 10)}`;
+      const used = parseInt((await env.SUBSCRIBERS.get(rlKey)) || '0', 10);
+      if (used >= 5) {
+        return new Response(JSON.stringify({ ok: false, error: 'daily limit' }), {
+          status: 429, headers: { 'content-type': 'application/json' },
+        });
+      }
+      await env.SUBSCRIBERS.put(rlKey, String(used + 1), { expirationTtl: 86400 });
+    } catch {
+      // limiter unavailable (KV quota) — signup itself stays best-effort below
     }
     const existing = await env.SUBSCRIBERS.get(email);
     if (!existing) {
