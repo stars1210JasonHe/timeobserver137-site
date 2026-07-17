@@ -183,11 +183,17 @@ const dateStr = date.toISOString().slice(0, 10);
   import mediumZoom from 'medium-zoom';
   // astro:page-load (fires on initial load too, ClientRouter present) — a bare
   // module call would leave zoom dead after any client-side navigation.
-  document.addEventListener('astro:page-load', () => {
-    if (!document.querySelector('.article')) return;
+  const __initOnLoad = () => {
+    const article = document.querySelector<HTMLElement>('.article');
+    if (!article || article.dataset.zoomWired) return;
+    article.dataset.zoomWired = '1';
     mediumZoom('.article img:not(.no-zoom)', {
       background: 'rgba(6, 8, 12, 0.94)',
       margin: 24,
     });
-  });
+  };
+  // register for future swaps AND run now — if this script was swapped in
+  // by ClientRouter, this navigation's astro:page-load has already fired
+  document.addEventListener('astro:page-load', __initOnLoad);
+  __initOnLoad();
 </script>

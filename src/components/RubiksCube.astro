@@ -48,7 +48,7 @@ const zh = lang === 'zh';
 <script>
   import * as THREE from 'three';
 
-  document.addEventListener('astro:page-load', () => {
+  const __initOnLoad = () => {
     const stage = document.querySelector<HTMLElement>('.rc-stage');
     if (!stage || stage.dataset.wired) return;
     stage.dataset.wired = '1';
@@ -249,7 +249,11 @@ const zh = lang === 'zh';
       requestAnimationFrame(loop);
     };
     loop();
-  });
+  };
+  // register for future swaps AND run now — if this script was swapped in
+  // by ClientRouter, this navigation's astro:page-load has already fired
+  document.addEventListener('astro:page-load', __initOnLoad);
+  __initOnLoad();
 </script>
 
 <style is:global>

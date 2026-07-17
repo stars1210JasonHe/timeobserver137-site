@@ -48,7 +48,7 @@ import Base from '../layouts/Base.astro';
 </Base>
 
 <script>
-  document.addEventListener('astro:page-load', () => {
+  const __initOnLoad = () => {
     const form = document.getElementById('subscribe-form') as HTMLFormElement | null;
     const msg = document.getElementById('subscribe-msg');
     if (!form || !msg || form.dataset.wired) return;
@@ -73,5 +73,9 @@ import Base from '../layouts/Base.astro';
         msg.className = 'mt-4 text-sm text-gold';
       }
     });
-  });
+  };
+  // register for future swaps AND run now — if this script was swapped in
+  // by ClientRouter, this navigation's astro:page-load has already fired
+  document.addEventListener('astro:page-load', __initOnLoad);
+  __initOnLoad();
 </script>

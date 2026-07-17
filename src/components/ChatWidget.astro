@@ -43,7 +43,7 @@ const t = {
 </div>
 
 <script>
-  document.addEventListener('astro:page-load', () => {
+  const __initOnLoad = () => {
     const root = document.querySelector<HTMLElement>('.chat-root');
     if (!root || root.dataset.wired) return;
     root.dataset.wired = '1';
@@ -97,7 +97,11 @@ const t = {
       }
       log.scrollTop = log.scrollHeight;
     });
-  });
+  };
+  // register for future swaps AND run now — if this script was swapped in
+  // by ClientRouter, this navigation's astro:page-load has already fired
+  document.addEventListener('astro:page-load', __initOnLoad);
+  __initOnLoad();
 </script>
 
 <style is:global>

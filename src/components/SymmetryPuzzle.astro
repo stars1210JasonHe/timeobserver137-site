@@ -60,7 +60,7 @@ const zh = lang === 'zh';
 </section>
 
 <script>
-  document.addEventListener('astro:page-load', () => {
+  const __initOnLoad = () => {
     const board = document.querySelector<SVGSVGElement>('.sp-board');
     if (!board || board.dataset.wired) return;
     board.dataset.wired = '1';
@@ -332,7 +332,11 @@ const zh = lang === 'zh';
     resetBtn.addEventListener('click', setup);
 
     setup();
-  });
+  };
+  // register for future swaps AND run now — if this script was swapped in
+  // by ClientRouter, this navigation's astro:page-load has already fired
+  document.addEventListener('astro:page-load', __initOnLoad);
+  __initOnLoad();
 </script>
 
 <style is:global>

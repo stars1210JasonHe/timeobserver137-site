@@ -120,7 +120,7 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
   // Test particle coasting along an equipotential (Yeqiu 2026-07-17: 进站动画
   // 多一点). SMIL animateMotion — browser-invalidated, the v3 lesson. Enters
   // after the draw-on finishes: construction first, then the system lives.
-  document.addEventListener('astro:page-load', () => {
+  const __initOnLoad = () => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const svg = document.querySelector<SVGSVGElement>('.lagrange svg');
     if (!svg || svg.querySelector('.orbiter')) return;
@@ -153,5 +153,9 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     dot.appendChild(fade);
     dot.appendChild(motion);
     svg.appendChild(dot);
-  });
+  };
+  // register for future swaps AND run now — if this script was swapped in
+  // by ClientRouter, this navigation's astro:page-load has already fired
+  document.addEventListener('astro:page-load', __initOnLoad);
+  __initOnLoad();
 </script>

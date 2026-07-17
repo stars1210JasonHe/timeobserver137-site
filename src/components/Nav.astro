@@ -76,7 +76,12 @@ const current = Astro.url.pathname;
 
 <script>
   function initNav() {
-    const hdr = document.querySelector('header');
+    const hdr = document.querySelector<HTMLElement>('header');
+    // element-scoped guard: the header is REPLACED each swap (rebind needed),
+    // but within one page a second call (immediate + astro:page-load on the
+    // initial visit) must not double-bind the theme toggle
+    if (!hdr || hdr.dataset.wired) return;
+    hdr.dataset.wired = '1';
     const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 8);
     onScroll();
     addEventListener('scroll', onScroll, { passive: true });
@@ -94,7 +99,8 @@ const current = Astro.url.pathname;
     }
   });
   }
-  // astro:page-load fires on the initial load too (ClientRouter present) —
-  // a manual first call would double-bind the theme toggle.
+  // register for future swaps AND run now (guarded above) — if this script
+  // was swapped in by ClientRouter, this navigation's page-load already fired
   document.addEventListener('astro:page-load', initNav);
+  initNav();
 </script>
