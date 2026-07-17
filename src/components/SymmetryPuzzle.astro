@@ -1,0 +1,350 @@
+---
+/**
+ * SymmetryPuzzle — 对称拼图 (2026-07-17, Yeqiu game #2).
+ *
+ * The player IS an element of D4: apply rotations/mirrors to a tile until it
+ * matches the target. Later levels restrict the generators to {↻90°, ↔} so
+ * shortest words grow to length 3 — par is computed honestly by BFS over the
+ * 8-element orbit, never hand-labeled. After a solve the game shows the
+ * player's word vs a shortest word: composition identities (hrh = r⁻¹) are
+ * the punchline — this is the door into the 对称与怪兽 series.
+ *
+ * Runtime-created nodes ⟹ is:global styles (ChatWidget lesson).
+ */
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+---
+
+<section class="mx-auto max-w-3xl px-6 py-12">
+  <p class="text-sm uppercase tracking-[0.25em] text-muted">{zh ? '小游戏 · 对称拼图' : 'Play · Symmetry'}</p>
+  <h1 class="mt-3 text-3xl font-semibold text-chalk">{zh ? '对称拼图' : 'Symmetry Puzzle'}</h1>
+  <p class="mt-3 leading-relaxed text-muted">
+    {zh
+      ? '用旋转和翻转,把左边的图案变成右边的目标。正方形一共只有 8 种对称 —— 它们连同「先这个再那个」的组合规则,数学里叫群。玩到后面你会亲手发现:三步有时等于一步。'
+      : 'Rotate and flip the left tile until it matches the target. A square has exactly 8 symmetries — together with composition they form what mathematicians call a group. Later levels let you discover by hand that three moves can equal one.'}
+  </p>
+
+  <div class="sp-levels mt-6 flex flex-wrap items-center gap-2" role="tablist" aria-label={zh ? '关卡' : 'Levels'}></div>
+
+  <div class="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+    <div class="sp-stage justify-self-end rounded-lg border border-line/70 bg-surface/40 p-3">
+      <svg class="sp-board block h-auto w-[min(38vw,240px)]" viewBox="0 0 160 160"></svg>
+    </div>
+    <span class="text-2xl text-faint">→</span>
+    <div class="justify-self-start rounded-lg border border-accent-soft/40 bg-surface/40 p-3">
+      <svg class="sp-target block h-auto w-[min(30vw,180px)]" viewBox="0 0 160 160"></svg>
+      <p class="mt-1 text-center text-xs text-faint">{zh ? '目标' : 'target'}</p>
+    </div>
+  </div>
+
+  <div class="sp-ops mt-4 flex flex-wrap gap-2"></div>
+
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+    <p class="sp-status text-sm text-muted" aria-live="polite"></p>
+    <div class="flex gap-2">
+      <button class="sp-undo rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '撤销' : 'Undo'}</button>
+      <button class="sp-reset rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '重来' : 'Reset'}</button>
+    </div>
+  </div>
+
+  <div class="sp-note mt-4 hidden rounded-lg border border-accent-soft/50 bg-surface/60 p-5 text-sm leading-relaxed text-ink"></div>
+
+  <p class="mt-6 text-sm text-muted">
+    {zh
+      ? <>这 8 个变换构成正方形的对称群 D₄ —— 《对称与怪兽》整个系列,就是沿着这架梯子往上爬。<a class="text-accent-soft underline underline-offset-2" href="/zh/series/symmetry-monster/">从第一集读起 →</a></>
+      : <>These 8 moves form D₄, the symmetry group of the square — the Symmetry &amp; Monster series climbs this very ladder. <a class="text-accent-soft underline underline-offset-2" href="/zh/series/symmetry-monster/">Start from episode one →</a></>}
+  </p>
+</section>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const board = document.querySelector<SVGSVGElement>('.sp-board');
+    if (!board || board.dataset.wired) return;
+    board.dataset.wired = '1';
+    const targetSvg = document.querySelector<SVGSVGElement>('.sp-target')!;
+    const zh = document.documentElement.lang.startsWith('zh');
+    const statusEl = document.querySelector<HTMLElement>('.sp-status')!;
+    const levelsEl = document.querySelector<HTMLElement>('.sp-levels')!;
+    const opsEl = document.querySelector<HTMLElement>('.sp-ops')!;
+    const noteEl = document.querySelector<HTMLElement>('.sp-note')!;
+    const undoBtn = document.querySelector<HTMLButtonElement>('.sp-undo')!;
+    const resetBtn = document.querySelector<HTMLButtonElement>('.sp-reset')!;
+    const t = (zhs: string, ens: string) => (zh ? zhs : ens);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // --- D4 on a 4x4 grid of color indices ---
+    const N = 4;
+    type Pat = number[]; // 16 cells, row-major
+    const rot = (p: Pat): Pat => p.map((_, i) => {
+      const r = Math.floor(i / N), c = i % N;      // dest (r,c) ← src (N-1-c, r)
+      return p[(N - 1 - c) * N + r];
+    });
+    const mirH = (p: Pat): Pat => p.map((_, i) => {
+      const r = Math.floor(i / N), c = i % N;      // left-right flip
+      return p[r * N + (N - 1 - c)];
+    });
+    const mirV = (p: Pat): Pat => p.map((_, i) => {
+      const r = Math.floor(i / N), c = i % N;      // up-down flip
+      return p[(N - 1 - r) * N + c];
+    });
+    const rotCCW = (p: Pat): Pat => rot(rot(rot(p)));
+
+    type Op = { key: string; zh: string; en: string; fn: (p: Pat) => Pat; anim: string };
+    const OPS: Record<string, Op> = {
+      r: { key: 'r', zh: '↻ 转 90°', en: '↻ 90°', fn: rot, anim: 'rotate(90deg)' },
+      l: { key: 'l', zh: '↺ 转 90°', en: '↺ 90°', fn: rotCCW, anim: 'rotate(-90deg)' },
+      h: { key: 'h', zh: '↔ 左右翻', en: '↔ flip', fn: mirH, anim: 'scaleX(-1)' },
+      v: { key: 'v', zh: '↕ 上下翻', en: '↕ flip', fn: mirV, anim: 'scaleY(-1)' },
+    };
+
+    // base patterns (0 = void, 1 = chalk, 2 = gold, 3 = blue); each must have
+    // all 8 D4 images distinct or the target would be ambiguous — asserted below
+    const P1: Pat = [
+      2, 1, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 3, 0,
+      0, 0, 0, 3];
+    const P2: Pat = [
+      2, 2, 1, 0,
+      0, 1, 0, 0,
+      0, 3, 1, 0,
+      3, 0, 0, 1];
+    const P3: Pat = [
+      1, 2, 3, 0,
+      0, 1, 0, 3,
+      0, 0, 1, 0,
+      2, 0, 0, 1];
+
+    const key = (p: Pat) => p.join('');
+    const orbit = (p: Pat) => {
+      const seen = new Set<string>();
+      let cur = p;
+      for (let i = 0; i < 4; i++) { seen.add(key(cur)); seen.add(key(mirH(cur))); cur = rot(cur); }
+      return seen.size;
+    };
+    [P1, P2, P3].forEach((p, i) => {
+      if (orbit(p) !== 8) console.error(`pattern P${i + 1} has a symmetry — only ${orbit(p)} distinct images`);
+    });
+
+    type Level = { pat: Pat; word: string; ops: string[] };
+    const LEVELS: Level[] = [
+      { pat: P1, word: 'r', ops: ['r', 'l', 'h', 'v'] },
+      { pat: P1, word: 'h', ops: ['r', 'l', 'h', 'v'] },
+      { pat: P1, word: 'rr', ops: ['r', 'l', 'h', 'v'] },
+      { pat: P2, word: 'rh', ops: ['r', 'l', 'h', 'v'] },
+      { pat: P2, word: 'l', ops: ['r', 'h'] },
+      { pat: P2, word: 'rhr', ops: ['r', 'h'] },
+      { pat: P3, word: 'v', ops: ['r', 'h'] },
+      { pat: P3, word: 'lh', ops: ['r', 'h'] },
+    ];
+
+    const apply = (p: Pat, word: string) => [...word].reduce((q, ch) => OPS[ch].fn(q), p);
+    // honest par: BFS over the orbit with THIS level's generators
+    const par = (l: Level) => {
+      const goal = key(apply(l.pat, l.word));
+      let frontier = [key(l.pat)];
+      const dist = new Map([[frontier[0], 0]]);
+      const decode = (s: string) => [...s].map(Number);
+      while (frontier.length) {
+        const nf: string[] = [];
+        for (const s of frontier) {
+          if (s === goal) return dist.get(s)!;
+          for (const op of l.ops) {
+            const nk = key(OPS[op].fn(decode(s)));
+            if (!dist.has(nk)) { dist.set(nk, dist.get(s)! + 1); nf.push(nk); }
+          }
+        }
+        frontier = nf;
+      }
+      return Infinity;
+    };
+    // a shortest word, for the post-solve note
+    const shortestWord = (l: Level) => {
+      const goal = key(apply(l.pat, l.word));
+      const decode = (s: string) => [...s].map(Number);
+      let frontier: [string, string][] = [[key(l.pat), '']];
+      const seen = new Set([frontier[0][0]]);
+      while (frontier.length) {
+        const nf: [string, string][] = [];
+        for (const [s, w] of frontier) {
+          if (s === goal) return w;
+          for (const op of l.ops) {
+            const nk = key(OPS[op].fn(decode(s)));
+            if (!seen.has(nk)) { seen.add(nk); nf.push([nk, w + op]); }
+          }
+        }
+        frontier = nf;
+      }
+      return '';
+    };
+
+    const store = {
+      read(): { done: number[] } {
+        try { return JSON.parse(localStorage.getItem('symmetry-v1') || '{"done":[]}'); }
+        catch { return { done: [] }; }
+      },
+      markDone(i: number) {
+        const s = store.read();
+        if (!s.done.includes(i)) s.done.push(i);
+        localStorage.setItem('symmetry-v1', JSON.stringify(s));
+      },
+    };
+
+    const COLORS = ['transparent', 'var(--color-chalk)', '#dda25b', 'var(--color-accent-soft)'];
+    const NS = 'http://www.w3.org/2000/svg';
+    const drawPat = (svg: SVGSVGElement, p: Pat) => {
+      svg.innerHTML = '';
+      const cell = 160 / N;
+      // grid lines
+      for (let i = 0; i <= N; i++) {
+        const mk = (x1: number, y1: number, x2: number, y2: number) => {
+          const ln = document.createElementNS(NS, 'line');
+          ln.setAttribute('x1', String(x1)); ln.setAttribute('y1', String(y1));
+          ln.setAttribute('x2', String(x2)); ln.setAttribute('y2', String(y2));
+          ln.setAttribute('stroke', 'var(--color-line)');
+          ln.setAttribute('stroke-width', '1');
+          svg.appendChild(ln);
+        };
+        mk(i * cell, 0, i * cell, 160);
+        mk(0, i * cell, 160, i * cell);
+      }
+      p.forEach((c, i) => {
+        if (!c) return;
+        const r = Math.floor(i / N), col = i % N;
+        const rect = document.createElementNS(NS, 'rect');
+        rect.setAttribute('x', String(col * cell + 3));
+        rect.setAttribute('y', String(r * cell + 3));
+        rect.setAttribute('width', String(cell - 6));
+        rect.setAttribute('height', String(cell - 6));
+        rect.setAttribute('rx', '4');
+        rect.setAttribute('fill', COLORS[c]);
+        rect.setAttribute('opacity', c === 1 ? '0.9' : '0.85');
+        svg.appendChild(rect);
+      });
+    };
+
+    let cur = 0;
+    let state: Pat = [];
+    let moves: string[] = [];
+    let animating = false;
+
+    const level = () => LEVELS[cur];
+    const goal = () => apply(level().pat, level().word);
+
+    const renderLevelDots = () => {
+      levelsEl.innerHTML = '';
+      const done = store.read().done;
+      LEVELS.forEach((_, i) => {
+        const b = document.createElement('button');
+        b.className = 'os-lvl';
+        b.textContent = String(i + 1);
+        b.classList.toggle('active', i === cur);
+        b.classList.toggle('done', done.includes(i));
+        b.addEventListener('click', () => { cur = i; setup(); });
+        levelsEl.appendChild(b);
+      });
+    };
+
+    const renderOps = () => {
+      opsEl.innerHTML = '';
+      level().ops.forEach((k) => {
+        const op = OPS[k];
+        const b = document.createElement('button');
+        b.className = 'sp-op';
+        b.textContent = zh ? op.zh : op.en;
+        b.addEventListener('click', () => doOp(op));
+        opsEl.appendChild(b);
+      });
+    };
+
+    const wordPretty = (w: string) => [...w].map((ch) => (zh ? OPS[ch].zh : OPS[ch].en).split(' ')[0]).join(' · ') || t('(不动)', '(nothing)');
+
+    const setStatus = (m: string) => { statusEl.textContent = m; };
+
+    const setup = () => {
+      state = [...level().pat];
+      moves = [];
+      noteEl.classList.add('hidden');
+      drawPat(board, state);
+      drawPat(targetSvg, goal());
+      renderLevelDots();
+      renderOps();
+      setStatus(t(`最少 ${par(level())} 步。`, `Par: ${par(level())} move(s).`));
+    };
+
+    const checkWin = () => {
+      if (key(state) !== key(goal())) return;
+      store.markDone(cur);
+      renderLevelDots();
+      const p = par(level());
+      const star = moves.length === p;
+      setStatus((star ? t(`★ ${moves.length} 步,最短解!`, `★ Solved in ${moves.length} — that's par!`)
+        : t(`✓ ${moves.length} 步通关(最少 ${p} 步)。`, `✓ Solved in ${moves.length} (par ${p}).`)));
+      const sw = shortestWord(level());
+      if (moves.length > p || sw.length > 1) {
+        noteEl.innerHTML = '';
+        const line1 = document.createElement('p');
+        line1.textContent = t(`你的解:${wordPretty(moves.join(''))}`, `Your word: ${wordPretty(moves.join(''))}`);
+        const line2 = document.createElement('p');
+        line2.className = 'mt-1';
+        line2.textContent = t(`一个最短解:${wordPretty(sw)}`, `A shortest word: ${wordPretty(sw)}`);
+        const line3 = document.createElement('p');
+        line3.className = 'mt-2 text-muted';
+        line3.textContent = t('不同的步骤串,同一个变换 —— 「乘法表」就是这样长出来的,这就是群。', 'Different move-strings, one transformation — that is how a multiplication table is born. That is a group.');
+        noteEl.append(line1, line2, line3);
+        noteEl.classList.remove('hidden');
+      }
+    };
+
+    const doOp = (op: Op) => {
+      if (animating) return;
+      const after = op.fn(state);
+      moves.push(op.key);
+      if (reduced) {
+        state = after;
+        drawPat(board, state);
+        checkWin();
+        return;
+      }
+      animating = true;
+      board.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+      board.style.transform = op.anim;
+      setTimeout(() => {
+        board.style.transition = 'none';
+        board.style.transform = 'none';
+        state = after;
+        drawPat(board, state);
+        animating = false;
+        checkWin();
+      }, 310);
+    };
+
+    undoBtn.addEventListener('click', () => {
+      if (animating || !moves.length) return;
+      moves.pop();
+      state = apply([...level().pat], moves.join(''));
+      drawPat(board, state);
+      setStatus(t('退了一步。', 'Stepped back.'));
+    });
+    resetBtn.addEventListener('click', setup);
+
+    setup();
+  });
+</script>
+
+<style is:global>
+  .sp-op {
+    border: 1px solid var(--color-line);
+    border-radius: 0.375rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .sp-op:hover { border-color: var(--color-accent-soft); background: var(--color-surface); }
+  .sp-op:active { transform: scale(0.96); }
+</style>

@@ -1,14 +1,13 @@
 ---
 /**
- * OneStroke — 一笔画 / Eulerian-path puzzle (2026-07-17, Yeqiu: option ①
- * "自己做小游戏,风格一致,直接上").
+ * OneStroke — 一笔画 / Eulerian-path puzzle.
+ * v2 (2026-07-17, Yeqiu): 10 levels ramping difficulty, several deliberately
+ * impossible; a standing 「宣布无解」 button — correctly calling a level
+ * impossible PASSES it (recognizing Euler's criterion IS the skill being
+ * taught). Wrong declarations answer with this graph's real odd-vertex count.
+ * All-10 completion fires a one-stroke gold celebration overlay.
  *
- * Pure client-side SVG game. Levels are graphs; the player traces every edge
- * exactly once. The finale is Königsberg 1736 — deliberately impossible, the
- * reveal IS Euler's theorem, which ties the game to the 《欧拉》 series.
- *
- * Runtime-created SVG nodes ⟹ styles must be is:global (Astro scoped styles
- * only hash build-time markup — the ChatWidget lesson).
+ * Runtime-created SVG nodes ⟹ styles must be is:global (ChatWidget lesson).
  */
 interface Props {
   lang: 'en' | 'zh';
@@ -22,8 +21,8 @@ const zh = lang === 'zh';
   <h1 class="mt-3 text-3xl font-semibold text-chalk">{zh ? '一笔画' : 'One Stroke'}</h1>
   <p class="mt-3 leading-relaxed text-muted">
     {zh
-      ? '不许抬笔、不许重复:一笔把所有的边走完。这个游戏的规则,欧拉在 1736 年就研究透了 —— 走到最后一关你就知道为什么。'
-      : 'Trace every edge exactly once without lifting your pen. Euler settled the rules of this game in 1736 — the last level shows you why.'}
+      ? '不许抬笔、不许重复:一笔把所有的边走完。但小心 —— 有些图从根上就画不出来,认出它们同样算你赢。这套规则,欧拉在 1736 年就研究透了。'
+      : 'Trace every edge exactly once without lifting your pen. But beware — some figures cannot be drawn at all, and calling them out counts as a win. Euler settled these rules in 1736.'}
   </p>
 
   <div class="os-levels mt-6 flex flex-wrap items-center gap-2" role="tablist" aria-label={zh ? '关卡' : 'Levels'}></div>
@@ -37,7 +36,7 @@ const zh = lang === 'zh';
     <div class="flex gap-2">
       <button class="os-undo rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '撤销' : 'Undo'}</button>
       <button class="os-reset rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '重来' : 'Reset'}</button>
-      <button class="os-why hidden rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-soft">{zh ? '为什么无解?' : 'Why impossible?'}</button>
+      <button class="os-declare rounded-md border border-accent-soft/60 px-3 py-1.5 text-sm text-accent-soft transition-colors hover:bg-accent/15">{zh ? '宣布无解' : 'Declare impossible'}</button>
     </div>
   </div>
 
@@ -45,18 +44,29 @@ const zh = lang === 'zh';
     {zh ? (
       <>
         <p class="font-medium text-chalk">欧拉的判据(1736)</p>
-        <p class="mt-2 text-sm">每次<em>路过</em>一个点,都要用掉一进一出<strong>两条</strong>边。所以一个点如果连着<strong>奇数</strong>条边,它只能当起点或终点 —— 而一条路线最多只有一个起点、一个终点。</p>
-        <p class="mt-2 text-sm">哥尼斯堡的四块陆地,连的桥数是 5、3、3、3 —— <strong>四个奇点</strong>。超过两个,就谁也画不出来。欧拉由此开创了图论。</p>
+        <p class="mt-2 text-sm">每次<em>路过</em>一个点,都要用掉一进一出<strong>两条</strong>边。所以连着<strong>奇数</strong>条边的点,只能当起点或终点 —— 而一条路线最多一个起点、一个终点。<strong>奇点数是 0 或 2 才画得出来。</strong></p>
+        <p class="mt-2 text-sm">哥尼斯堡的四块陆地,桥数是 5、3、3、3 —— 四个奇点。欧拉由此开创了图论。</p>
         <p class="mt-3 text-sm"><a class="text-accent-soft underline underline-offset-2" href="/zh/series/euler/">读《欧拉》系列 →</a></p>
       </>
     ) : (
       <>
         <p class="font-medium text-chalk">Euler's criterion (1736)</p>
-        <p class="mt-2 text-sm">Passing <em>through</em> a vertex uses up <strong>two</strong> edges — one in, one out. So a vertex with an <strong>odd</strong> number of edges can only be a start or an end — and a route has at most one of each.</p>
-        <p class="mt-2 text-sm">Königsberg's four land masses touch 5, 3, 3 and 3 bridges — <strong>four odd vertices</strong>. More than two, and no route exists. Graph theory begins here.</p>
+        <p class="mt-2 text-sm">Passing <em>through</em> a vertex spends <strong>two</strong> edges — one in, one out. A vertex with an <strong>odd</strong> number of edges can only be a start or an end, and a route has at most one of each. <strong>Drawable iff the odd-vertex count is 0 or 2.</strong></p>
+        <p class="mt-2 text-sm">Königsberg's four land masses touch 5, 3, 3 and 3 bridges — four odd vertices. Graph theory begins here.</p>
         <p class="mt-3 text-sm"><a class="text-accent-soft underline underline-offset-2" href="/zh/series/euler/">Read the Euler series →</a></p>
       </>
     )}
+  </div>
+
+  <div class="os-fin fixed inset-0 z-50 hidden items-center justify-center bg-bg/90 backdrop-blur-sm">
+    <div class="mx-6 max-w-md text-center">
+      <svg viewBox="0 0 200 200" class="mx-auto w-56">
+        <path class="os-fin-path" fill="none" stroke-width="2.5" stroke-linecap="round" d="" />
+      </svg>
+      <p class="os-fin-title mt-4 text-2xl font-semibold text-chalk">{zh ? '十关通过' : 'All ten levels'}</p>
+      <p class="mt-2 text-muted">{zh ? '可解的你都画了,无解的你都认出来了 —— 你已掌握欧拉 1736 年的判据。' : 'You drew every drawable figure and called out every impossible one — Euler’s 1736 criterion is yours now.'}</p>
+      <button class="os-fin-close mt-6 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-soft">{zh ? '收下' : 'Done'}</button>
+    </div>
   </div>
 </section>
 
@@ -71,28 +81,41 @@ const zh = lang === 'zh';
     const levelsEl = document.querySelector<HTMLElement>('.os-levels')!;
     const undoBtn = document.querySelector<HTMLButtonElement>('.os-undo')!;
     const resetBtn = document.querySelector<HTMLButtonElement>('.os-reset')!;
-    const whyBtn = document.querySelector<HTMLButtonElement>('.os-why')!;
+    const declareBtn = document.querySelector<HTMLButtonElement>('.os-declare')!;
     const explainEl = document.querySelector<HTMLElement>('.os-explain')!;
+    const finEl = document.querySelector<HTMLElement>('.os-fin')!;
 
     type Level = {
       name: string;
       en: string;
       v: [number, number][];
-      // [a, b, bend?] — bend curves the edge (needed for Königsberg's parallel bridges)
+      // [a, b, bend?] — bend curves the edge (Königsberg's parallel bridges)
       e: [number, number, number?][];
-      impossible?: boolean;
     };
+    const ring = (n: number, r: number, cx = 200, cy = 165, phase = -Math.PI / 2) =>
+      [...Array(n)].map((_, i) => {
+        const a = phase + (i * 2 * Math.PI) / n;
+        return [cx + r * Math.cos(a), cy + r * Math.sin(a)] as [number, number];
+      });
     const LEVELS: Level[] = [
       { name: '三角形', en: 'Triangle', v: [[200, 50], [80, 260], [320, 260]], e: [[0, 1], [1, 2], [2, 0]] },
-      { name: '五角星', en: 'Star', v: [0, 1, 2, 3, 4].map((i) => {
-          const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-          return [200 + 130 * Math.cos(a), 165 + 130 * Math.sin(a)] as [number, number];
-        }), e: [[0, 2], [2, 4], [4, 1], [1, 3], [3, 0]] },
+      { name: '五角星', en: 'Star', v: ring(5, 130), e: [[0, 2], [2, 4], [4, 1], [1, 3], [3, 0]] },
       { name: '日字', en: 'Ladder', v: [[130, 50], [270, 50], [130, 160], [270, 160], [130, 270], [270, 270]], e: [[0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 5]] },
+      { name: '田字', en: 'Window', v: [[110, 70], [200, 70], [290, 70], [110, 160], [200, 160], [290, 160], [110, 250], [200, 250], [290, 250]], e: [[0, 1], [1, 2], [3, 4], [4, 5], [6, 7], [7, 8], [0, 3], [3, 6], [1, 4], [4, 7], [2, 5], [5, 8]] },
       { name: '信封', en: 'Envelope', v: [[120, 140], [280, 140], [120, 270], [280, 270], [200, 50]], e: [[0, 1], [0, 2], [1, 3], [2, 3], [0, 3], [1, 2], [0, 4], [1, 4]] },
+      { name: '目字', en: 'Triple rung', v: [[130, 50], [270, 50], [130, 123], [270, 123], [130, 196], [270, 196], [130, 270], [270, 270]], e: [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [2, 4], [4, 6], [1, 3], [3, 5], [5, 7]] },
       { name: '八面体', en: 'Octahedron', v: [[200, 35], [55, 280], [345, 280], [200, 250], [125, 130], [275, 130]], e: [[0, 1], [1, 2], [2, 0], [3, 4], [4, 5], [5, 3], [3, 1], [3, 2], [4, 0], [4, 1], [5, 0], [5, 2]] },
-      { name: '哥尼斯堡七桥', en: 'Königsberg', impossible: true, v: [[200, 55], [200, 265], [115, 160], [300, 160]], e: [[0, 2, -34], [0, 2, 34], [1, 2, -34], [1, 2, 34], [0, 3, 26], [1, 3, -26], [2, 3]] },
+      { name: '星环', en: 'Star ring', v: ring(5, 130), e: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0], [0, 2], [2, 4], [4, 1], [1, 3], [3, 0]] },
+      { name: '车轮', en: 'Wheel', v: [[200, 160], ...ring(6, 120, 200, 160, 0)], e: [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 1], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6]] },
+      { name: '哥尼斯堡七桥', en: 'Königsberg', v: [[200, 55], [200, 265], [115, 160], [300, 160]], e: [[0, 2, -34], [0, 2, 34], [1, 2, -34], [1, 2, 34], [0, 3, 26], [1, 3, -26], [2, 3]] },
     ];
+    // ground truth from the graph itself, not hand-labels
+    const oddCount = (l: Level) => {
+      const deg = l.v.map(() => 0);
+      l.e.forEach(([a, b]) => { deg[a]++; deg[b]++; });
+      return deg.filter((d) => d % 2 === 1).length;
+    };
+    const isImpossible = (l: Level) => oddCount(l) > 2;
 
     const NS = 'http://www.w3.org/2000/svg';
     const store = {
@@ -111,7 +134,6 @@ const zh = lang === 'zh';
     let edgeEls: SVGPathElement[] = [];
     let nodeEls: SVGCircleElement[] = [];
     let used: boolean[] = [];
-    // path of moves: {edge, from, to}
     let trail: { edge: number; from: number; to: number }[] = [];
     let at: number | null = null;
 
@@ -122,7 +144,6 @@ const zh = lang === 'zh';
       const [x1, y1] = l.v[a];
       const [x2, y2] = l.v[b];
       if (!bend) return `M ${x1} ${y1} L ${x2} ${y2}`;
-      // control point offset perpendicular to the segment midpoint
       const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
       const dx = x2 - x1, dy = y2 - y1;
       const len = Math.hypot(dx, dy) || 1;
@@ -155,7 +176,6 @@ const zh = lang === 'zh';
       trail = [];
       at = null;
       explainEl.classList.add('hidden');
-      whyBtn.classList.toggle('hidden', !l.impossible);
 
       edgeEls = l.e.map((ed) => {
         const p = document.createElementNS(NS, 'path') as SVGPathElement;
@@ -176,9 +196,9 @@ const zh = lang === 'zh';
       });
       renderLevelDots();
       paint();
-      setStatus(l.impossible
-        ? t('1736 年的哥尼斯堡:七座桥,每座恰好走一次。试试看。', 'Königsberg, 1736: cross each of the seven bridges exactly once. Try.')
-        : t('点一个点开始。', 'Tap a vertex to start.'));
+      setStatus(cur === LEVELS.length - 1
+        ? t('终关 · 1736 年的哥尼斯堡:七座桥,每座恰好走一次。', 'Finale · Königsberg 1736: cross each of the seven bridges exactly once.')
+        : t('点一个点开始 —— 或者,直接宣布无解。', 'Tap a vertex to start — or declare it impossible.'));
     };
 
     const paint = () => {
@@ -194,6 +214,37 @@ const zh = lang === 'zh';
       el.classList.remove('shake');
       void (el as HTMLElement).getBoundingClientRect();
       el.classList.add('shake');
+    };
+
+    const maybeCelebrate = () => {
+      if (store.read().done.length !== LEVELS.length) return;
+      const path = finEl.querySelector<SVGPathElement>('.os-fin-path')!;
+      // a pentagram is itself a one-stroke figure — the celebration draws one
+      const pts = [...Array(5)].map((_, i) => {
+        const a = -Math.PI / 2 + (i * 4 * Math.PI) / 5; // skip-2 order = star
+        return `${100 + 80 * Math.cos(a)},${100 + 80 * Math.sin(a)}`;
+      });
+      path.setAttribute('d', `M ${pts[0]} L ${pts.slice(1).join(' L ')} Z`);
+      finEl.classList.remove('hidden');
+      finEl.classList.add('flex');
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = String(len);
+      path.style.strokeDashoffset = String(len);
+      path.getBoundingClientRect();
+      path.style.transition = 'stroke-dashoffset 2.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      path.style.strokeDashoffset = '0';
+    };
+    finEl.querySelector('.os-fin-close')!.addEventListener('click', () => {
+      finEl.classList.add('hidden');
+      finEl.classList.remove('flex');
+    });
+
+    const passLevel = (msg: string) => {
+      store.markDone(cur);
+      renderLevelDots();
+      const next = LEVELS.findIndex((_, j) => j > cur && !store.read().done.includes(j));
+      setStatus(msg + (next > 0 ? t(' 下一关已点亮。', ' Next level unlocked.') : ''));
+      maybeCelebrate();
     };
 
     const tap = (i: number) => {
@@ -212,17 +263,10 @@ const zh = lang === 'zh';
       at = i;
       paint();
       const left = used.filter((u) => !u).length;
-      if (left === 0) {
-        store.markDone(cur);
-        renderLevelDots();
-        const next = LEVELS.findIndex((_, j) => j > cur && !store.read().done.includes(j));
-        setStatus(t('✓ 一笔画成!', '✓ Solved in one stroke!') +
-          (next > 0 ? t(' 下一关已点亮。', ' Next level unlocked.') : t(' 全部通关 —— 你已抵达欧拉 1736 年的起点。', ' All done — you have reached where Euler started in 1736.')));
-        return;
-      }
+      if (left === 0) { passLevel(t('✓ 一笔画成!', '✓ Solved in one stroke!')); return; }
       if (!remainingFrom(at)) {
-        setStatus(l.impossible
-          ? t(`卡住了,还剩 ${left} 座桥。不是你的问题 —— 点「为什么无解?」`, `Stuck with ${left} bridge(s) left. Not your fault — hit "Why impossible?"`)
+        setStatus(isImpossible(l)
+          ? t(`卡住了,还剩 ${left} 条。也许……问题不在你?`, `Stuck with ${left} left. Maybe… it isn't you?`)
           : t(`卡住了,还剩 ${left} 条边 —— 撤销或重来。`, `Stuck, ${left} edge(s) left — undo or reset.`));
         shake(statusEl);
       } else {
@@ -239,9 +283,21 @@ const zh = lang === 'zh';
       setStatus(t('退了一步。', 'Stepped back.'));
     });
     resetBtn.addEventListener('click', setup);
-    whyBtn.addEventListener('click', () => {
-      explainEl.classList.remove('hidden');
-      explainEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    declareBtn.addEventListener('click', () => {
+      const l = level();
+      const odd = oddCount(l);
+      if (isImpossible(l)) {
+        explainEl.classList.remove('hidden');
+        passLevel(t(`✓ 判断正确 —— 这张图有 ${odd} 个奇点,谁来都画不出。`,
+          `✓ Correct — this graph has ${odd} odd vertices; nobody can draw it.`));
+        explainEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        shake(declareBtn);
+        setStatus(odd === 0
+          ? t('欧拉不同意:这张图的奇点是 0 个,从任何点出发都能画回原点。', 'Euler disagrees: zero odd vertices — drawable from anywhere, back to the start.')
+          : t(`欧拉不同意:这张图的奇点只有 ${odd} 个 —— 从其中一个奇点出发就能画完。`, `Euler disagrees: only ${odd} odd vertices — start at one of them and it draws.`));
+      }
     });
 
     setup();
@@ -285,6 +341,10 @@ const zh = lang === 'zh';
     stroke: var(--color-accent-soft);
     filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-accent) 70%, transparent));
   }
+  .os-fin-path {
+    stroke: #dda25b;
+    filter: drop-shadow(0 0 10px rgba(221, 162, 91, 0.7));
+  }
   .shake { animation: os-shake 0.3s; }
   @keyframes os-shake {
     0%, 100% { transform: translateX(0); }
@@ -293,5 +353,6 @@ const zh = lang === 'zh';
   }
   @media (prefers-reduced-motion: reduce) {
     .shake { animation: none; }
+    .os-fin-path { transition: none !important; stroke-dashoffset: 0 !important; }
   }
 </style>

@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro';
+import RubiksCube from '../../components/RubiksCube.astro';
+---
+
+<Base
+  title="Rubik's Cube — Play — 时间观察者"
+  description="A 3D Rubik's cube: drag to orbit, buttons to turn layers. 43 quintillion states, never more than 20 moves from solved."
+  lang="en"
+  altHref="/zh/play/rubiks/"
+>
+  <main>
+    <RubiksCube lang="en" />
+    <p class="mx-auto max-w-3xl px-6 pb-16 text-sm text-muted">
+      <a class="text-accent-soft underline underline-offset-2" href="/play/">← More games</a>
+    </p>
+  </main>
+</Base>

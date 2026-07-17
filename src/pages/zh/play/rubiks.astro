@@ -1,0 +1,18 @@
+---
+import Base from '../../../layouts/Base.astro';
+import RubiksCube from '../../../components/RubiksCube.astro';
+---
+
+<Base
+  title="魔方 — 小游戏 — 时间观察者"
+  description="3D 魔方:拖动旋转视角,按钮转层。4300 亿亿种状态,任何一种离还原都不超过 20 步。"
+  lang="zh"
+  altHref="/play/rubiks/"
+>
+  <main>
+    <RubiksCube lang="zh" />
+    <p class="mx-auto max-w-3xl px-6 pb-16 text-sm text-muted">
+      <a class="text-accent-soft underline underline-offset-2" href="/zh/play/">← 更多小游戏</a>
+    </p>
+  </main>
+</Base>

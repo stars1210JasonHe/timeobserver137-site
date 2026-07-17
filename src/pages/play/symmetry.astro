@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro';
+import SymmetryPuzzle from '../../components/SymmetryPuzzle.astro';
+---
+
+<Base
+  title="Symmetry Puzzle — Play — 时间观察者"
+  description="Rotate and flip a tile to match the target. The square's 8 symmetries form the group D₄ — and you will discover by hand that three moves can equal one."
+  lang="en"
+  altHref="/zh/play/symmetry/"
+>
+  <main>
+    <SymmetryPuzzle lang="en" />
+    <p class="mx-auto max-w-3xl px-6 pb-16 text-sm text-muted">
+      <a class="text-accent-soft underline underline-offset-2" href="/play/">← More games</a>
+    </p>
+  </main>
+</Base>

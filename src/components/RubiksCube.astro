@@ -1,0 +1,273 @@
+---
+/**
+ * RubiksCube — 3D 魔方 (2026-07-17, Yeqiu game #3: "魔方,而且是 3d 的").
+ *
+ * three.js, bundled by Astro (no CDN). 26 visible cubies with per-face
+ * materials; drag anywhere to orbit the whole cube; face turns via buttons
+ * (animated 90° layer rotations, input locked during animation); scramble /
+ * reset; solved detection compares every cubie's snapped world matrix to its
+ * home state — a full-cube orbit is NOT "unsolved", so detection works on the
+ * logical state, not the camera.
+ */
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+---
+
+<section class="mx-auto max-w-3xl px-6 py-12">
+  <p class="text-sm uppercase tracking-[0.25em] text-muted">{zh ? '小游戏 · 魔方' : 'Play · Cube'}</p>
+  <h1 class="mt-3 text-3xl font-semibold text-chalk">{zh ? '魔方' : "Rubik's Cube"}</h1>
+  <p class="mt-3 leading-relaxed text-muted">
+    {zh
+      ? '拖动旋转视角,按钮转动棱层。4300 亿亿种状态里,只有一种是还原 —— 而它总能在 20 步以内到达(「上帝之数」,2010 年被证明)。'
+      : 'Drag to orbit, buttons to turn layers. Of 43 quintillion states exactly one is solved — and it is never more than 20 moves away ("God’s number", proved 2010).'}
+  </p>
+
+  <div class="rc-stage relative mt-6 h-[380px] cursor-grab touch-none rounded-lg border border-line/70 bg-surface/40 sm:h-[440px]"></div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2">
+    {['U', "U'", 'D', "D'", 'L', "L'", 'R', "R'", 'F', "F'", 'B', "B'"].map((m) => (
+      <button class="rc-move font-mono" data-move={m}>{m}</button>
+    ))}
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+    <p class="rc-status text-sm text-muted" aria-live="polite"></p>
+    <div class="flex gap-2">
+      <button class="rc-scramble rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-soft">{zh ? '打乱' : 'Scramble'}</button>
+      <button class="rc-solve rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '一键还原' : 'Reset'}</button>
+    </div>
+  </div>
+  <p class="mt-4 text-xs text-faint">
+    {zh ? 'U/D/L/R/F/B = 上/下/左/右/前/后层顺时针,带 \' 为逆时针。' : "U/D/L/R/F/B turn the up/down/left/right/front/back layer clockwise; ' = counter-clockwise."}
+  </p>
+</section>
+
+<script>
+  import * as THREE from 'three';
+
+  document.addEventListener('astro:page-load', () => {
+    const stage = document.querySelector<HTMLElement>('.rc-stage');
+    if (!stage || stage.dataset.wired) return;
+    stage.dataset.wired = '1';
+    const zh = document.documentElement.lang.startsWith('zh');
+    const t = (zhs: string, ens: string) => (zh ? zhs : ens);
+    const statusEl = document.querySelector<HTMLElement>('.rc-status')!;
+
+    // --- scene ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+    camera.position.set(6.2, 5.4, 7.4);
+    camera.lookAt(0, 0, 0);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    stage.appendChild(renderer.domElement);
+    const resize = () => {
+      const w = stage.clientWidth, h = stage.clientHeight;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+    resize();
+    addEventListener('resize', resize);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1.15));
+    const key = new THREE.DirectionalLight(0xffffff, 1.6);
+    key.position.set(6, 9, 7);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0x3d8bff, 0.5);
+    rim.position.set(-6, -3, -6);
+    scene.add(rim);
+
+    // --- cube ---
+    // classic colors, slightly muted to sit on the deep-blue stage
+    const FACE = {
+      px: 0xc0392b, nx: 0xe67e22, py: 0xecf0f1, ny: 0xf1c40f, pz: 0x27ae60, nz: 0x2980b9,
+    };
+    const DARK = 0x101c30;
+    const root = new THREE.Group();   // orbit target (camera-ish rotation)
+    scene.add(root);
+    const cubies: THREE.Mesh[] = [];
+    const geo = new THREE.BoxGeometry(0.94, 0.94, 0.94);
+    for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) for (let z = -1; z <= 1; z++) {
+      if (!x && !y && !z) continue;
+      const mats = [
+        new THREE.MeshLambertMaterial({ color: x === 1 ? FACE.px : DARK }),
+        new THREE.MeshLambertMaterial({ color: x === -1 ? FACE.nx : DARK }),
+        new THREE.MeshLambertMaterial({ color: y === 1 ? FACE.py : DARK }),
+        new THREE.MeshLambertMaterial({ color: y === -1 ? FACE.ny : DARK }),
+        new THREE.MeshLambertMaterial({ color: z === 1 ? FACE.pz : DARK }),
+        new THREE.MeshLambertMaterial({ color: z === -1 ? FACE.nz : DARK }),
+      ];
+      const m = new THREE.Mesh(geo, mats);
+      m.position.set(x, y, z);
+      root.add(m);
+      cubies.push(m);
+    }
+    root.rotation.set(0.42, -0.62, 0);
+
+    // --- solved detection on logical state ---
+    const snap = (v: number) => Math.round(v);
+    // legal orientations have rotation matrices with entries in {-1,0,1} —
+    // rounding the matrix kills float drift instead of letting it accumulate
+    const snapRot = (c: THREE.Object3D) => {
+      const m = new THREE.Matrix4().makeRotationFromQuaternion(c.quaternion);
+      m.elements.forEach((v, i) => { m.elements[i] = Math.round(v); });
+      c.quaternion.setFromRotationMatrix(m);
+    };
+    const IDENT = new THREE.Quaternion();
+    // solved = every cubie back home AND facing its factory way (identity
+    // orientation alone is NOT enough — a permuted cubie can face "straight")
+    const isSolved = () =>
+      cubies.every((c) => {
+        const h = c.userData.home as THREE.Vector3;
+        return c.position.distanceToSquared(h) < 1e-6 && c.quaternion.angleTo(IDENT) < 1e-4;
+      });
+
+    // --- layer turns ---
+    type Move = { axis: 'x' | 'y' | 'z'; layer: number; dir: number };
+    const MOVES: Record<string, Move> = {
+      U: { axis: 'y', layer: 1, dir: -1 }, "U'": { axis: 'y', layer: 1, dir: 1 },
+      D: { axis: 'y', layer: -1, dir: 1 }, "D'": { axis: 'y', layer: -1, dir: -1 },
+      R: { axis: 'x', layer: 1, dir: -1 }, "R'": { axis: 'x', layer: 1, dir: 1 },
+      L: { axis: 'x', layer: -1, dir: 1 }, "L'": { axis: 'x', layer: -1, dir: -1 },
+      F: { axis: 'z', layer: 1, dir: -1 }, "F'": { axis: 'z', layer: 1, dir: 1 },
+      B: { axis: 'z', layer: -1, dir: 1 }, "B'": { axis: 'z', layer: -1, dir: -1 },
+    };
+    let animating = false;
+    let moveCount = 0;
+    let scrambled = false;
+
+    const setStatus = (m: string) => { statusEl.textContent = m; };
+    setStatus(t('拖动看一圈,然后「打乱」。', 'Drag to look around, then Scramble.'));
+
+    const turn = (mv: Move, instant = false, onDone?: () => void) => {
+      if (animating) return;
+      animating = true;
+      const pivot = new THREE.Group();
+      root.add(pivot);
+      const members = cubies.filter((c) => Math.abs(c.position[mv.axis] - mv.layer) < 0.4);
+      members.forEach((c) => pivot.attach(c));
+      const target = (mv.dir * Math.PI) / 2;
+      const finish = () => {
+        pivot.rotation[mv.axis] = target;
+        pivot.updateMatrixWorld(true);
+        members.forEach((c) => {
+          root.attach(c);
+          c.position.set(snap(c.position.x), snap(c.position.y), snap(c.position.z));
+          snapRot(c);
+        });
+        root.remove(pivot);
+        animating = false;
+        onDone?.();
+      };
+      if (instant) { finish(); return; }
+      const t0 = performance.now();
+      const D = 180;
+      const step = (now: number) => {
+        const k = Math.min(1, (now - t0) / D);
+        pivot.rotation[mv.axis] = target * (1 - Math.pow(1 - k, 3));
+        if (k < 1) requestAnimationFrame(step);
+        else finish();
+      };
+      requestAnimationFrame(step);
+    };
+
+    const afterPlayerMove = () => {
+      moveCount++;
+      if (scrambled && isSolved()) {
+        setStatus(t(`🎉 还原!${moveCount} 步。`, `🎉 Solved in ${moveCount} moves!`));
+        scrambled = false;
+        // celebratory pulse
+        stage.classList.add('rc-win');
+        setTimeout(() => stage.classList.remove('rc-win'), 1600);
+      } else {
+        setStatus(t(`第 ${moveCount} 步。`, `Move ${moveCount}.`));
+      }
+    };
+
+    document.querySelectorAll<HTMLButtonElement>('.rc-move').forEach((b) =>
+      b.addEventListener('click', () => {
+        if (animating) return;
+        turn(MOVES[b.dataset.move!], false, afterPlayerMove);
+      }));
+
+    document.querySelector('.rc-scramble')!.addEventListener('click', () => {
+      if (animating) return;
+      const keys = Object.keys(MOVES);
+      let i = 0;
+      moveCount = 0;
+      const seq: Move[] = [...Array(18)].map(() => MOVES[keys[Math.floor(Math.random() * keys.length)]]);
+      setStatus(t('打乱中…', 'Scrambling…'));
+      const next = () => {
+        if (i >= seq.length) { scrambled = true; setStatus(t('开始吧。', 'Your move.')); return; }
+        turn(seq[i++], false, next);
+      };
+      next();
+    });
+
+    document.querySelector('.rc-solve')!.addEventListener('click', () => {
+      if (animating) return;
+      // hard reset: restore every cubie's home transform
+      cubies.forEach((c) => {
+        const p = c.userData.home as THREE.Vector3;
+        c.position.copy(p);
+        c.rotation.set(0, 0, 0);
+      });
+      scrambled = false;
+      moveCount = 0;
+      setStatus(t('回到出厂状态。', 'Factory state restored.'));
+    });
+    cubies.forEach((c) => { c.userData.home = c.position.clone(); });
+
+    // --- orbit drag ---
+    let dragging = false;
+    let px = 0, py = 0;
+    stage.addEventListener('pointerdown', (e) => {
+      dragging = true; px = e.clientX; py = e.clientY;
+      stage.setPointerCapture(e.pointerId);
+      stage.style.cursor = 'grabbing';
+    });
+    stage.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      root.rotation.y += (e.clientX - px) * 0.008;
+      root.rotation.x += (e.clientY - py) * 0.008;
+      root.rotation.x = Math.max(-1.35, Math.min(1.35, root.rotation.x));
+      px = e.clientX; py = e.clientY;
+    });
+    const endDrag = () => { dragging = false; stage.style.cursor = 'grab'; };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    // --- render loop (paused off-screen) ---
+    let inView = true;
+    new IntersectionObserver(([e]) => (inView = e.isIntersecting)).observe(stage);
+    const loop = () => {
+      if (inView) renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    };
+    loop();
+  });
+</script>
+
+<style is:global>
+  .rc-move {
+    border: 1px solid var(--color-line);
+    border-radius: 0.375rem;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .rc-move:hover { border-color: var(--color-accent-soft); background: var(--color-surface); }
+  .rc-move:active { transform: scale(0.96); }
+  .rc-stage canvas { display: block; width: 100%; height: 100%; }
+  .rc-stage.rc-win {
+    border-color: #dda25b;
+    box-shadow: 0 0 34px rgba(221, 162, 91, 0.35);
+    transition: box-shadow 0.4s, border-color 0.4s;
+  }
+</style>
