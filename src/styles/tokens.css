@@ -7,10 +7,10 @@
  */
 @theme {
   /* surfaces */
-  --color-bg: #0b0e14;
-  --color-surface: #131824;
-  --color-surface-2: #1a2130;
-  --color-line: #232c3f;
+  --color-bg: #0a1228;
+  --color-surface: #101c3a;
+  --color-surface-2: #16254c;
+  --color-line: #24345f;
 
   /* text */
   --color-ink: #e7eaf2;

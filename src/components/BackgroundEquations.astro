@@ -36,6 +36,7 @@ const eqs = [
             </feTurbulence>
             <feDisplacementMap in="SourceGraphic" scale="12" xChannelSelector="R" yChannelSelector="G">
               <animate attributeName="scale" dur={`${4 + e.i}s`} values="9;16;9" repeatCount="indefinite" />
+              <animate class="eq-quake" attributeName="scale" dur="0.9s" values="12;46;6;12" begin="indefinite" />
             </feDisplacementMap>
           </filter>
         </svg>
@@ -60,6 +61,34 @@ const eqs = [
     // hover freezes THIS equation only (2.2.2 stop mechanism, per-element)
     el.addEventListener('pointerenter', () => svg.pauseAnimations());
     el.addEventListener('pointerleave', () => svg.unpauseAnimations());
+
+    // click = gravitational-wave burst: quake spike + expanding rings + flare
+    el.addEventListener('click', () => {
+      svg.unpauseAnimations(); // a quake needs live spacetime even mid-hover
+      (svg.querySelector('.eq-quake') as any)?.beginElement?.();
+      text.animate(
+        [
+          { filter: 'brightness(1)', opacity: 1 },
+          { filter: 'brightness(2.4)', opacity: 1, offset: 0.18 },
+          { filter: 'brightness(1)', opacity: 1 },
+        ],
+        { duration: 900, easing: 'ease-out' },
+      );
+      for (const delay of [0, 180]) {
+        const ring = document.createElement('span');
+        ring.className = 'eq-ring';
+        el.appendChild(ring);
+        ring
+          .animate(
+            [
+              { transform: 'translate(-50%,-50%) scale(0.15)', opacity: 0.55 },
+              { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 },
+            ],
+            { duration: 1100, delay, easing: 'cubic-bezier(0.2,0.6,0.3,1)', fill: 'forwards' },
+          )
+          .finished.then(() => ring.remove());
+      }
+    });
   }
   // park all shimmer while the hero is off-screen (WebKit perf guidance)
   const hero = document.querySelector('.hero');
@@ -78,8 +107,24 @@ const eqs = [
   .bg-eq {
     position: absolute;
     user-select: none;
-    pointer-events: auto; /* hover-to-freeze needs hit-testing */
+    pointer-events: auto; /* hover-to-freeze + click-burst need hit-testing */
+    cursor: pointer;
     animation: eq-emerge 1.8s ease forwards;
+    opacity: 0;
+  }
+  :global(.eq-ring) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34rem;
+    height: 34rem;
+    border-radius: 9999px;
+    border: 1.5px solid color-mix(in srgb, var(--color-accent-soft) 70%, transparent);
+    box-shadow:
+      0 0 24px color-mix(in srgb, var(--color-accent) 45%, transparent),
+      inset 0 0 18px color-mix(in srgb, var(--color-accent) 30%, transparent);
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.15);
     opacity: 0;
   }
   .eq-text {
