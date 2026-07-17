@@ -6,6 +6,7 @@ import { ClientRouter } from 'astro:transitions';
 import HeadMeta from '../components/HeadMeta.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import ChatWidget from '../components/ChatWidget.astro';
 
 interface Props {
   title: string;
@@ -75,5 +76,6 @@ const { title, description, lang, altHref, ogImage } = Astro.props;
     <Nav {lang} {altHref} />
     <slot />
     <Footer {lang} />
+    <ChatWidget {lang} />
   </body>
 </html>

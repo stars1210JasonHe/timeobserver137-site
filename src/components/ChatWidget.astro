@@ -1,0 +1,207 @@
+---
+/**
+ * ChatWidget — floating site assistant (Yeqiu 2026-07-17: chatbot for web).
+ * Backend: /api/chat (Cloudflare Workers AI, in-account, no external keys).
+ * One bubble, one panel; lifecycle-safe under ClientRouter.
+ */
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+const t = {
+  open: zh ? '和站点助手聊聊' : 'Chat with the site assistant',
+  title: zh ? '站点助手' : 'Site assistant',
+  hello: zh
+    ? '你好，我是这个站的 AI 助手 — 想了解他做过什么、这些文章讲什么，都可以问我。'
+    : "Hi — I'm this site's AI assistant. Ask me about the projects, the essays, or the fleet.",
+  placeholder: zh ? '输入问题…' : 'Ask something…',
+  send: zh ? '发送' : 'Send',
+  thinking: zh ? '思考中…' : 'Thinking…',
+  err: zh ? '出错了，稍后再试。' : 'Something went wrong — try again later.',
+  limit: zh ? '今天聊得够多啦，明天再来。' : "That's the daily limit — come back tomorrow.",
+};
+---
+
+<div class="chat-root" data-strings={JSON.stringify(t)}>
+  <button id="chat-bubble" class="chat-bubble" aria-label={t.open} title={t.open}>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+  </button>
+  <div id="chat-panel" class="chat-panel" hidden>
+    <div class="chat-head">
+      <span>{t.title}</span>
+      <button id="chat-close" aria-label="close">×</button>
+    </div>
+    <div id="chat-log" class="chat-log"></div>
+    <form id="chat-form" class="chat-form">
+      <input id="chat-input" type="text" maxlength="500" placeholder={t.placeholder} autocomplete="off" />
+      <button type="submit">{t.send}</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const root = document.querySelector<HTMLElement>('.chat-root');
+    if (!root || root.dataset.wired) return;
+    root.dataset.wired = '1';
+    const t = JSON.parse(root.dataset.strings || '{}');
+    const bubble = root.querySelector<HTMLElement>('#chat-bubble')!;
+    const panel = root.querySelector<HTMLElement>('#chat-panel')!;
+    const log = root.querySelector<HTMLElement>('#chat-log')!;
+    const form = root.querySelector<HTMLFormElement>('#chat-form')!;
+    const input = root.querySelector<HTMLInputElement>('#chat-input')!;
+    const history: { role: string; content: string }[] = [];
+
+    const add = (role: 'user' | 'assistant', text: string) => {
+      const div = document.createElement('div');
+      div.className = `chat-msg chat-${role}`;
+      div.textContent = text;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+      return div;
+    };
+
+    bubble.addEventListener('click', () => {
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden && !log.childElementCount) add('assistant', t.hello);
+      if (!panel.hidden) input.focus();
+    });
+    root.querySelector('#chat-close')!.addEventListener('click', () => (panel.hidden = true));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+      input.value = '';
+      add('user', q);
+      history.push({ role: 'user', content: q });
+      const pending = add('assistant', t.thinking);
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ messages: history }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          pending.textContent = data.reply;
+          history.push({ role: 'assistant', content: data.reply });
+        } else {
+          pending.textContent = data.error === 'daily limit' ? t.limit : t.err;
+        }
+      } catch {
+        pending.textContent = t.err;
+      }
+      log.scrollTop = log.scrollHeight;
+    });
+  });
+</script>
+
+<style>
+  .chat-bubble {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    background: var(--color-accent);
+    color: #fff;
+    box-shadow: 0 6px 24px -6px color-mix(in srgb, var(--color-accent) 60%, transparent);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+  .chat-bubble:hover {
+    transform: translateY(-2px);
+    background: var(--color-accent-soft);
+  }
+  .chat-panel {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 4.75rem;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    width: min(92vw, 22rem);
+    height: min(70vh, 28rem);
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+    box-shadow: 0 20px 60px -20px rgb(0 0 0 / 0.6);
+  }
+  .chat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-chalk);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .chat-head button {
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .chat-log {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.9rem;
+  }
+  .chat-msg {
+    max-width: 85%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.6rem;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .chat-user {
+    align-self: flex-end;
+    background: var(--color-accent);
+    color: #fff;
+  }
+  .chat-assistant {
+    align-self: flex-start;
+    background: var(--color-surface-2);
+    color: var(--color-ink);
+  }
+  .chat-form {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .chat-form input {
+    min-width: 0;
+    flex: 1;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-bg);
+    padding: 0.45rem 0.7rem;
+    font-size: 0.86rem;
+    color: var(--color-ink);
+  }
+  .chat-form input:focus {
+    outline: none;
+    border-color: var(--color-accent-soft);
+  }
+  .chat-form button {
+    border-radius: 0.5rem;
+    background: var(--color-accent);
+    color: #fff;
+    padding: 0 0.9rem;
+    font-size: 0.86rem;
+  }
+</style>
