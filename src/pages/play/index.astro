@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import OneStroke from '../../components/OneStroke.astro';
+---
+
+<Base
+  title="Play — 时间观察者"
+  description="One Stroke: the game Euler settled in 1736. Trace every edge exactly once — the final level shows why some figures defeat everyone."
+  lang="en"
+  altHref="/zh/play/"
+>
+  <main>
+    <OneStroke lang="en" />
+    <section class="mx-auto max-w-3xl px-6 pb-16">
+      <h2 class="text-xl font-semibold text-chalk">More</h2>
+      <a
+        href="https://meinopoly.pages.dev"
+        class="mt-4 block rounded-lg border border-line/70 bg-surface/40 p-5 transition-colors hover:border-accent-soft/60 hover:bg-surface"
+      >
+        <p class="font-medium text-ink">Meinopoly — turn any book into a board game <span class="text-faint">↗</span></p>
+        <p class="mt-1 text-sm text-muted">A moddable Monopoly-style strategy engine. Solo play with local bots, right in the browser.</p>
+      </a>
+    </section>
+  </main>
+</Base>

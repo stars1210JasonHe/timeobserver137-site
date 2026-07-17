@@ -1,0 +1,25 @@
+---
+import Base from '../../../layouts/Base.astro';
+import OneStroke from '../../../components/OneStroke.astro';
+---
+
+<Base
+  title="小游戏 — 时间观察者"
+  description="一笔画:欧拉 1736 年研究透的游戏。不许抬笔,一笔走完所有的边 —— 最后一关告诉你为什么有的图谁也画不出来。"
+  lang="zh"
+  altHref="/play/"
+>
+  <main>
+    <OneStroke lang="zh" />
+    <section class="mx-auto max-w-3xl px-6 pb-16">
+      <h2 class="text-xl font-semibold text-chalk">更多</h2>
+      <a
+        href="https://meinopoly.pages.dev"
+        class="mt-4 block rounded-lg border border-line/70 bg-surface/40 p-5 transition-colors hover:border-accent-soft/60 hover:bg-surface"
+      >
+        <p class="font-medium text-ink">Meinopoly — 把任何一本书变成大富翁 <span class="text-faint">↗</span></p>
+        <p class="mt-1 text-sm text-muted">可改装的大富翁式策略引擎,单机 + 本地人机对战,浏览器直接玩。</p>
+      </a>
+    </section>
+  </main>
+</Base>

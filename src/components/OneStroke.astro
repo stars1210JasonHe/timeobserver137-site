@@ -1,0 +1,297 @@
+---
+/**
+ * OneStroke — 一笔画 / Eulerian-path puzzle (2026-07-17, Yeqiu: option ①
+ * "自己做小游戏,风格一致,直接上").
+ *
+ * Pure client-side SVG game. Levels are graphs; the player traces every edge
+ * exactly once. The finale is Königsberg 1736 — deliberately impossible, the
+ * reveal IS Euler's theorem, which ties the game to the 《欧拉》 series.
+ *
+ * Runtime-created SVG nodes ⟹ styles must be is:global (Astro scoped styles
+ * only hash build-time markup — the ChatWidget lesson).
+ */
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+---
+
+<section class="mx-auto max-w-3xl px-6 py-12">
+  <p class="text-sm uppercase tracking-[0.25em] text-muted">{zh ? '小游戏 · 一笔画' : 'Play · One Stroke'}</p>
+  <h1 class="mt-3 text-3xl font-semibold text-chalk">{zh ? '一笔画' : 'One Stroke'}</h1>
+  <p class="mt-3 leading-relaxed text-muted">
+    {zh
+      ? '不许抬笔、不许重复:一笔把所有的边走完。这个游戏的规则,欧拉在 1736 年就研究透了 —— 走到最后一关你就知道为什么。'
+      : 'Trace every edge exactly once without lifting your pen. Euler settled the rules of this game in 1736 — the last level shows you why.'}
+  </p>
+
+  <div class="os-levels mt-6 flex flex-wrap items-center gap-2" role="tablist" aria-label={zh ? '关卡' : 'Levels'}></div>
+
+  <div class="os-stage mt-4 rounded-lg border border-line/70 bg-surface/40 p-2">
+    <svg viewBox="0 0 400 320" class="h-auto w-full touch-manipulation" aria-label={zh ? '一笔画棋盘' : 'One-stroke board'}></svg>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+    <p class="os-status text-sm text-muted" aria-live="polite"></p>
+    <div class="flex gap-2">
+      <button class="os-undo rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '撤销' : 'Undo'}</button>
+      <button class="os-reset rounded-md border border-line px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent-soft">{zh ? '重来' : 'Reset'}</button>
+      <button class="os-why hidden rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-soft">{zh ? '为什么无解?' : 'Why impossible?'}</button>
+    </div>
+  </div>
+
+  <div class="os-explain mt-4 hidden rounded-lg border border-accent-soft/50 bg-surface/60 p-5 leading-relaxed text-ink">
+    {zh ? (
+      <>
+        <p class="font-medium text-chalk">欧拉的判据(1736)</p>
+        <p class="mt-2 text-sm">每次<em>路过</em>一个点,都要用掉一进一出<strong>两条</strong>边。所以一个点如果连着<strong>奇数</strong>条边,它只能当起点或终点 —— 而一条路线最多只有一个起点、一个终点。</p>
+        <p class="mt-2 text-sm">哥尼斯堡的四块陆地,连的桥数是 5、3、3、3 —— <strong>四个奇点</strong>。超过两个,就谁也画不出来。欧拉由此开创了图论。</p>
+        <p class="mt-3 text-sm"><a class="text-accent-soft underline underline-offset-2" href="/zh/series/euler/">读《欧拉》系列 →</a></p>
+      </>
+    ) : (
+      <>
+        <p class="font-medium text-chalk">Euler's criterion (1736)</p>
+        <p class="mt-2 text-sm">Passing <em>through</em> a vertex uses up <strong>two</strong> edges — one in, one out. So a vertex with an <strong>odd</strong> number of edges can only be a start or an end — and a route has at most one of each.</p>
+        <p class="mt-2 text-sm">Königsberg's four land masses touch 5, 3, 3 and 3 bridges — <strong>four odd vertices</strong>. More than two, and no route exists. Graph theory begins here.</p>
+        <p class="mt-3 text-sm"><a class="text-accent-soft underline underline-offset-2" href="/zh/series/euler/">Read the Euler series →</a></p>
+      </>
+    )}
+  </div>
+</section>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const stage = document.querySelector<HTMLElement>('.os-stage');
+    if (!stage || stage.dataset.wired) return;
+    stage.dataset.wired = '1';
+    const svg = stage.querySelector('svg')!;
+    const zh = document.documentElement.lang.startsWith('zh');
+    const statusEl = document.querySelector<HTMLElement>('.os-status')!;
+    const levelsEl = document.querySelector<HTMLElement>('.os-levels')!;
+    const undoBtn = document.querySelector<HTMLButtonElement>('.os-undo')!;
+    const resetBtn = document.querySelector<HTMLButtonElement>('.os-reset')!;
+    const whyBtn = document.querySelector<HTMLButtonElement>('.os-why')!;
+    const explainEl = document.querySelector<HTMLElement>('.os-explain')!;
+
+    type Level = {
+      name: string;
+      en: string;
+      v: [number, number][];
+      // [a, b, bend?] — bend curves the edge (needed for Königsberg's parallel bridges)
+      e: [number, number, number?][];
+      impossible?: boolean;
+    };
+    const LEVELS: Level[] = [
+      { name: '三角形', en: 'Triangle', v: [[200, 50], [80, 260], [320, 260]], e: [[0, 1], [1, 2], [2, 0]] },
+      { name: '五角星', en: 'Star', v: [0, 1, 2, 3, 4].map((i) => {
+          const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+          return [200 + 130 * Math.cos(a), 165 + 130 * Math.sin(a)] as [number, number];
+        }), e: [[0, 2], [2, 4], [4, 1], [1, 3], [3, 0]] },
+      { name: '日字', en: 'Ladder', v: [[130, 50], [270, 50], [130, 160], [270, 160], [130, 270], [270, 270]], e: [[0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 5]] },
+      { name: '信封', en: 'Envelope', v: [[120, 140], [280, 140], [120, 270], [280, 270], [200, 50]], e: [[0, 1], [0, 2], [1, 3], [2, 3], [0, 3], [1, 2], [0, 4], [1, 4]] },
+      { name: '八面体', en: 'Octahedron', v: [[200, 35], [55, 280], [345, 280], [200, 250], [125, 130], [275, 130]], e: [[0, 1], [1, 2], [2, 0], [3, 4], [4, 5], [5, 3], [3, 1], [3, 2], [4, 0], [4, 1], [5, 0], [5, 2]] },
+      { name: '哥尼斯堡七桥', en: 'Königsberg', impossible: true, v: [[200, 55], [200, 265], [115, 160], [300, 160]], e: [[0, 2, -34], [0, 2, 34], [1, 2, -34], [1, 2, 34], [0, 3, 26], [1, 3, -26], [2, 3]] },
+    ];
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const store = {
+      read(): { done: number[] } {
+        try { return JSON.parse(localStorage.getItem('onestroke-v1') || '{"done":[]}'); }
+        catch { return { done: [] }; }
+      },
+      markDone(i: number) {
+        const s = store.read();
+        if (!s.done.includes(i)) s.done.push(i);
+        localStorage.setItem('onestroke-v1', JSON.stringify(s));
+      },
+    };
+
+    let cur = 0;
+    let edgeEls: SVGPathElement[] = [];
+    let nodeEls: SVGCircleElement[] = [];
+    let used: boolean[] = [];
+    // path of moves: {edge, from, to}
+    let trail: { edge: number; from: number; to: number }[] = [];
+    let at: number | null = null;
+
+    const level = () => LEVELS[cur];
+    const t = (zhs: string, ens: string) => (zh ? zhs : ens);
+
+    const edgePath = (l: Level, [a, b, bend]: [number, number, number?]) => {
+      const [x1, y1] = l.v[a];
+      const [x2, y2] = l.v[b];
+      if (!bend) return `M ${x1} ${y1} L ${x2} ${y2}`;
+      // control point offset perpendicular to the segment midpoint
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      const dx = x2 - x1, dy = y2 - y1;
+      const len = Math.hypot(dx, dy) || 1;
+      return `M ${x1} ${y1} Q ${mx - (dy / len) * bend} ${my + (dx / len) * bend} ${x2} ${y2}`;
+    };
+
+    const setStatus = (msg: string) => { statusEl.textContent = msg; };
+
+    const renderLevelDots = () => {
+      levelsEl.innerHTML = '';
+      const done = store.read().done;
+      LEVELS.forEach((l, i) => {
+        const b = document.createElement('button');
+        b.className = 'os-lvl';
+        b.textContent = `${i + 1}. ${zh ? l.name : l.en}`;
+        b.classList.toggle('active', i === cur);
+        b.classList.toggle('done', done.includes(i));
+        b.addEventListener('click', () => { cur = i; setup(); });
+        levelsEl.appendChild(b);
+      });
+    };
+
+    const remainingFrom = (vi: number) =>
+      level().e.some(([a, b], k) => !used[k] && (a === vi || b === vi));
+
+    const setup = () => {
+      const l = level();
+      svg.innerHTML = '';
+      used = l.e.map(() => false);
+      trail = [];
+      at = null;
+      explainEl.classList.add('hidden');
+      whyBtn.classList.toggle('hidden', !l.impossible);
+
+      edgeEls = l.e.map((ed) => {
+        const p = document.createElementNS(NS, 'path') as SVGPathElement;
+        p.setAttribute('d', edgePath(l, ed));
+        p.setAttribute('class', 'os-edge');
+        svg.appendChild(p);
+        return p;
+      });
+      nodeEls = l.v.map(([x, y], i) => {
+        const c = document.createElementNS(NS, 'circle') as SVGCircleElement;
+        c.setAttribute('cx', String(x));
+        c.setAttribute('cy', String(y));
+        c.setAttribute('r', '13');
+        c.setAttribute('class', 'os-node');
+        c.addEventListener('click', () => tap(i));
+        svg.appendChild(c);
+        return c;
+      });
+      renderLevelDots();
+      paint();
+      setStatus(l.impossible
+        ? t('1736 年的哥尼斯堡:七座桥,每座恰好走一次。试试看。', 'Königsberg, 1736: cross each of the seven bridges exactly once. Try.')
+        : t('点一个点开始。', 'Tap a vertex to start.'));
+    };
+
+    const paint = () => {
+      edgeEls.forEach((p, k) => p.classList.toggle('done', used[k]));
+      nodeEls.forEach((c, i) => {
+        c.classList.toggle('cur', i === at);
+        c.classList.toggle('reachable', at !== null && i !== at &&
+          level().e.some(([a, b], k) => !used[k] && ((a === at && b === i) || (b === at && a === i))));
+      });
+    };
+
+    const shake = (el: Element) => {
+      el.classList.remove('shake');
+      void (el as HTMLElement).getBoundingClientRect();
+      el.classList.add('shake');
+    };
+
+    const tap = (i: number) => {
+      const l = level();
+      if (at === null) {
+        at = i;
+        paint();
+        setStatus(t('走起 —— 每条边只许走一次。', 'Go — each edge exactly once.'));
+        return;
+      }
+      if (i === at) return;
+      const k = l.e.findIndex(([a, b], kk) => !used[kk] && ((a === at && b === i) || (b === at && a === i)));
+      if (k < 0) { shake(nodeEls[i]); return; }
+      used[k] = true;
+      trail.push({ edge: k, from: at, to: i });
+      at = i;
+      paint();
+      const left = used.filter((u) => !u).length;
+      if (left === 0) {
+        store.markDone(cur);
+        renderLevelDots();
+        const next = LEVELS.findIndex((_, j) => j > cur && !store.read().done.includes(j));
+        setStatus(t('✓ 一笔画成!', '✓ Solved in one stroke!') +
+          (next > 0 ? t(' 下一关已点亮。', ' Next level unlocked.') : t(' 全部通关 —— 你已抵达欧拉 1736 年的起点。', ' All done — you have reached where Euler started in 1736.')));
+        return;
+      }
+      if (!remainingFrom(at)) {
+        setStatus(l.impossible
+          ? t(`卡住了,还剩 ${left} 座桥。不是你的问题 —— 点「为什么无解?」`, `Stuck with ${left} bridge(s) left. Not your fault — hit "Why impossible?"`)
+          : t(`卡住了,还剩 ${left} 条边 —— 撤销或重来。`, `Stuck, ${left} edge(s) left — undo or reset.`));
+        shake(statusEl);
+      } else {
+        setStatus(t(`还剩 ${left} 条边。`, `${left} edge(s) to go.`));
+      }
+    };
+
+    undoBtn.addEventListener('click', () => {
+      const m = trail.pop();
+      if (!m) { at = null; paint(); setStatus(t('点一个点开始。', 'Tap a vertex to start.')); return; }
+      used[m.edge] = false;
+      at = m.from;
+      paint();
+      setStatus(t('退了一步。', 'Stepped back.'));
+    });
+    resetBtn.addEventListener('click', setup);
+    whyBtn.addEventListener('click', () => {
+      explainEl.classList.remove('hidden');
+      explainEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    setup();
+  });
+</script>
+
+<style is:global>
+  .os-lvl {
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .os-lvl:hover { color: var(--color-ink); border-color: var(--color-accent-soft); }
+  .os-lvl.active { color: var(--color-chalk); border-color: var(--color-accent-soft); }
+  .os-lvl.done::after { content: ' ✓'; color: var(--color-accent-soft); }
+  .os-edge {
+    fill: none;
+    stroke: var(--color-line);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    transition: stroke 0.2s;
+  }
+  .os-edge.done {
+    stroke: var(--color-accent-soft);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-accent-soft) 60%, transparent));
+  }
+  .os-node {
+    fill: var(--color-surface-2);
+    stroke: var(--color-chalk);
+    stroke-width: 2;
+    cursor: pointer;
+    transition: fill 0.15s, stroke 0.15s;
+  }
+  .os-node:hover { fill: var(--color-surface); }
+  .os-node.reachable { stroke: var(--color-accent-soft); }
+  .os-node.cur {
+    fill: var(--color-accent);
+    stroke: var(--color-accent-soft);
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-accent) 70%, transparent));
+  }
+  .shake { animation: os-shake 0.3s; }
+  @keyframes os-shake {
+    0%, 100% { transform: translateX(0); }
+    30% { transform: translateX(-4px); }
+    60% { transform: translateX(4px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shake { animation: none; }
+  }
+</style>
