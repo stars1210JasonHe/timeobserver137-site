@@ -1,0 +1,172 @@
+---
+/**
+ * SymmetrySolids — second screen (2026-07-17, replaces the |M| monument).
+ * The 对称与怪兽 series OPENS with the five Platonic solids; this puts that
+ * first page on the homepage: a chalk-wireframe solid slowly rotating in the
+ * void. Click (or the dots) cycles through all five; each shows its rotation
+ * group's order — the first rungs of the ladder that ends at the Monster.
+ * Rendering: SVG lines updated by rAF (timestamp-dt, parks off-screen and
+ * under reduced-motion).
+ */
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+const seriesHref = '/zh/series/symmetry-monster/';
+---
+
+<section class="mx-auto max-w-4xl px-6 py-24 text-center">
+  <p class="text-sm uppercase tracking-[0.25em] text-muted">
+    {zh ? '对称的语言' : 'The language of symmetry'}
+  </p>
+  <div class="solids-stage relative mx-auto mt-6 h-[300px] w-[300px] cursor-pointer sm:h-[340px] sm:w-[340px]" title={zh ? '点击换一个立体' : 'Click for the next solid'}>
+    <svg viewBox="-150 -150 300 300" class="h-full w-full" aria-hidden="true"></svg>
+  </div>
+  <p class="solid-label mt-2 font-medium text-chalk"></p>
+  <div class="mt-3 flex justify-center gap-2" role="tablist" aria-label={zh ? '五个正多面体' : 'The five Platonic solids'}>
+    {[0, 1, 2, 3, 4].map((i) => <button class="solid-dot h-2 w-2 rounded-full bg-line transition-colors" data-solid={i} aria-label={`solid ${i + 1}`} />)}
+  </div>
+  <p class="mx-auto mt-6 max-w-2xl leading-relaxed text-muted">
+    {zh ? (
+      <>宇宙里只有五种完美的立体 —— 它们的对称，是《对称与怪兽》的第一页。
+      从这里出发，故事一路走到一个有 54 位数字那么多对称的庞然大物。
+      <a class="text-accent-soft underline underline-offset-2" href={seriesHref}>从第一集读起 →</a></>
+    ) : (
+      <>The universe allows exactly five perfect solids — their symmetries are page one of the
+      Symmetry &amp; Monster series, a road that ends at a beast with a 54-digit number of them.
+      <a class="text-accent-soft underline underline-offset-2" href={seriesHref}>Start from episode one →</a></>
+    )}
+  </p>
+</section>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const stage = document.querySelector<HTMLElement>('.solids-stage');
+    if (!stage || stage.dataset.wired) return;
+    stage.dataset.wired = '1';
+    const svg = stage.querySelector('svg')!;
+    const label = document.querySelector<HTMLElement>('.solid-label')!;
+    const dots = [...document.querySelectorAll<HTMLElement>('.solid-dot')];
+    const zh = document.documentElement.lang.startsWith('zh');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // --- the five solids (unit-ish coordinates) ---
+    const PHI = (1 + Math.sqrt(5)) / 2;
+    type Solid = { name: string; en: string; group: string; verts: number[][]; edges: [number, number][] };
+    const uniqEdges = (verts: number[][], target: number): [number, number][] => {
+      // connect nearest neighbours: find the minimal vertex distance, keep edges at that distance
+      let min = Infinity;
+      const d2 = (a: number[], b: number[]) => (a[0]-b[0])**2 + (a[1]-b[1])**2 + (a[2]-b[2])**2;
+      for (let i = 0; i < verts.length; i++)
+        for (let j = i + 1; j < verts.length; j++) min = Math.min(min, d2(verts[i], verts[j]));
+      const out: [number, number][] = [];
+      for (let i = 0; i < verts.length; i++)
+        for (let j = i + 1; j < verts.length; j++)
+          if (d2(verts[i], verts[j]) < min * 1.01) out.push([i, j]);
+      return out;
+    };
+    const norm = (verts: number[][]) => {
+      const r = Math.max(...verts.map((v) => Math.hypot(...v)));
+      return verts.map((v) => v.map((x) => x / r));
+    };
+    const mk = (name: string, en: string, group: string, verts: number[][]): Solid => {
+      const v = norm(verts);
+      return { name, en, group, verts: v, edges: uniqEdges(v, 0) };
+    };
+    const cube = [...Array(8)].map((_, i) => [(i&1)?1:-1, (i&2)?1:-1, (i&4)?1:-1]);
+    const tetra = [[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]];
+    const octa = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+    const icosa: number[][] = [];
+    for (const s1 of [-1, 1]) for (const s2 of [-1, 1]) {
+      icosa.push([0, s1, s2 * PHI], [s1, s2 * PHI, 0], [s2 * PHI, 0, s1]);
+    }
+    const dodeca: number[][] = [...cube.map((v) => [...v])];
+    for (const s1 of [-1, 1]) for (const s2 of [-1, 1]) {
+      dodeca.push([0, s1 / PHI, s2 * PHI], [s1 / PHI, s2 * PHI, 0], [s2 * PHI, 0, s1 / PHI]);
+    }
+    const SOLIDS: Solid[] = [
+      mk('正四面体', 'Tetrahedron', '|T| = 12', tetra),
+      mk('正六面体', 'Cube', '|O| = 24', cube),
+      mk('正八面体', 'Octahedron', '|O| = 24', octa),
+      mk('正十二面体', 'Dodecahedron', '|I| = 60', dodeca),
+      mk('正二十面体', 'Icosahedron', '|I| = 60', icosa),
+    ];
+
+    const NS = 'http://www.w3.org/2000/svg';
+    let lines: SVGLineElement[] = [];
+    let current = 0;
+    const SCALE = 108;
+
+    const setSolid = (i: number) => {
+      current = (i + SOLIDS.length) % SOLIDS.length;
+      const s = SOLIDS[current];
+      svg.innerHTML = '';
+      lines = s.edges.map(() => {
+        const l = document.createElementNS(NS, 'line') as SVGLineElement;
+        l.setAttribute('stroke', 'currentColor');
+        l.setAttribute('stroke-width', '1.1');
+        svg.appendChild(l);
+        return l;
+      });
+      label.textContent = zh
+        ? `${s.name} · 旋转对称 ${s.group}`
+        : `${s.en} · rotations ${s.group}`;
+      dots.forEach((d, k) => d.classList.toggle('active', k === current));
+      draw(0.6, 0.4);
+    };
+
+    let ax = 0.5, ay = 0.3;
+    const draw = (rx: number, ry: number) => {
+      const s = SOLIDS[current];
+      const cx = Math.cos(rx), sx = Math.sin(rx), cy = Math.cos(ry), sy = Math.sin(ry);
+      const pts = s.verts.map(([x, y, z]) => {
+        let y1 = y * cx - z * sx, z1 = y * sx + z * cx;
+        let x2 = x * cy + z1 * sy, z2 = -x * sy + z1 * cy;
+        const persp = 2.6 / (2.6 - z2 * 0.7);
+        return [x2 * SCALE * persp, y1 * SCALE * persp, z2];
+      });
+      s.edges.forEach(([a, b], k) => {
+        const l = lines[k];
+        l.setAttribute('x1', String(pts[a][0]));
+        l.setAttribute('y1', String(pts[a][1]));
+        l.setAttribute('x2', String(pts[b][0]));
+        l.setAttribute('y2', String(pts[b][1]));
+        const depth = (pts[a][2] + pts[b][2]) / 2;
+        l.setAttribute('opacity', String(0.35 + 0.45 * (depth + 1) / 2));
+      });
+    };
+
+    setSolid(0);
+    stage.addEventListener('click', () => setSolid(current + 1));
+    dots.forEach((d) => d.addEventListener('click', (e) => { e.stopPropagation(); setSolid(Number(d.dataset.solid)); }));
+
+    if (!reduced) {
+      let inView = true;
+      new IntersectionObserver(([e]) => (inView = e.isIntersecting)).observe(stage);
+      let last: number | null = null;
+      const tick = (now: number) => {
+        const dt = last === null ? 0 : (now - last) / 1000;
+        last = now;
+        if (inView) {
+          ax += dt * 0.35;
+          ay += dt * 0.22;
+          draw(ay, ax);
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+  });
+</script>
+
+<style is:global>
+  .solids-stage svg {
+    color: var(--color-chalk);
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-accent) 30%, transparent));
+  }
+  .solid-dot.active {
+    background: var(--color-accent-soft);
+    box-shadow: 0 0 8px var(--color-accent-soft);
+  }
+</style>

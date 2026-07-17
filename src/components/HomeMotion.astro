@@ -49,31 +49,6 @@
       });
     }
 
-    // --- phase 2: |M| monument — digit clusters settle into place ---
-    const monument = document.querySelector('.monument');
-    if (monument && monument.textContent) {
-      const digits = monument.textContent.trim();
-      monument.textContent = '';
-      const CLUSTER = 6;
-      const spans = [];
-      for (let i = 0; i < digits.length; i += CLUSTER) {
-        const s = document.createElement('span');
-        s.textContent = digits.slice(i, i + CLUSTER);
-        s.style.display = 'inline';
-        monument.appendChild(s);
-        spans.push(s);
-      }
-      gsap.from(spans, {
-        opacity: 0,
-        filter: 'blur(6px)',
-        y: 10,
-        duration: 0.5,
-        ease: 'power2.out',
-        stagger: 0.07,
-        scrollTrigger: { trigger: monument, start: 'top 78%', once: true },
-      });
-    }
-
     // --- phase 1: pointer parallax on the Lagrange figure ---
     const fig = document.querySelector<HTMLElement>('.lagrange');
     const hero = document.querySelector<HTMLElement>('.hero');
