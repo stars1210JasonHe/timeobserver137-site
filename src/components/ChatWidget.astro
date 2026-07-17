@@ -100,7 +100,9 @@ const t = {
   });
 </script>
 
-<style>
+<style is:global>
+  /* global on purpose: .chat-msg nodes are created at runtime and never
+     receive Astro scoped-style attributes — scoped rules silently miss them */
   .chat-bubble {
     position: fixed;
     right: 1.25rem;
@@ -171,11 +173,27 @@ const t = {
     align-self: flex-end;
     background: var(--color-accent);
     color: #fff;
+    border-bottom-right-radius: 0.15rem;
   }
   .chat-assistant {
     align-self: flex-start;
     background: var(--color-surface-2);
     color: var(--color-ink);
+    border: 1px solid var(--color-line);
+    border-bottom-left-radius: 0.15rem;
+    position: relative;
+    padding-left: 1.9rem;
+  }
+  .chat-assistant::before {
+    content: '';
+    position: absolute;
+    left: 0.6rem;
+    top: 0.85rem;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 9999px;
+    background: var(--color-accent-soft);
+    box-shadow: 0 0 6px var(--color-accent-soft);
   }
   .chat-form {
     display: flex;
