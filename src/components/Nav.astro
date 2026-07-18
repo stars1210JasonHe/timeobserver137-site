@@ -1,4 +1,12 @@
 ---
+/**
+ * Nav — inline links on sm+, hamburger drawer on phones.
+ *
+ * 2026-07-18: the inline row was unusable on iPhone Safari — 8 items packed
+ * into 28x20px tap targets with 16px dead gaps (Apple HIG minimum is 44x44),
+ * so tapping 关于 landed on a neighbour or on nothing. The drawer gives every
+ * item a full-width >=44px row and gives the header back ~60px of phone screen.
+ */
 interface Props {
   lang: 'en' | 'zh';
   /** counterpart URL in the other language, for the switcher */
@@ -32,27 +40,32 @@ const current = Astro.url.pathname;
 ---
 
 <header class="sticky top-0 z-40 border-b border-line/60 bg-bg/80 backdrop-blur">
-  <nav class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-y-2 px-4 py-3 sm:px-6">
+  <nav class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
     <a href={lang === 'zh' ? '/zh/' : '/'} class="font-semibold tracking-tight text-chalk">
       时间观察者<span class="text-faint mx-1.5 max-sm:hidden">/</span><span class="text-muted text-sm max-sm:hidden">timeobserver137</span>
     </a>
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm sm:gap-x-5">
-      {
-        items.map((it) => (
-          <a
-            href={it.href}
-            class:list={[
-              'transition-colors hover:text-ink',
-              current === it.href ? 'text-ink' : 'text-muted',
-            ]}
-          >
-            {it.label}
-          </a>
-        ))
-      }
+
+    <div class="flex items-center gap-x-4 gap-y-2 text-sm sm:gap-x-5">
+      <!-- inline links: tablet and up -->
+      <div class="hidden flex-wrap items-center gap-x-4 sm:flex sm:gap-x-5">
+        {
+          items.map((it) => (
+            <a
+              href={it.href}
+              class:list={[
+                'transition-colors hover:text-ink',
+                current === it.href ? 'text-ink' : 'text-muted',
+              ]}
+            >
+              {it.label}
+            </a>
+          ))
+        }
+      </div>
+
       <a
         href={altHref}
-        class="rounded border border-line px-2 py-0.5 text-xs text-muted transition-colors hover:border-accent hover:text-ink"
+        class="grid h-9 min-w-9 place-items-center rounded border border-line px-2 text-xs text-muted transition-colors hover:border-accent hover:text-ink"
         aria-label={lang === 'zh' ? 'Switch to English' : '切换到中文'}
       >
         {lang === 'zh' ? 'EN' : '中文'}
@@ -60,13 +73,41 @@ const current = Astro.url.pathname;
       <button
         id="theme-toggle"
         type="button"
-        class="rounded border border-line px-2 py-0.5 text-xs text-muted transition-colors hover:border-accent hover:text-ink"
+        class="grid h-9 w-9 place-items-center rounded border border-line text-xs text-muted transition-colors hover:border-accent hover:text-ink"
         aria-label={lang === 'zh' ? '切换亮/暗色' : 'Toggle light/dark theme'}
       >
         <span data-when="dark">☀</span><span data-when="light">☾</span>
       </button>
+      <!-- hamburger: phones only -->
+      <button
+        id="nav-toggle"
+        type="button"
+        class="grid h-9 w-9 place-items-center rounded border border-line text-muted transition-colors hover:border-accent hover:text-ink sm:hidden"
+        aria-label={lang === 'zh' ? '菜单' : 'Menu'}
+        aria-expanded="false"
+        aria-controls="nav-panel"
+      >
+        <span id="nav-toggle-icon" class="text-base leading-none">☰</span>
+      </button>
     </div>
   </nav>
+
+  <!-- mobile drawer: full-width rows, each a comfortable tap target -->
+  <div id="nav-panel" class="hidden border-t border-line/60 bg-bg/95 sm:hidden">
+    {
+      items.map((it) => (
+        <a
+          href={it.href}
+          class:list={[
+            'block px-5 py-3 text-[15px] transition-colors active:bg-surface',
+            current === it.href ? 'text-ink' : 'text-muted',
+          ]}
+        >
+          {it.label}
+        </a>
+      ))
+    }
+  </div>
 </header>
 
 <style>
@@ -81,7 +122,7 @@ const current = Astro.url.pathname;
     const hdr = document.querySelector<HTMLElement>('header');
     // element-scoped guard: the header is REPLACED each swap (rebind needed),
     // but within one page a second call (immediate + astro:page-load on the
-    // initial visit) must not double-bind the theme toggle
+    // initial visit) must not double-bind the toggles
     if (!hdr || hdr.dataset.wired) return;
     hdr.dataset.wired = '1';
     const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 8);
@@ -89,17 +130,32 @@ const current = Astro.url.pathname;
     addEventListener('scroll', onScroll, { passive: true });
 
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
-    const el = document.documentElement;
-    el.classList.add('theme-anim');
-    const light = el.dataset.theme === 'light';
-    if (light) {
-      delete el.dataset.theme;
-      localStorage.setItem('theme', 'dark');
-    } else {
-      el.dataset.theme = 'light';
-      localStorage.setItem('theme', 'light');
+      const el = document.documentElement;
+      el.classList.add('theme-anim');
+      const light = el.dataset.theme === 'light';
+      if (light) {
+        delete el.dataset.theme;
+        localStorage.setItem('theme', 'dark');
+      } else {
+        el.dataset.theme = 'light';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    const btn = document.getElementById('nav-toggle');
+    const panel = document.getElementById('nav-panel');
+    const icon = document.getElementById('nav-toggle-icon');
+    if (btn && panel) {
+      const setOpen = (open: boolean) => {
+        panel.classList.toggle('hidden', !open);
+        btn.setAttribute('aria-expanded', String(open));
+        if (icon) icon.textContent = open ? '✕' : '☰';
+      };
+      btn.addEventListener('click', () => setOpen(panel.classList.contains('hidden')));
+      // ClientRouter navigates without a reload — close the drawer on tap so
+      // the destination isn't hidden behind an open menu
+      panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
     }
-  });
   }
   // register for future swaps AND run now (guarded above) — if this script
   // was swapped in by ClientRouter, this navigation's page-load already fired
