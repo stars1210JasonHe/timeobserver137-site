@@ -18,14 +18,28 @@
 
   function initHome() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    // every navigation replaces the DOM — old triggers point at dead nodes,
-    // so always kill and rebuild; no pathname guard (returning home must re-init).
+    const hero = document.querySelector<HTMLElement>('.hero');
+    // Element-scoped guard FIRST (before any kill): this runs twice on a cold
+    // load — once at module eval, once on astro:page-load — and a second pass
+    // over the SAME dom used to restart the entrance mid-flight. Bailing here
+    // leaves the first pass's triggers alive; a real swap brings a fresh .hero
+    // with no flag, so navigation still re-initialises.
+    if (hero?.dataset.motionWired) return;
+    // stale triggers from the page we just left point at dead nodes
     ScrollTrigger.getAll().forEach((st) => st.kill());
-    if (!document.querySelector('.hero')) return;
+    if (!hero) return;
+    hero.dataset.motionWired = '1';
     gsap.registerPlugin(ScrollTrigger);
 
     // --- phase 3: hero entrance — one brief stagger on load (<1s total) ---
-    gsap.from('[data-hero-stagger]', { opacity: 0, y: 14, duration: 0.55, ease: 'power2.out', stagger: 0.09 });
+    // fromTo, NOT from: from() captures the element's CURRENT opacity as its
+    // destination, so a re-run mid-tween pins the headline at whatever partial
+    // value it had reached (that bug hid the h1 entirely in Safari, 2026-07-18).
+    gsap.fromTo(
+      '[data-hero-stagger]',
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out', stagger: 0.09, overwrite: 'auto' },
+    );
 
     // --- reveals (phase 1) ---
     for (const el of document.querySelectorAll('[data-reveal]')) {
@@ -51,8 +65,7 @@
 
     // --- phase 1: pointer parallax on the Lagrange figure ---
     const fig = document.querySelector<HTMLElement>('.lagrange');
-    const hero = document.querySelector<HTMLElement>('.hero');
-    if (fig && hero && matchMedia('(pointer: fine)').matches) {
+    if (fig && matchMedia('(pointer: fine)').matches) {
       const setX = gsap.quickTo(fig, 'rotationY', { duration: 0.6, ease: 'power2.out' });
       const setY = gsap.quickTo(fig, 'rotationX', { duration: 0.6, ease: 'power2.out' });
       gsap.set(fig, { transformPerspective: 900 });
