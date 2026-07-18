@@ -2,9 +2,13 @@
  * POST /api/message — private message box (2026-07-18, Yeqiu).
  *
  * Readers write to Yeqiu; nothing is ever rendered publicly. Messages land in
- * the shared KV namespace under a `msg:` prefix and a Pi-side cron pulls them
- * and pushes a Telegram notification (same proven pattern as subscriber
- * notify — keeps the Telegram token on the Pi instead of in Cloudflare).
+ * the shared KV namespace under a `msg:` prefix.
+ *
+ * Delivery (2026-07-18, upgraded from 15-min polling after Yeqiu submitted a
+ * test and had to wait): push to Telegram from the edge IMMEDIATELY, then flag
+ * the stored record `pushed: true`. The Pi cron stays on as a backstop and only
+ * notifies records missing that flag — instant in the normal case, still
+ * delivered if the edge push fails, and never a duplicate.
  *
  * Anti-spam, in order of cheapness: honeypot field, length caps, per-IP daily
  * cap in KV. No Turnstile yet — add it (needs a dashboard-issued key) only if
@@ -61,16 +65,35 @@ export async function onRequestPost({ request, env }) {
     }
 
     const id = `${new Date().toISOString()}-${Math.random().toString(36).slice(2, 8)}`;
-    await env.SUBSCRIBERS.put(
-      `msg:${id}`,
-      JSON.stringify({
-        name,
-        email,
-        body,
-        at: new Date().toISOString(),
-        country: request.headers.get('cf-ipcountry') || '',
-      }),
-    );
+    const key = `msg:${id}`;
+    const record = {
+      name,
+      email,
+      body,
+      at: new Date().toISOString(),
+      country: request.headers.get('cf-ipcountry') || '',
+    };
+    // store FIRST — a message must survive even if the push below fails
+    await env.SUBSCRIBERS.put(key, JSON.stringify(record));
+
+    // instant push; on failure the record stays unflagged and the Pi cron
+    // picks it up within 15 min, so nothing is ever lost
+    if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+      try {
+        const text =
+          `[网站留言] 来自 ${name} · ${email || '(未留邮箱)'} · ${record.country || '?'}\n` +
+          `${'-'.repeat(24)}\n${body.slice(0, 1200)}\n${'-'.repeat(24)}\n(私密信箱,未公开显示)`;
+        const r = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text }),
+        });
+        const tgOk = r.ok && (await r.json()).ok === true;
+        if (tgOk) await env.SUBSCRIBERS.put(key, JSON.stringify({ ...record, pushed: true }));
+      } catch {
+        // leave unflagged — the cron backstop will deliver it
+      }
+    }
 
     return json({ ok: true });
   } catch (e) {
