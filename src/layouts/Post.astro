@@ -24,15 +24,28 @@ interface Props {
     prev: { title: string; href: string } | null;
     next: { title: string; href: string } | null;
   } | null;
+  /** draft preview route only: keep it out of search indexes */
+  noindex?: boolean;
+  /** draft preview route only: say so on the page, so a shared link is never mistaken for published */
+  draftBanner?: boolean;
 }
-const { title, description, lang, altHref, date, tags = [], ogImage, series = null } = Astro.props;
+const {
+  title, description, lang, altHref, date, tags = [], ogImage, series = null,
+  noindex = false, draftBanner = false,
+} = Astro.props;
 const cover = ogImage; // feature image doubles as the in-page hero (Ghost Source parity)
 const dateStr = date.toISOString().slice(0, 10);
 ---
 
-<Base {title} {description} {lang} {altHref} {ogImage}>
+<Base {title} {description} {lang} {altHref} {ogImage} {noindex}>
   <BackgroundEquations variant="ambient" />
   <main class="mx-auto max-w-2xl px-6 py-12">
+    {draftBanner && (
+      <p class="mb-8 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-200/90">
+        <strong>草稿预览</strong> —— 这篇还没有发布。它不在首页、文章列表、系列页、RSS 和站点地图里，
+        只有拿到这个链接的人能看到。发布后它会换到正式地址。
+      </p>
+    )}
     {cover && (
       <img
         src={cover}

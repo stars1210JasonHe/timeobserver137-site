@@ -15,14 +15,17 @@ interface Props {
   /** counterpart URL in the other language (nav switcher) */
   altHref: string;
   ogImage?: string;
+  /** draft previews only — never let an unpublished page into a search index */
+  noindex?: boolean;
 }
-const { title, description, lang, altHref, ogImage } = Astro.props;
+const { title, description, lang, altHref, ogImage, noindex = false } = Astro.props;
 ---
 
 <!doctype html>
 <html lang={lang === 'zh' ? 'zh-CN' : 'en'}>
   <head>
     <HeadMeta {title} {description} {lang} {ogImage} path={Astro.url.pathname} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <ClientRouter />
     <script is:inline>
       // Theme + JS flags before first paint (no FOUC). Stored choice wins;

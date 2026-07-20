@@ -1,0 +1,72 @@
+---
+/**
+ * Draft preview route — the thing Ghost gave us and the Astro migration dropped.
+ *
+ * A draft has to be readable before it is published: Yeqiu is step (0) of the
+ * review chain and he reads on his phone, so "open the .md on the Win11 box" is
+ * not a substitute for a link. Ghost served drafts at an unguessable preview URL;
+ * a static site cannot do unguessable, so instead drafts build HERE, never at
+ * their real /zh/writing/<slug>/ address. Two things fall out of that:
+ *   - the published URL is not burned early (it 404s until the post is real)
+ *   - one path prefix to exclude, so the sitemap filter in astro.config.mjs is
+ *     a single string match instead of a content query
+ * Listings (home / writing index / series / tags / RSS) already filter on
+ * !draft, so nothing links here — the link has to be handed to someone.
+ */
+import { getCollection, render } from 'astro:content';
+import Post from '../../../layouts/Post.astro';
+import { seriesById } from '../../../data/series';
+import { postSlug } from '../../../data/slug';
+
+export async function getStaticPaths() {
+  const drafts = await getCollection('writing', (e) => e.data.lang === 'zh' && e.data.draft);
+  const all = await getCollection('writing', (e) => e.data.lang === 'zh');
+  return drafts.map((entry) => ({
+    params: { slug: postSlug(entry) },
+    props: { entry, all },
+  }));
+}
+
+const { entry, all } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+
+// Series context mirrors the published route, except this episode is not yet in
+// the published set: place it by seriesOrder so prev/next point at real pages.
+let seriesCtx = null;
+if (d.series) {
+  const meta = seriesById(d.series);
+  const eps = all
+    .filter((p) => p.data.series === d.series && !p.data.draft)
+    .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
+  const order = d.seriesOrder ?? 0;
+  const before = eps.filter((p) => (p.data.seriesOrder ?? 0) < order);
+  const after = eps.filter((p) => (p.data.seriesOrder ?? 0) > order);
+  const link = (p) => `/zh/writing/${postSlug(p)}/`;
+  const prevEp = before[before.length - 1];
+  const nextEp = after[0];
+  seriesCtx = meta && {
+    id: d.series,
+    title: meta.title,
+    order,
+    total: eps.length + 1,
+    prev: prevEp ? { title: prevEp.data.title, href: link(prevEp) } : null,
+    next: nextEp ? { title: nextEp.data.title, href: link(nextEp) } : null,
+  };
+}
+---
+
+<Post
+  title={d.title}
+  description={d.excerpt ?? `${d.title} — 时间观察者`}
+  lang="zh"
+  altHref="/writing/"
+  date={d.date}
+  tags={d.tags}
+  ogImage={d.cover}
+  series={seriesCtx}
+  noindex={true}
+  draftBanner={true}
+>
+  <Content />
+</Post>

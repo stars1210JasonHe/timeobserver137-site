@@ -12,7 +12,12 @@ export default defineConfig({
     locales: ['en', 'zh'],
     routing: { prefixDefaultLocale: false },
   },
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    // Draft previews live under /zh/preview/ and must never enter the sitemap —
+    // they are unpublished posts handed out as a private link (see src/pages/zh/preview/).
+    sitemap({ filter: (page) => !page.includes('/zh/preview/') }),
+  ],
   vite: { plugins: [tailwindcss()] },
   markdown: {
     remarkPlugins: [remarkMath],
