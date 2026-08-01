@@ -56,8 +56,16 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     </div>
   </div>
 
-  <figure class="justify-self-center lg:justify-self-end">
-    <div class="lagrange w-[min(82vw,540px)]" set:html={lagrangeSvg} />
+  <figure class="orrery justify-self-center lg:justify-self-end">
+    <!--
+      Pause first in source order so the CSS-only `:checked ~` can reach the
+      figure. WCAG 2.2.2 requires a mechanism to stop motion that runs past 5s,
+      and this rotation runs forever. A checkbox keeps that mechanism working
+      with JavaScript switched off — the same property the rest of this figure
+      already has.
+    -->
+    <input type="checkbox" id="orrery-pause" class="orrery-pause peer sr-only" />
+    <div class="lagrange w-[min(92vw,660px)]" set:html={lagrangeSvg} />
     <figcaption class="mt-3 max-w-[540px] text-xs leading-relaxed text-faint">
       {zh ? (
         <>限制性三体问题的有效势等势线，L<sub>1</sub>–L<sub>5</sub> —— 欧拉先找到了共线的那三个。出自我的文章<a class="text-muted underline decoration-line underline-offset-2 transition-colors hover:text-ink" href={essayUrl}>《失明的十七年里，欧拉做了什么》</a>。</>
@@ -65,6 +73,10 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
         <>Effective-potential contours of the restricted three-body problem, L<sub>1</sub>–L<sub>5</sub> — Euler found the collinear three first. From my essay <a class="text-muted underline decoration-line underline-offset-2 transition-colors hover:text-ink" href={essayUrl}>on Euler's blind years</a>.</>
       )}
     </figcaption>
+    <label for="orrery-pause" class="orrery-pause-btn mt-2 inline-block cursor-pointer text-xs text-faint underline decoration-line underline-offset-2 transition-colors hover:text-muted">
+      <span class="when-running">{zh ? '暂停旋转' : 'Pause rotation'}</span>
+      <span class="when-paused">{zh ? '继续旋转' : 'Resume rotation'}</span>
+    </label>
   </figure>
 </section>
 
@@ -107,6 +119,88 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     0%, 100% { opacity: 1; }
     50% { opacity: 0.45; }
   }
+  /* --- the frame turns (R-62 item 4, Yeqiu: 「让人能够知道这是三体运动」) ----
+     These contours are drawn in the ROTATING frame of the two primaries. Seen
+     from an inertial observer the whole picture — contours, both bodies, all
+     five L points — turns rigidly about the barycentre. So this is not a spin
+     effect applied to a static image; the turning IS the physics.
+
+     The barycentre is the centre of the viewBox by construction: the bodies sit
+     at (-MU, 0) and (1-MU, 0), so the origin is the centre of mass, and the
+     generator now pads the viewBox to 0 -61 860 782 so that centre lands at
+     (430, 330) = 50% 50%. The padding is measured, not chosen: over all 5498
+     emitted path coordinates the farthest is 390.5px from the barycentre, and
+     391 > 390.5 on every side, so no angle clips.
+
+     Starts at 4.6s — after the 4.4s construction finishes. Letting it turn
+     during the draw would bury the thing the draw exists to show.
+
+     Rotate the inner group, never the svg element. Rotating the element turns
+     its CSS box, whose bounding box grows with the angle — measured at 660px
+     wide it swept 172px into the headline column. Turning an inner group leaves
+     the element's box where it is, and the padding above guarantees the content
+     stays inside the viewBox at every angle. */
+  .lagrange :global(.orrery-rot) {
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+    animation: orrery-spin 52s linear 4.6s infinite;
+  }
+  @keyframes orrery-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  /* The L labels ride along but stay upright. They are annotation, not part of
+     the system — a label that turns with the frame spends half the cycle
+     upside down, which costs legibility and buys no physics. Same duration,
+     same delay, same linear timing, opposite direction: they cancel exactly,
+     so each label counter-turns about its own centre while its marker orbits. */
+  .lagrange :global(.lpoints text) {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: orrery-counter 52s linear 4.6s infinite;
+  }
+  @keyframes orrery-counter {
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+  /* CSS-only pause (WCAG 2.2.2). Works with JS off. */
+  .orrery-pause:checked ~ .lagrange :global(.orrery-rot),
+  .orrery-pause:checked ~ .lagrange :global(.lpoints text) {
+    animation-play-state: paused;
+  }
+  .orrery-pause-btn .when-paused {
+    display: none;
+  }
+  .orrery-pause:checked ~ .orrery-pause-btn .when-running {
+    display: none;
+  }
+  .orrery-pause:checked ~ .orrery-pause-btn .when-paused {
+    display: inline;
+  }
+  .orrery-pause:focus-visible ~ .orrery-pause-btn {
+    outline: 2px solid var(--color-accent-soft, #7db3e0);
+    outline-offset: 3px;
+  }
+
+  /* Brighter, heavier lines — the figure now carries the composition (item 4 A). */
+  .lagrange :global(.contours) {
+    opacity: 1;
+  }
+  .lagrange :global(.contours path) {
+    stroke-width: 1.5;
+  }
+
+  /* L4 reads as the third body: the massless test particle that keeps station
+     with the two primaries. That is what makes the picture legible as a THREE
+     body problem — two masses plus something riding along with them. Only L4;
+     emphasising all five would be decoration. */
+  .lagrange :global(.lp4) {
+    r: 6;
+    filter: drop-shadow(0 0 5px #dda25b);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lagrange :global(.contours path),
     .lagrange :global(.sun),
@@ -115,6 +209,16 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
       animation: none;
       stroke-dashoffset: 0;
       opacity: 1;
+    }
+    /* fully still — the pre-item-4 behaviour, kept exactly */
+    .lagrange :global(.orrery-rot),
+    .lagrange :global(.lpoints text) {
+      animation: none;
+      transform: none;
+    }
+    /* nothing to pause, so do not offer a control that does nothing */
+    .orrery-pause-btn {
+      display: none;
     }
   }
 </style>

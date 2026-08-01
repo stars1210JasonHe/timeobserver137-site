@@ -19,6 +19,12 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 MU = 0.15
 W, H = 860, 660
+# Vertical padding so the whole frame can rotate about the barycentre without
+# clipping. Not a guess: the barycentre is (430, 330) — the bodies sit at
+# (-MU, 0) and (1-MU, 0), so the origin IS the centre of mass — and the farthest
+# contour point measured over all 5498 emitted coordinates is 390.5px from it.
+# 390.5 - 330 = 60.5 -> 61. Horizontal already clears (430 > 390.5).
+PAD = 61
 XLIM, YLIM = (-1.85, 1.85), (-1.42, 1.42)
 
 def omega(x, y):
@@ -86,8 +92,15 @@ lpts = [("1", *to_px(L1, 0)), ("2", *to_px(L2, 0)), ("3", *to_px(L3, 0)),
         ("4", *to_px(*L4)), ("5", *to_px(*L5))]
 
 svg = []
-svg.append(f'<svg viewBox="0 0 {W} {H}" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" '
+svg.append(f'<svg viewBox="0 {-PAD} {W} {H + 2 * PAD}" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" '
            f'aria-label="Effective-potential contours of the restricted three-body problem with Lagrange points L1 to L5">')
+# Everything rotatable lives in ONE group. The rotation must be applied HERE and
+# not to the <svg> element: rotating the element rotates its CSS box, whose
+# bounding box grows with the angle and sweeps over the neighbouring text
+# (measured 2026-08-01: 172px of overlap with the headline column). Rotating an
+# inner group keeps the element's box fixed, and the viewBox padding above
+# guarantees the content never leaves it at any angle.
+svg.append('<g class="orrery-rot">')
 svg.append('<g class="contours" stroke="#5996c8" stroke-width="1.3" opacity="0.92">')
 for i, (lvl, d) in enumerate(paths):
     svg.append(f'<path d="{d}" pathLength="1" style="--i:{i}"/>')
@@ -100,9 +113,9 @@ svg.append('<g class="lpoints" font-family="Georgia, \'Times New Roman\', serif"
 off = {"1": (8, -10), "2": (10, -10), "3": (-30, -10), "4": (10, -8), "5": (10, 16)}
 for n, px_, py_ in lpts:
     dx, dy = off[n]
-    svg.append(f'<circle cx="{px_:.1f}" cy="{py_:.1f}" r="3.2" fill="#dda25b"/>')
+    svg.append(f'<circle class="lp lp{n}" cx="{px_:.1f}" cy="{py_:.1f}" r="3.2" fill="#dda25b"/>')
     svg.append(f'<text x="{px_ + dx:.1f}" y="{py_ + dy:.1f}">L<tspan font-size="13" dy="4">{n}</tspan></text>')
-svg.append("</g></svg>")
+svg.append("</g></g></svg>")
 
 out = "src/assets/lagrange-hero.svg"
 import pathlib
