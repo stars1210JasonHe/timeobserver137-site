@@ -88,9 +88,21 @@ WRANGLER="$(find_wrangler)" || {
   exit 3
 }
 
-[ -f .env ] || { echo "ERROR: .env missing — CLOUDFLARE_API_TOKEN lives there." >&2; exit 3; }
-set -a; . ./.env; set +a
-[ -n "${CLOUDFLARE_API_TOKEN:-}" ] || { echo "ERROR: CLOUDFLARE_API_TOKEN not set by .env" >&2; exit 3; }
+# Auth: .env is the declared path (same as preview.sh). It is gitignored, so a
+# fresh clone will not have one — but an already-authenticated wrangler may hold
+# a stored OAuth login, which is how this script deployed for months while never
+# sourcing .env at all. Accept a token already in the environment (CI), require
+# one of the two, and never rely on the invisible stored login silently.
+[ -f .env ] && { set -a; . ./.env; set +a; }
+if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+  echo "ERROR: no CLOUDFLARE_API_TOKEN (not in the environment, and .env is" >&2
+  echo "       missing or does not set it)." >&2
+  echo "       .env is gitignored — on a new clone you must create it:" >&2
+  echo "         echo 'CLOUDFLARE_API_TOKEN=...' > .env" >&2
+  echo "       (wrangler may also hold a stored OAuth login, but this script" >&2
+  echo "        will not depend on a credential it cannot see.)" >&2
+  exit 3
+fi
 
 echo "==> wrangler: $WRANGLER ($("$WRANGLER" --version 2>/dev/null | head -1))"
 echo "==> build"
@@ -109,44 +121,44 @@ fi
 URL="$DOMAIN$VERIFY_PATH"
 echo "==> post-deploy verify: $URL"
 
-# Retry: a fresh deploy needs a moment to reach the edge.
-code="000"; bytes=0; html=""
-for i in 1 2 3 4 5; do
-  read -r code bytes <<<"$(curl -s -o /dev/null -w '%{http_code} %{size_download}' -m 25 "$URL" || echo '000 0')"
-  [ "$code" = "200" ] && [ "$bytes" -gt 0 ] && break
-  echo "    (try $i) HTTP $code ${bytes}B — retrying"
-  sleep 4
-done
-html=$(curl -s -m 25 "$URL" || true)
-
-echo "    HTTP:  $code   (want 200)"
-echo "    bytes: $bytes"
-if [ "$code" != "200" ] || [ "$bytes" -le 0 ]; then
-  echo "FAILED: production did not serve $URL" >&2
-  exit 1
-fi
-
 # --- HTTP 200 is NOT enough on this site ------------------------------------
 # Unknown paths soft-404 to the homepage with 200 text/html, so a typo'd path
 # returns a cheerful 200 for a page that does not exist. Compare the live byte
 # count against the built file for the SAME path.
 DIST_FILE="dist${VERIFY_PATH%/}/index.html"
 [ "$VERIFY_PATH" = "/" ] && DIST_FILE="dist/index.html"
-
 if [ ! -f "$DIST_FILE" ]; then
-  echo "FAILED: no built page at $DIST_FILE — the 200 above is this site's" >&2
-  echo "        soft-404 serving the homepage, not '$VERIFY_PATH'." >&2
+  echo "FAILED: no built page at $DIST_FILE — nothing to compare against." >&2
+  echo "        (If the live URL 200s anyway, that is the soft-404 homepage.)" >&2
   exit 1
 fi
 dist_bytes=$(wc -c < "$DIST_FILE" | tr -d ' ')
 echo "    dist:  $dist_bytes   ($DIST_FILE)"
-if [ "$bytes" != "$dist_bytes" ]; then
-  echo "FAILED: live bytes ($bytes) != built bytes ($dist_bytes)." >&2
-  echo "        Either the edge is still serving an older build (retry), or the" >&2
-  echo "        response is the soft-404 homepage rather than '$VERIFY_PATH'." >&2
+
+# The byte comparison is retried, not sampled once. A deploy reaches Cloudflare's
+# edge PoP by PoP: measured 2026-08-01, five consecutive requests to a URL 20s
+# after deploy returned the NEW size four times and the OLD size once. A single
+# sample therefore fails or passes by luck — the old code compared once, after a
+# retry loop that only ever retried on a non-200, so a request landing on a
+# not-yet-updated PoP produced a confident false FAILURE.
+code="000"; bytes=0; matched=0
+for i in 1 2 3 4 5 6 7 8; do
+  read -r code bytes <<<"$(curl -s -o /dev/null -w '%{http_code} %{size_download}' -m 25 "$URL" || echo '000 0')"
+  if [ "$code" = "200" ] && [ "$bytes" = "$dist_bytes" ]; then matched=1; break; fi
+  echo "    (try $i) HTTP $code ${bytes}B != ${dist_bytes}B — edge still propagating, retrying"
+  sleep 4
+done
+
+echo "    HTTP:  $code   (want 200)"
+echo "    bytes: $bytes"
+if [ "$matched" != "1" ]; then
+  echo "FAILED: live bytes ($bytes) never matched built bytes ($dist_bytes) in 8 tries." >&2
+  echo "        Either the deploy did not land, or the response is the soft-404" >&2
+  echo "        homepage rather than '$VERIFY_PATH'." >&2
   exit 1
 fi
-echo "    match: live == dist ✓"
+echo "    match: live == dist ✓  (after $i attempt(s))"
+html=$(curl -s -m 25 "$URL" || true)
 
 echo "    katex-error: $(printf '%s' "$html" | grep -c 'katex-error' || true)   (want 0)"
 echo "    noindex:     $(printf '%s' "$html" | grep -ci 'noindex' || true)   (0 = published)"

@@ -15,6 +15,7 @@
 <script>
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
 
   function initHome() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -29,7 +30,7 @@
     ScrollTrigger.getAll().forEach((st) => st.kill());
     if (!hero) return;
     hero.dataset.motionWired = '1';
-    gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger, SplitText);
 
     // --- phase 3: hero entrance — one brief stagger on load (<1s total) ---
     // fromTo, NOT from: from() captures the element's CURRENT opacity as its
@@ -40,6 +41,55 @@
       { opacity: 0, y: 14 },
       { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out', stagger: 0.09, overwrite: 'auto' },
     );
+
+    // --- phase 4 (2026-08-01): SplitText entrances on headings ---
+    // ScrollTrigger 56 / SplitText 44 of 30 gsap.com showcase entries; we had
+    // ScrollTrigger only. Headings only — long-form reading pages stay still.
+    //
+    // The h1 is the LCP element and stays zero-JS legible: the split runs after
+    // load and only wraps text the browser has already painted. Nothing here
+    // hides it pre-JS (tokens.css does that for [data-reveal], not for this).
+    //
+    // autoSplit + onSplit is the 3.13+ pattern: a line split is only valid for
+    // the width and font it was measured at, so a resize or a late webfont has
+    // to re-split. Returning the tween from onSplit lets GSAP revert the old
+    // one — without that, a re-split leaves the previous tween holding stale
+    // line nodes (the same shape as the `from()` bug documented above).
+    const h1 = document.querySelector<HTMLElement>('[data-split="lines"]');
+    if (h1) {
+      new SplitText(h1, {
+        type: 'lines',
+        mask: 'lines',
+        autoSplit: true,
+        onSplit: (self) =>
+          gsap.fromTo(
+            self.lines,
+            { yPercent: 110 },
+            { yPercent: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12, overwrite: 'auto' },
+          ),
+      });
+    }
+
+    // Section headings: per-character settle on the same trigger their
+    // [data-reveal] wrapper already uses. chars, not words — the zh face has
+    // four-character headings where a word split yields one element and no
+    // stagger at all.
+    for (const el of document.querySelectorAll<HTMLElement>('[data-split="chars"]')) {
+      const split = new SplitText(el, { type: 'chars' });
+      gsap.fromTo(
+        split.chars,
+        { opacity: 0, y: 10 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power2.out',
+          stagger: 0.025,
+          overwrite: 'auto',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+        },
+      );
+    }
 
     // --- reveals (phase 1) ---
     for (const el of document.querySelectorAll('[data-reveal]')) {
