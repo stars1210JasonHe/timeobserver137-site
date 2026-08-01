@@ -53,6 +53,9 @@ const seriesHref = '/zh/series/symmetry-monster/';
 </section>
 
 <script>
+  import { gsap } from 'gsap';
+  import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+
   const __initOnLoad = () => {
     const stage = document.querySelector<HTMLElement>('.solids-stage');
     if (!stage || stage.dataset.wired) return;
@@ -62,6 +65,8 @@ const seriesHref = '/zh/series/symmetry-monster/';
     const dots = [...document.querySelectorAll<HTMLElement>('.solid-dot')];
     const zh = document.documentElement.lang.startsWith('zh');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // must precede the first setSolid(): it sets drawSVG on the fresh lines
+    if (!reduced) gsap.registerPlugin(DrawSVGPlugin);
 
     // --- the five solids (unit-ish coordinates) ---
     const PHI = (1 + Math.sqrt(5)) / 2;
@@ -126,6 +131,38 @@ const seriesHref = '/zh/series/symmetry-monster/';
         : `${s.en} · rotations ${s.group}`;
       dots.forEach((d, k) => d.classList.toggle('active', k === current));
       draw(0.6, 0.4);
+      // Edges arrive undrawn and get constructed — on first scroll-in, and again
+      // on every switch, so each of the five is built rather than presented.
+      if (!reduced) {
+        if (drawnOnce) drawIn();
+        else gsap.set(lines, { drawSVG: '0%' });
+      }
+    };
+
+    // --- construction entrance (R-62 item 3) --------------------------------
+    // ONE piece of state owns "the entrance is running": the rAF spin reads it
+    // and holds still. DrawSVG computes its dash values from the geometry at
+    // tween start, and this solid rewrites every x1/y1/x2/y2 each frame — a
+    // spinning line would outgrow its own dash pattern and tear. Pausing is not
+    // polish here, it is what makes the effect correct.
+    let drawing = false;
+    let drawnOnce = false;
+    const drawIn = () => {
+      if (reduced || !lines.length) return;
+      drawing = true;
+      gsap.fromTo(
+        lines,
+        { drawSVG: '0%' },
+        {
+          drawSVG: '100%', duration: 0.5, stagger: 0.02, ease: 'power1.out', overwrite: 'auto',
+          onComplete: () => {
+            // hand the geometry back before the spin resumes: a leftover
+            // dasharray would be measured against a length that keeps changing
+            gsap.set(lines, { clearProps: 'strokeDasharray,strokeDashoffset' });
+            drawing = false;
+          },
+        },
+      );
     };
 
     let ax = 0.5, ay = 0.3;
@@ -155,12 +192,23 @@ const seriesHref = '/zh/series/symmetry-monster/';
 
     if (!reduced) {
       let inView = true;
-      new IntersectionObserver(([e]) => (inView = e.isIntersecting)).observe(stage);
+      new IntersectionObserver(([e]) => {
+        inView = e.isIntersecting;
+        // Construct it the first time it is actually looked at. IntersectionObserver
+        // fires once on observe with the current state, so a solid already on
+        // screen draws immediately and can never be left sitting at drawSVG 0%.
+        if (inView && !drawnOnce) {
+          drawnOnce = true;
+          drawIn();
+        }
+      }).observe(stage);
       let last: number | null = null;
       const tick = (now: number) => {
         const dt = last === null ? 0 : (now - last) / 1000;
         last = now;
-        if (inView) {
+        // `drawing` is the single piece of state: the spin reads it and holds
+        // still, so the entrance animates a shape that is not moving under it.
+        if (inView && !drawing) {
           ax += dt * 0.35;
           ay += dt * 0.22;
           draw(ay, ax);
