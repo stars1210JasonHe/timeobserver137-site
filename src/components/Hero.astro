@@ -22,7 +22,7 @@ const zh = lang === 'zh';
 const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
 ---
 
-<section class="hero relative mx-auto grid min-h-[88vh] max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+<section class="hero relative mx-auto grid min-h-[88vh] max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)]">
   <BackgroundEquations />
   <div class="max-w-xl">
     <p data-hero-stagger class="text-sm uppercase tracking-[0.25em] text-muted">时间观察者 · timeobserver137</p>
@@ -56,7 +56,7 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     </div>
   </div>
 
-  <figure class="orrery justify-self-center lg:justify-self-end">
+  <figure class="orrery w-full justify-self-center lg:justify-self-end">
     <!--
       Pause first in source order so the CSS-only `:checked ~` can reach the
       figure. WCAG 2.2.2 requires a mechanism to stop motion that runs past 5s,
@@ -65,7 +65,7 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
       already has.
     -->
     <input type="checkbox" id="orrery-pause" class="orrery-pause peer sr-only" />
-    <div class="lagrange w-[min(92vw,660px)]" set:html={lagrangeSvg} />
+    <div class="lagrange w-full" set:html={lagrangeSvg} />
     <figcaption class="mt-3 max-w-[540px] text-xs leading-relaxed text-faint">
       {zh ? (
         <>限制性三体问题的有效势等势线，L<sub>1</sub>–L<sub>5</sub> —— 欧拉先找到了共线的那三个。出自我的文章<a class="text-muted underline decoration-line underline-offset-2 transition-colors hover:text-ink" href={essayUrl}>《失明的十七年里，欧拉做了什么》</a>。</>
