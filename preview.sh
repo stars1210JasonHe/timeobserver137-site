@@ -69,45 +69,47 @@ CI=1 "$WRANGLER" pages deploy dist --project-name "$PROJECT" --branch "$BRANCH" 
 URL="${ALIAS}${VERIFY_PATH}"
 echo "==> verify: $URL"
 
-# Retry: a fresh deploy needs a moment to reach the edge, and this site
-# soft-404s unknown paths to the homepage (200 text/html) until it propagates.
-code="000"; bytes=0
-for i in 1 2 3 4 5; do
+# --- what we are comparing against -------------------------------------------
+# HTTP 200 is NOT enough on this site: it soft-404s unknown paths to the homepage
+# with 200 text/html (see [INFRA:timeobserver137-site]), so a typo'd path returns
+# a cheerful 200 for a page that does not exist. Compare the live byte count with
+# the built file for the SAME path — the cheapest tell that what came back is the
+# page asked for AND is the build just uploaded.
+DIST_FILE="dist${VERIFY_PATH%/}/index.html"
+[ "$VERIFY_PATH" = "/" ] && DIST_FILE="dist/index.html"
+
+if [ ! -f "$DIST_FILE" ]; then
+  echo "FAILED: no built page at $DIST_FILE — a 200 from this site would be its" >&2
+  echo "        soft-404 serving the homepage, not '$VERIFY_PATH'." >&2
+  exit 1
+fi
+dist_bytes=$(wc -c < "$DIST_FILE" | tr -d ' ')
+echo "    dist:  $dist_bytes   ($DIST_FILE)"
+
+# --- retry the WHOLE check, not just the status code -------------------------
+# Fermat, 2026-08-01: the byte comparison used to sit OUTSIDE this loop, so it
+# sampled once. Cloudflare propagates to edge PoPs one at a time, and five
+# consecutive pulls of the same URL right after a deploy returned
+# 114987 / 114987 / 114987 / 114987 / 114718 — the last one an older build from
+# a PoP that had not caught up. A single sample landing on that PoP is a
+# confident FALSE FAILURE. Anything that can be stale must be re-sampled, not
+# just the thing that can be absent.
+code="000"; bytes=0; ok=0
+for i in 1 2 3 4 5 6 7 8; do
   read -r code bytes <<<"$(curl -s -o /dev/null -w '%{http_code} %{size_download}' -m 25 "$URL" || echo '000 0')"
-  [ "$code" = "200" ] && [ "$bytes" -gt 0 ] && break
-  echo "    (try $i) HTTP $code ${bytes}B — retrying"
+  if [ "$code" = "200" ] && [ "$bytes" = "$dist_bytes" ]; then ok=1; break; fi
+  echo "    (try $i) HTTP $code ${bytes}B — want 200 ${dist_bytes}B, retrying"
   sleep 4
 done
 
 echo "    HTTP:  $code   (want 200)"
 echo "    bytes: $bytes"
 
-if [ "$code" != "200" ] || [ "$bytes" -le 0 ]; then
-  echo "FAILED: preview did not serve $URL" >&2
-  exit 1
-fi
-
-# --- HTTP 200 is NOT enough on this site -------------------------------------
-# It soft-404s unknown paths to the homepage with 200 text/html (documented in
-# [INFRA:timeobserver137-site]). So a typo'd path returns a cheerful 200 for a
-# page that does not exist. Compare the live byte count against the built file
-# for the SAME path — the cheapest tell that what came back is the page asked
-# for and is the build just uploaded.
-DIST_FILE="dist${VERIFY_PATH%/}/index.html"
-[ "$VERIFY_PATH" = "/" ] && DIST_FILE="dist/index.html"
-
-if [ ! -f "$DIST_FILE" ]; then
-  echo "FAILED: no built page at $DIST_FILE — the 200 above is this site's" >&2
-  echo "        soft-404 serving the homepage, not '$VERIFY_PATH'." >&2
-  exit 1
-fi
-
-dist_bytes=$(wc -c < "$DIST_FILE" | tr -d ' ')
-echo "    dist:  $dist_bytes   ($DIST_FILE)"
-if [ "$bytes" != "$dist_bytes" ]; then
-  echo "FAILED: live bytes ($bytes) != built bytes ($dist_bytes)." >&2
-  echo "        Either the edge is still serving an older build (retry), or the" >&2
-  echo "        response is the soft-404 homepage rather than '$VERIFY_PATH'." >&2
+if [ "$ok" != "1" ]; then
+  echo "FAILED: $URL never served the build just uploaded." >&2
+  echo "        live=$bytes dist=$dist_bytes after 8 tries." >&2
+  echo "        Either the response is the soft-404 homepage (wrong path), or the" >&2
+  echo "        deploy did not land. Both are real failures — do not ignore this." >&2
   exit 1
 fi
 echo "    match: live == dist ✓"
