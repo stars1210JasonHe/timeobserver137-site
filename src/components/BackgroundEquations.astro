@@ -111,21 +111,10 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
       }
 
       if (root.dataset.autoplace !== undefined) {
-        const run = () => placeEquations(root);
-        run(); // first paint uses the CSS fallback; this replaces it immediately
         // KaTeX metrics change once the maths font lands, which changes the
-        // measured widths — re-solve then.
-        document.fonts?.ready.then(run).catch(() => {});
-        let t = 0;
-        const resolve = () => {
-          clearTimeout(t);
-          t = window.setTimeout(run, 120);
-        };
-        // Observe the BODY, not the host section: the placement is derived from
-        // the whole document's horizontal extent, so a late-loading image or a
-        // section that reflows anywhere on the page can change the answer.
-        new ResizeObserver(resolve).observe(document.body);
-        window.addEventListener('resize', resolve);
+        // measured widths — re-solve then too.
+        document.fonts?.ready.then(() => solve(root)).catch(() => {});
+        window.addEventListener('resize', () => solve(root));
       }
     }
   }
@@ -156,6 +145,37 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
     'eq-path': [1, 1],
   };
 
+  /* ----------------------------------------------------------------- *
+   * solve() — the ONLY entry point to placement.
+   *
+   * The layer is transition:persist'ed and survives a ClientRouter swap, so it
+   * outlives the page it was measured against and MUST be re-solved on every
+   * navigation. It also owns the failure this fixes: on returning to the
+   * homepage the equations came back invisible, because a solve ran while the
+   * swapped-in DOM had not laid out yet, measured a nonsense content extent,
+   * concluded there was no margin and hid all four — and nothing ever re-ran,
+   * since the ResizeObserver was still watching the DISCARDED body.
+   *
+   * So: re-attach the observer to the live body each time, wait for a settled
+   * frame before measuring, and never let one bad measurement hide anything
+   * (placeEquations bails instead — see the sanity check inside).
+   * ----------------------------------------------------------------- */
+  let bodyRO: ResizeObserver | null = null;
+  let solveTimer = 0;
+  function solve(root: HTMLElement) {
+    if (root.dataset.autoplace === undefined) return;
+    clearTimeout(solveTimer);
+    solveTimer = window.setTimeout(() => {
+      requestAnimationFrame(() => requestAnimationFrame(() => placeEquations(root)));
+    }, 60);
+    if (bodyRO) bodyRO.disconnect();
+    bodyRO = new ResizeObserver(() => {
+      clearTimeout(solveTimer);
+      solveTimer = window.setTimeout(() => placeEquations(root), 120);
+    });
+    bodyRO.observe(document.body);
+  }
+
   function placeEquations(root: HTMLElement) {
     const vw = root.clientWidth;
     const vh = root.clientHeight;
@@ -182,12 +202,26 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
     const overlays: HTMLElement[] = [];
     for (const el of document.body.querySelectorAll<HTMLElement>('*')) {
       if (el === root || root.contains(el)) continue;
-      const p = getComputedStyle(el).position;
-      if (p === 'fixed' || p === 'sticky') overlays.push(el);
+      const cs = getComputedStyle(el);
+      if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+      /* A decorative full-screen layer is not an obstacle. The stardust burst
+       * Base.astro fires on every navigation is `fixed; inset:0;
+       * pointer-events:none` and lives ~2s — long enough to be measured, and it
+       * made every corner look occupied, so a re-solve after a page change hid
+       * all four equations and nothing ever un-hid them. That was the bug where
+       * the equations only ever appeared on a fresh load.
+       * Two independent reasons to skip such a layer: it cannot be interacted
+       * with, and an obstacle covering most of the viewport is a scrim rather
+       * than something with a position to avoid. */
+      if (cs.pointerEvents === 'none') continue;
+      const r = el.getBoundingClientRect();
+      if (r.width * r.height > vw * vh * 0.5) continue;
+      overlays.push(el);
     }
     const overlayRects = overlays.map((e) => e.getBoundingClientRect()).filter((r) => r.width > 3 && r.height > 3);
     const inOverlay = (el: HTMLElement) => overlays.some((o) => o.contains(el));
 
+    let seen = 0;
     let contentL = vw;
     let contentR = 0;
     for (const el of document.body.querySelectorAll<HTMLElement>(
@@ -197,12 +231,21 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
       if (inOverlay(el)) continue;
       const r = el.getBoundingClientRect();
       if (r.width < 4 || r.height < 4) continue;
+      seen++;
       contentL = Math.min(contentL, r.left);
       contentR = Math.max(contentR, r.right);
     }
-    if (contentL > contentR) {
-      contentL = vw * 0.5;
-      contentR = vw * 0.5;
+
+    /* A page mid-swap measures as almost no content. Trusting that reading is
+     * what made the equations vanish on the way back to the homepage: it looks
+     * exactly like "there is no margin here", and the honest response to that
+     * is to hide. So distinguish the two — too little content means the
+     * MEASUREMENT is not ready, not that the page has no room. Leave whatever
+     * is on screen alone and try again on the next settled frame. */
+    if (seen < 3 || contentR - contentL < vw * 0.15) {
+      clearTimeout(solveTimer);
+      solveTimer = window.setTimeout(() => placeEquations(root), 200);
+      return;
     }
     const band = [Math.max(0, contentL - GAP), Math.max(0, vw - contentR - GAP)]; // [left, right]
 
@@ -363,8 +406,15 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
     }
   }
 
-  document.addEventListener('astro:page-load', initEquations);
-  initEquations();
+  /* initEquations is guarded per element and no-ops on a persisted layer; the
+     re-solve is what every navigation actually needs, so it is unconditional. */
+  function boot() {
+    initEquations();
+    for (const root of document.querySelectorAll<HTMLElement>('.bg-equations')) solve(root);
+  }
+  document.addEventListener('astro:page-load', boot);
+  document.addEventListener('astro:after-swap', boot);
+  boot();
 </script>
 
 <style>

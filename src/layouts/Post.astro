@@ -6,7 +6,6 @@
  */
 import 'katex/dist/katex.min.css';
 import Base from './Base.astro';
-import BackgroundEquations from '../components/BackgroundEquations.astro';
 
 interface Props {
   title: string;
@@ -37,8 +36,10 @@ const cover = ogImage; // feature image doubles as the in-page hero (Ghost Sourc
 const dateStr = date.toISOString().slice(0, 10);
 ---
 
-<Base {title} {description} {lang} {altHref} {ogImage} {noindex}>
-  <BackgroundEquations variant="ambient" />
+<!-- The equations layer moved into Base (2026-08-02) so every page has it, not
+     just the homepage and articles. Article pages ask Base for the quiet
+     variant rather than mounting a second copy of the layer. -->
+<Base {title} {description} {lang} {altHref} {ogImage} {noindex} eqVariant="ambient">
   <main class="mx-auto max-w-2xl px-6 py-12">
     {draftBanner && (
       <p class="mb-8 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-200/90">

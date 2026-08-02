@@ -7,6 +7,7 @@ import HeadMeta from '../components/HeadMeta.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import ChatWidget from '../components/ChatWidget.astro';
+import BackgroundEquations from '../components/BackgroundEquations.astro';
 
 interface Props {
   title: string;
@@ -17,8 +18,15 @@ interface Props {
   ogImage?: string;
   /** draft previews only — never let an unpublished page into a search index */
   noindex?: boolean;
+  /**
+   * The background equations live HERE, not in a page component (Yeqiu
+   * 2026-08-02:「这个最好一直出现在第一级的链接里 比如home about resume etc」).
+   * They used to be mounted inside Hero, so they existed on the homepage only.
+   * 'ambient' is the quiet, non-interactive treatment for long reads.
+   */
+  eqVariant?: 'hero' | 'ambient';
 }
-const { title, description, lang, altHref, ogImage, noindex = false } = Astro.props;
+const { title, description, lang, altHref, ogImage, noindex = false, eqVariant = 'hero' } = Astro.props;
 ---
 
 <!doctype html>
@@ -76,6 +84,11 @@ const { title, description, lang, altHref, ogImage, noindex = false } = Astro.pr
     document.addEventListener('astro:after-swap', stardust);
   </script>
   <body class="bg-bg font-sans text-ink antialiased">
+    <!-- transition:persist — the layer survives a ClientRouter swap instead of
+         being rebuilt, so the equations do not re-fade-in on every navigation
+         and their click handlers stay wired. Placement still re-solves per page
+         (astro:page-load), because each page has a different content width. -->
+    <BackgroundEquations variant={eqVariant} transition:persist="bg-equations" />
     <Nav {lang} {altHref} />
     <slot />
     <Footer {lang} />

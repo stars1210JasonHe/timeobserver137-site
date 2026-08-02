@@ -11,7 +11,6 @@
  * can't read the zh essay; the label is what makes the star legible as earned).
  */
 import lagrangeSvg from '../assets/lagrange-hero.svg?raw';
-import BackgroundEquations from './BackgroundEquations.astro';
 import FleetGraph from './FleetGraph.astro';
 
 interface Props {
@@ -39,13 +38,13 @@ const seriesHref = '/zh/series/euler/';
   The Lagrange figure moves below, into the band about the writing — where its
   own caption already pointed.
 -->
-<!-- Page-level layer, deliberately OUTSIDE .hero (Yeqiu 2026-08-02:「四个公式不是
-     这么排的，而是在页面里固定出现在边缘，无论怎么划到哪一页」). Inside .hero it
-     scrolled away with the headline; as a sibling it is viewport-fixed and stays at
-     the margins for the whole page, which is what the article pages already do. -->
-<BackgroundEquations />
-
-<section class="hero relative mx-auto min-h-[560px] max-w-6xl overflow-hidden px-6 pb-6 pt-14">
+<!-- The equations layer is NOT here any more: it lives in Base.astro so every
+     page carries it (Yeqiu 2026-08-02:「这个最好一直出现在第一级的链接里」).
+     min-h-[560px] went with it — that floor existed only to give the equations'
+     percentage offsets room back when they were positioned inside this box, and
+     once they became viewport-fixed it was 262px of pure emptiness between the
+     buttons and the graph (measured). -->
+<section class="hero relative mx-auto max-w-6xl overflow-hidden px-6 pb-6 pt-14">
   <div class="hero-copy relative z-10 max-w-2xl">
     <p data-hero-stagger class="text-sm uppercase tracking-[0.25em] text-muted">时间观察者 · timeobserver137</p>
     <!-- data-split (not data-hero-stagger): SplitText owns this entrance line by
