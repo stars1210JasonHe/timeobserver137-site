@@ -38,9 +38,12 @@ import graph from '../data/fleet-graph-core.json';
 
 interface Props {
   lang: 'en' | 'zh';
+  /** 'section' = its own titled block. 'hero' = bare canvas behind the headline. */
+  variant?: 'section' | 'hero';
 }
-const { lang } = Astro.props;
+const { lang, variant = 'section' } = Astro.props;
 const zh = lang === 'zh';
+const isHero = variant === 'hero';
 
 const nodeCount = graph.nodes.length;
 const edgeCount = graph.edges.length;
@@ -52,6 +55,13 @@ const crossCount = graph.edges.filter(
 const fmt = (n: number) => n.toLocaleString('en-US');
 ---
 
+{isHero ? (
+  <div class="fleet-graph fg-hero pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div class="fg-stage absolute inset-0">
+      <canvas class="fg-canvas block h-full w-full"></canvas>
+    </div>
+  </div>
+) : (
 <section class="fleet-graph mx-auto max-w-6xl px-6 py-14" data-reveal>
   <div class="flex items-baseline justify-between gap-4">
     <h2 class="text-2xl font-semibold text-chalk">{zh ? '这支舰队的记忆' : "The fleet's memory"}</h2>
@@ -94,6 +104,7 @@ const fmt = (n: number) => n.toLocaleString('en-US');
     </figcaption>
   </figure>
 </section>
+)}
 
 <script define:vars={{ graph }}>
   (() => {
@@ -141,11 +152,14 @@ const fmt = (n: number) => n.toLocaleString('en-US');
         const rect = canvas.parentElement.getBoundingClientRect();
         // squarish, capped so it never eats a whole phone screen
         W = Math.max(280, Math.round(rect.width));
-        // the data is near-square (3298 x 3116), so HEIGHT was the binding
-        // constraint: at W=1104 the old 560 cap drew the graph only ~475px
-        // across inside a 1104px column. Raising the cap enlarges it ~44%
-        // without touching the layout. (Yeqiu:「线条不清晰…把图放大」)
-        H = Math.round(Math.min(W * 0.95, 780));
+        // In the hero the canvas fills the band it is given, so height comes
+        // from the parent. Standalone, the data is near-square (3298 x 3116)
+        // and HEIGHT was the binding constraint: at W=1104 a 560 cap drew the
+        // graph only ~475px across inside a 1104px column.
+        const heroBand = canvas.closest('.fg-hero');
+        H = heroBand
+          ? Math.max(320, Math.round(rect.height))
+          : Math.round(Math.min(W * 0.95, 780));
         dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = W * dpr;
         canvas.height = H * dpr;
@@ -154,6 +168,11 @@ const fmt = (n: number) => n.toLocaleString('en-US');
         const pad = 64;
         sc = Math.min((W - pad * 2) / (maxX - minX), (H - pad * 2) / (maxY - minY));
         ox = (W - (maxX - minX) * sc) / 2 - minX * sc;
+        // In the hero the left third carries the headline, so push the graph's
+        // centre right instead of letting the densest clusters sit under text.
+        // The scrim below handles what still overlaps; this reduces how much
+        // there is to handle.
+        if (heroBand && W > 900) ox += W * 0.14;
         oy = (H - (maxY - minY) * sc) / 2 - minY * sc;
       }
       const px = (n) => n[0] * sc + ox;
@@ -329,7 +348,7 @@ const fmt = (n: number) => n.toLocaleString('en-US');
         ).observe(canvas);
 
         // WCAG 2.2.2: anything moving past five seconds needs a way to stop it.
-        const btn = document.querySelector('.fg-pause');
+        const btn = canvas.closest('.fleet-graph')?.querySelector('.fg-pause');
         if (btn) {
           btn.addEventListener('click', () => {
             paused = !paused;

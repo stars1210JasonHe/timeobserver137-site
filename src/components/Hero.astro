@@ -12,6 +12,7 @@
  */
 import lagrangeSvg from '../assets/lagrange-hero.svg?raw';
 import BackgroundEquations from './BackgroundEquations.astro';
+import FleetGraph from './FleetGraph.astro';
 
 interface Props {
   lang: 'en' | 'zh';
@@ -22,9 +23,27 @@ const zh = lang === 'zh';
 const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
 ---
 
-<section class="hero relative mx-auto grid min-h-[88vh] max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)]">
+<!--
+  2026-08-02 (Yeqiu:「fleet memory 你怎么放在第二部分？不是说放开头吗？」)
+  The headline is about the fleet, so the fleet is what stands behind it. The
+  memory graph is now the hero's full-width backdrop rather than a block further
+  down, and it is BIGGER here than it was as its own section — moving it into a
+  right-hand column would have shrunk it ~40%, which contradicts the other thing
+  he asked for the same night (「线条不清晰…把图放大」).
+  The Lagrange figure moves below, into the band about the writing — where its
+  own caption already pointed.
+-->
+<section class="hero relative mx-auto flex min-h-[88vh] max-w-6xl items-center overflow-hidden px-6 py-16">
   <BackgroundEquations />
-  <div class="max-w-xl">
+  <FleetGraph lang={lang} variant="hero" />
+  <!-- Scrim: the graph is full-bleed, so the headline column would otherwise sit
+       on top of the densest clusters and become unreadable — the same collision
+       the four equations had, recreated at a larger scale. A left-to-right fade
+       to the page background keeps the graph edge-to-edge while guaranteeing the
+       text has a quiet field to sit on. Page background sampled, not guessed:
+       rgb(10, 18, 40). -->
+  <div class="hero-scrim pointer-events-none absolute inset-0 z-[5]" aria-hidden="true"></div>
+  <div class="relative z-10 max-w-xl">
     <p data-hero-stagger class="text-sm uppercase tracking-[0.25em] text-muted">时间观察者 · timeobserver137</p>
     <!-- data-split (not data-hero-stagger): SplitText owns this entrance line by
          line. Both would animate the same element and fight. Still zero-JS
@@ -56,6 +75,9 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     </div>
   </div>
 
+</section>
+
+<section class="orrery-band mx-auto max-w-6xl px-6 pb-16" data-reveal>
   <figure class="orrery w-full justify-self-center lg:justify-self-end">
     <!--
       Pause first in source order so the CSS-only `:checked ~` can reach the
@@ -81,6 +103,37 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
 </section>
 
 <style>
+  /* --- scrim: keep the headline readable over a full-bleed graph -----------
+     Wide screens put the text in the left column, so a left-to-right fade is
+     exactly right. NARROW screens do not: the text spans the full width, and a
+     horizontal fade protects nothing — measured on a 390px phone the graph ran
+     straight through the paragraph. So the direction of the fade has to change
+     with the layout, and the graph additionally drops to a texture there.
+     Page background sampled from the live page, not guessed: rgb(10, 18, 40). */
+  .hero-scrim {
+    background: linear-gradient(
+      to right,
+      rgb(10, 18, 40) 0%,
+      rgba(10, 18, 40, 0.94) 28%,
+      rgba(10, 18, 40, 0.72) 44%,
+      rgba(10, 18, 40, 0) 62%
+    );
+  }
+  @media (max-width: 900px) {
+    .hero-scrim {
+      background: linear-gradient(
+        to bottom,
+        rgb(10, 18, 40) 0%,
+        rgba(10, 18, 40, 0.96) 46%,
+        rgba(10, 18, 40, 0.78) 66%,
+        rgba(10, 18, 40, 0.35) 100%
+      );
+    }
+    :global(.fg-hero) {
+      opacity: 0.55;
+    }
+  }
+
   /* Draw-once-then-still: total ≈ 4.4s < 5s (WCAG 2.2.2 threshold). Zero JS. */
   .lagrange :global(svg) {
     width: 100%;
