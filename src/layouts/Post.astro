@@ -133,9 +133,10 @@ const dateStr = date.toISOString().slice(0, 10);
     margin-inline: auto;
     border-radius: 4px;
   }
-  .article em:has(+ *) {
-    display: block;
-  }
+  /* removed 2026-07-29: `em:has(+ *)` matched ANY element sibling, so an italic
+     paper title followed by a <strong> volume number (or a KaTeX <span>) was forced
+     onto its own line — measured 22 hits site-wide, 0 of them intended.
+     Image captions are handled by the `figure > em` / `img + em` rules below. */
   .article figure > em,
   .article img + em {
     display: block;

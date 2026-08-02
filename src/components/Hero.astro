@@ -33,17 +33,9 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
   The Lagrange figure moves below, into the band about the writing — where its
   own caption already pointed.
 -->
-<section class="hero relative mx-auto flex min-h-[88vh] max-w-6xl items-center overflow-hidden px-6 py-16">
+<section class="hero relative mx-auto min-h-[560px] max-w-6xl overflow-hidden px-6 pb-6 pt-14">
   <BackgroundEquations />
-  <FleetGraph lang={lang} variant="hero" />
-  <!-- Scrim: the graph is full-bleed, so the headline column would otherwise sit
-       on top of the densest clusters and become unreadable — the same collision
-       the four equations had, recreated at a larger scale. A left-to-right fade
-       to the page background keeps the graph edge-to-edge while guaranteeing the
-       text has a quiet field to sit on. Page background sampled, not guessed:
-       rgb(10, 18, 40). -->
-  <div class="hero-scrim pointer-events-none absolute inset-0 z-[5]" aria-hidden="true"></div>
-  <div class="hero-copy relative z-10 max-w-xl">
+  <div class="hero-copy relative z-10 max-w-2xl">
     <p data-hero-stagger class="text-sm uppercase tracking-[0.25em] text-muted">时间观察者 · timeobserver137</p>
     <!-- data-split (not data-hero-stagger): SplitText owns this entrance line by
          line. Both would animate the same element and fight. Still zero-JS
@@ -77,8 +69,21 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
 
 </section>
 
+<!-- The graph is the SUBJECT, not wallpaper (Yeqiu 2026-08-02:「为什么做成背景？」).
+     He is right: it is 1,108 real memories and 1,474 real citations, and putting it
+     behind the headline with a scrim over half of it said "look at this" and "you
+     may not see this" at the same time. The headline block above is now compact so
+     this still lands in the first screen — what he objected to originally was having
+     to scroll to find it, not its being its own element. -->
+<section class="fleet-band mx-auto max-w-6xl px-6 pb-4">
+  <FleetGraph lang={lang} variant="hero" />
+</section>
+
 <section class="orrery-band mx-auto max-w-6xl px-6 pb-16" data-reveal>
-  <figure class="orrery w-full justify-self-center lg:justify-self-end">
+  <p class="text-center text-sm uppercase tracking-[0.25em] text-muted">
+    {zh ? '欧拉与三体问题' : 'Euler and the three-body problem'}
+  </p>
+  <figure class="orrery mx-auto mt-6 w-full max-w-[440px]">
     <!--
       Pause first in source order so the CSS-only `:checked ~` can reach the
       figure. WCAG 2.2.2 requires a mechanism to stop motion that runs past 5s,
@@ -103,48 +108,18 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
 </section>
 
 <style>
-  /* --- scrim: keep the headline readable over a full-bleed graph -----------
-     Wide screens put the text in the left column, so a left-to-right fade is
-     exactly right. NARROW screens do not: the text spans the full width, and a
-     horizontal fade protects nothing — measured on a 390px phone the graph ran
-     straight through the paragraph. So the direction of the fade has to change
-     with the layout, and the graph additionally drops to a texture there.
-     Page background sampled from the live page, not guessed: rgb(10, 18, 40). */
-  .hero-scrim {
-    background: linear-gradient(
-      to right,
-      rgb(10, 18, 40) 0%,
-      rgba(10, 18, 40, 0.94) 28%,
-      rgba(10, 18, 40, 0.72) 44%,
-      rgba(10, 18, 40, 0) 62%
-    );
+  /* The graph lives in its own band now, so it needs a height of its own:
+     .fg-stage inside it is `absolute inset-0`, which collapses to nothing
+     without one. Measured when this was missing: the band rendered 16px tall
+     and the canvas fell back to the window size (1440x900). */
+  .fleet-band :global(.fg-hero) {
+    position: relative;
+    height: 560px;
+    opacity: 1;
   }
-  /* Below 900px the graph stops being a backdrop entirely (Yeqiu 2026-08-02:
-     make it visible on phones too). Dimming it to a texture kept the copy
-     readable but cost the picture — a 1108-node graph behind full-width text
-     cannot be both legible and out of the way at 390px. So on narrow screens it
-     leaves the background and becomes its own block under the buttons, at full
-     opacity, with no scrim needed because nothing overlaps any more. */
   @media (max-width: 900px) {
-    .hero {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .hero-copy {
-      order: 1;
-    }
-    :global(.fg-hero) {
-      /* relative, NOT static: the inner .fg-stage is `absolute inset-0`, so with
-         a static parent it resolves against .hero instead and the canvas
-         overflowed its band by 400px (measured: 390x743 inside a 340px block). */
-      position: relative;
-      order: 2;
-      height: 340px;
-      margin-top: 2.5rem;
-      opacity: 1;
-    }
-    .hero-scrim {
-      display: none;
+    .fleet-band :global(.fg-hero) {
+      height: 380px;
     }
   }
 

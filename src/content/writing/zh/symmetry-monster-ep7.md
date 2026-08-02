@@ -739,8 +739,8 @@ $$|C_M(2\mathrm B)|=2^{1+24}\!\cdot\!\mathrm{Co}_1\ \text{的阶}=2^{25}\cdot|\m
 - The GAP Character Table Library (CTblLib), Thomas Breuer, RWTH Aachen: https://www.math.rwth-aachen.de/homes/Thomas.Breuer/ctbllib/ （魔群特征标表今天的存放处；⚠️ 注意别与 *ATLAS of Finite Group **Representations*** 混——后者给的是表示/生成元/极大子群，**没有特征标表**）
 
 **魔群 · 构造 · 数字**
-- Wikipedia · Monster group: https://en.wikipedia.org/wiki/Monster_group（阶 / 194 类 / 196883 / 各归各位史实）
-- Wikipedia · Griess algebra: https://en.wikipedia.org/wiki/Griess_algebra（196884 = 1 + 196883）
+- Wikipedia · Monster group: https://en.wikipedia.org/wiki/Monster_group （阶 / 194 类 / 196883 / 各归各位史实）
+- Wikipedia · Griess algebra: https://en.wikipedia.org/wiki/Griess_algebra （196884 = 1 + 196883）
 - R. L. Griess, *A construction of $F_1$ as automorphisms of a 196,883-dimensional algebra*, Proc. Natl. Acad. Sci. USA **78** (1981) 689–691.（附录 C：构造公告；标题即"196883 维"口径）
 - R. L. Griess, *The Friendly Giant*, Invent. Math. **69** (1982) 1–102. DOI 10.1007/BF01389186.（附录 C：构造全文）
 - J. H. Conway, *A simple construction for the Fischer–Griess monster group*, Invent. Math. **79** (1985) 513–540.（附录 C：简化构造）
@@ -754,7 +754,7 @@ $$|C_M(2\mathrm B)|=2^{1+24}\!\cdot\!\mathrm{Co}_1\ \text{的阶}=2^{25}\cdot|\m
 
 **题词 / EP8 伏笔**
 - G. H. Hardy, *A Mathematician's Apology*, Cambridge University Press, 1940（Ch13 题词出处；用 Ronan 书中所印 epigraph 逐字）。
-- Wikipedia · Monstrous moonshine: https://en.wikipedia.org/wiki/Monstrous_moonshine（尾声 196884 = 196883 + 1 → EP8）。
+- Wikipedia · Monstrous moonshine: https://en.wikipedia.org/wiki/Monstrous_moonshine （尾声 196884 = 196883 + 1 → EP8）。
 
 
 （附录 B 新增的两条定理与 $n_i\mid|G|$ 均在本文全证，不新增引用；标准教材处理可对照 EP4 附录一 §三 末尾已点的 Fulton–Harris / Hall，代数整数的数论背景对照 EP4 附录五 §0 已列的 D&F / Isaacs。）

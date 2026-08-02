@@ -168,11 +168,9 @@ const fmt = (n: number) => n.toLocaleString('en-US');
         const pad = 64;
         sc = Math.min((W - pad * 2) / (maxX - minX), (H - pad * 2) / (maxY - minY));
         ox = (W - (maxX - minX) * sc) / 2 - minX * sc;
-        // In the hero the left third carries the headline, so push the graph's
-        // centre right instead of letting the densest clusters sit under text.
-        // The scrim below handles what still overlaps; this reduces how much
-        // there is to handle.
-        if (heroBand && W > 900) ox += W * 0.14;
+        // (A 14% rightward shift lived here while the graph was the hero's
+        // backdrop and had to dodge the headline column. It is the subject now,
+        // with nothing on top of it, so it centres like any other figure.)
         oy = (H - (maxY - minY) * sc) / 2 - minY * sc;
       }
       const px = (n) => n[0] * sc + ox;
