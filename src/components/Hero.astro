@@ -230,6 +230,42 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     filter: drop-shadow(0 0 5px #dda25b);
   }
 
+  /* --- phone: everything inside the SVG scales with the viewBox, and text has
+     a legibility floor that a scale factor does not respect -----------------
+     Yeqiu 2026-08-02: 「手机上 L1-L5 飘了，另外这颗小星也不太清楚」.
+
+     Measured before changing anything: the labels are NOT detaching — across a
+     62 degree turn each stayed 8-11px from its marker at a screen angle of
+     exactly 0. The problem is size. At 390 the figure renders 342px wide
+     (scale 0.398), so a label is 9x10px against 16x18px at 1440, and the
+     markers are 2.5px. At that size a label cannot be read as a label; it
+     reads as a speck drifting around the picture, which is what "飘" describes.
+
+     So this is a floor, not a redesign: bump the user-unit sizes on small
+     screens so the RENDERED size lands near the desktop one. The tspan
+     subscript carries its own font-size attribute and has to be lifted with
+     the group or the digit stays tiny while the L grows. */
+  @media (max-width: 767px) {
+    .lagrange :global(.lpoints) {
+      font-size: 34px;
+    }
+    .lagrange :global(.lpoints tspan) {
+      font-size: 23px;
+    }
+    .lagrange :global(.lp) {
+      r: 5;
+    }
+    .lagrange :global(.lp4) {
+      r: 9;
+    }
+    .lagrange :global(.sun) {
+      r: 24;
+    }
+    .lagrange :global(.planet) {
+      r: 13;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .lagrange :global(.contours path),
     .lagrange :global(.sun),
