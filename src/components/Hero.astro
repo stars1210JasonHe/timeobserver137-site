@@ -43,7 +43,7 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
        text has a quiet field to sit on. Page background sampled, not guessed:
        rgb(10, 18, 40). -->
   <div class="hero-scrim pointer-events-none absolute inset-0 z-[5]" aria-hidden="true"></div>
-  <div class="relative z-10 max-w-xl">
+  <div class="hero-copy relative z-10 max-w-xl">
     <p data-hero-stagger class="text-sm uppercase tracking-[0.25em] text-muted">时间观察者 · timeobserver137</p>
     <!-- data-split (not data-hero-stagger): SplitText owns this entrance line by
          line. Both would animate the same element and fight. Still zero-JS
@@ -119,18 +119,32 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
       rgba(10, 18, 40, 0) 62%
     );
   }
+  /* Below 900px the graph stops being a backdrop entirely (Yeqiu 2026-08-02:
+     make it visible on phones too). Dimming it to a texture kept the copy
+     readable but cost the picture — a 1108-node graph behind full-width text
+     cannot be both legible and out of the way at 390px. So on narrow screens it
+     leaves the background and becomes its own block under the buttons, at full
+     opacity, with no scrim needed because nothing overlaps any more. */
   @media (max-width: 900px) {
-    .hero-scrim {
-      background: linear-gradient(
-        to bottom,
-        rgb(10, 18, 40) 0%,
-        rgba(10, 18, 40, 0.96) 46%,
-        rgba(10, 18, 40, 0.78) 66%,
-        rgba(10, 18, 40, 0.35) 100%
-      );
+    .hero {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .hero-copy {
+      order: 1;
     }
     :global(.fg-hero) {
-      opacity: 0.55;
+      /* relative, NOT static: the inner .fg-stage is `absolute inset-0`, so with
+         a static parent it resolves against .hero instead and the canvas
+         overflowed its band by 400px (measured: 390x743 inside a 340px block). */
+      position: relative;
+      order: 2;
+      height: 340px;
+      margin-top: 2.5rem;
+      opacity: 1;
+    }
+    .hero-scrim {
+      display: none;
     }
   }
 
