@@ -56,10 +56,27 @@ const fmt = (n: number) => n.toLocaleString('en-US');
 ---
 
 {isHero ? (
-  <div class="fleet-graph fg-hero pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-    <div class="fg-stage absolute inset-0">
-      <canvas class="fg-canvas block h-full w-full"></canvas>
+  /* This markup was written when the hero graph really was wallpaper: no label,
+     no control, aria-hidden. It is the page's SUBJECT now, and two things did not
+     survive that promotion — the animation runs forever with no way to stop it
+     (WCAG 2.2.2 wants a mechanism past 5s; the Lagrange figure below has one), and
+     aria-hidden kept the most important object on the page out of a screen reader
+     entirely. Both fixed here. pointer-events stay off on the canvas so the
+     equations behind it remain clickable; the button re-enables them for itself. */
+  <div class="fleet-graph fg-hero absolute inset-0 overflow-hidden">
+    <div class="fg-stage pointer-events-none absolute inset-0">
+      <canvas class="fg-canvas block h-full w-full" role="img" aria-label={zh
+        ? `${clusterCount} 个智能体的记忆图：${fmt(nodeCount)} 条互相引用的记忆，${fmt(edgeCount)} 条引用，其中 ${fmt(crossCount)} 条跨越智能体`
+        : `Memory graph of ${clusterCount} agents: ${fmt(nodeCount)} interlinked memories, ${fmt(edgeCount)} references, ${fmt(crossCount)} of them across agents`}></canvas>
     </div>
+    <button
+      type="button"
+      class="fg-pause fg-pause-hero pointer-events-auto absolute bottom-0 right-0 text-xs text-faint underline decoration-line underline-offset-4 transition-colors hover:text-muted"
+      aria-pressed="false"
+      data-pause={zh ? '暂停动画' : 'Pause animation'}
+      data-resume={zh ? '继续动画' : 'Resume animation'}
+      >{zh ? '暂停动画' : 'Pause animation'}</button
+    >
   </div>
 ) : (
 <section class="fleet-graph mx-auto max-w-6xl px-6 py-14" data-reveal>
@@ -275,7 +292,12 @@ const fmt = (n: number) => n.toLocaleString('en-US');
         renderTo(bx, 1);
       }
       function renderTo(target, p) {
-        const prev = ctx;
+        // MUST be ctxRef.c, not ctx: `ctx` is the Proxy, and restoring the Proxy
+        // into ctxRef.c makes the get trap read a property off itself, forever.
+        // The symptom was silent — after cacheBase() every frame of tick() threw
+        // RangeError inside requestAnimationFrame, where nothing surfaces it, so
+        // the graph simply sat still and the travelling pulses never appeared.
+        const prev = ctxRef.c;
         // render() closes over ctx, so swap it for the duration
         // (kept explicit rather than clever: this is the only place it happens)
         ctxRef.c = target;
@@ -283,13 +305,15 @@ const fmt = (n: number) => n.toLocaleString('en-US');
         ctxRef.c = prev;
       }
 
-      const LIVE = 7; // pulses in flight
+      const LIVE = 12; // pulses in flight — 7 left the graph looking almost still
       let pulses = [];
       const seedPulse = () => ({
         e: cross[(Math.random() * cross.length) | 0],
         t: -Math.random() * 0.6,
         sp: 0.14 + Math.random() * 0.18,
+        ph: Math.random() * 6.283, // flicker phase, so they do not blink in unison
       });
+      const TAIL = 0.3; // fraction of the edge the current occupies
 
       let paused = false;
       let rafId = 0;
@@ -298,22 +322,60 @@ const fmt = (n: number) => n.toLocaleString('en-US');
         if (paused || !base) return;
         ctx.clearRect(0, 0, W, H);
         ctx.drawImage(base, 0, 0, W, H);
+        /* Current, not marbles (Yeqiu 2026-08-02:「把脉冲从圆球换成电流似的动态」).
+           A travelling dot reads as an object moving along a wire; a citation is
+           not an object. So each pulse is drawn as a short streak whose tail
+           fades out behind the head, with a small bright spark at the tip and an
+           out-of-phase flicker — what a charge running down a line looks like. */
+        ctx.lineCap = 'round';
+        /* Additive blending: light adds rather than covers, which is what makes a
+           glow look like a glow. Without it a 2px streak at partial alpha simply
+           disappears into 1,474 pale-blue links — measured, not assumed: the first
+           attempt moved 16k bytes a second and still read as "the graph is
+           basically still" in a frame grab. */
+        ctx.globalCompositeOperation = 'lighter';
         for (const pu of pulses) {
           pu.t += pu.sp * 0.016;
-          if (pu.t > 1.25) Object.assign(pu, seedPulse());
-          if (pu.t < 0 || pu.t > 1) continue;
+          if (pu.t > 1.3) Object.assign(pu, seedPulse());
+          const head = Math.min(1, pu.t);
+          const tail = Math.max(0, pu.t - TAIL);
+          if (head <= 0 || tail >= 1) continue;
           const [a, b] = pu.e;
-          const x = px(nodes[a]) + (px(nodes[b]) - px(nodes[a])) * pu.t;
-          const y = py(nodes[a]) + (py(nodes[b]) - py(nodes[a])) * pu.t;
-          const fade = Math.sin(Math.PI * pu.t);
-          ctx.fillStyle = `rgba(${BLUE}, ${0.9 * fade})`;
-          ctx.shadowColor = `rgba(${BLUE}, 0.9)`;
-          ctx.shadowBlur = 8;
+          const ax = px(nodes[a]);
+          const ay = py(nodes[a]);
+          const bx2 = px(nodes[b]);
+          const by2 = py(nodes[b]);
+          const hx = ax + (bx2 - ax) * head;
+          const hy = ay + (by2 - ay) * head;
+          const tx = ax + (bx2 - ax) * tail;
+          const ty = ay + (by2 - ay) * tail;
+          const fade = Math.sin(Math.PI * Math.min(1, pu.t));
+          const flick = 0.72 + 0.28 * Math.sin(now * 0.021 + pu.ph);
+          /* The head runs white-hot, not link-blue. Drawn in the SAME blue as the
+             citation it travels along, a streak only looks like that one line
+             getting brighter — the current has to be hotter than the wire to read
+             as current at all. So: transparent tail -> blue body -> icy head ->
+             white tip. */
+          const g = ctx.createLinearGradient(tx, ty, hx, hy);
+          g.addColorStop(0, `rgba(${BLUE}, 0)`);
+          g.addColorStop(0.55, `rgba(${BLUE}, ${0.3 * fade * flick})`);
+          g.addColorStop(0.88, `rgba(190, 226, 255, ${0.72 * fade * flick})`);
+          g.addColorStop(1, `rgba(255, 255, 255, ${0.95 * fade * flick})`);
+          ctx.strokeStyle = g;
+          ctx.lineWidth = 2.4;
+          ctx.shadowColor = `rgba(150, 205, 255, 0.95)`;
+          ctx.shadowBlur = 12;
           ctx.beginPath();
-          ctx.arc(x, y, 2.1, 0, 6.284);
+          ctx.moveTo(tx, ty);
+          ctx.lineTo(hx, hy);
+          ctx.stroke();
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.8 * fade * flick})`;
+          ctx.beginPath();
+          ctx.arc(hx, hy, 1.4, 0, 6.284);
           ctx.fill();
           ctx.shadowBlur = 0;
         }
+        ctx.globalCompositeOperation = 'source-over';
       }
 
       if (reduced) {

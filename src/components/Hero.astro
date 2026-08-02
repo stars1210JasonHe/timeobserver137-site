@@ -86,6 +86,13 @@ const seriesHref = '/zh/series/euler/';
      this still lands in the first screen — what he objected to originally was having
      to scroll to find it, not its being its own element. -->
 <section class="fleet-band mx-auto max-w-6xl px-6 pb-4">
+  <!-- Heading in the same house style as the two bands below (Yeqiu 2026-08-02:
+       「记忆体的图上面应该也像下面一样有一个标题」). The wording is the name the
+       graph already carries as its <h2> in the standalone section variant — reused
+       rather than reinvented, so the two surfaces call the same thing the same. -->
+  <p class="text-center text-sm uppercase tracking-[0.25em] text-muted">
+    {zh ? '这支舰队的记忆' : "The fleet's memory"}
+  </p>
   <FleetGraph lang={lang} variant="hero" />
 </section>
 
