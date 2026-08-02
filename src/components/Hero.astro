@@ -98,6 +98,35 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     opacity: 0;
     animation: appear 0.7s ease 3.7s forwards;
   }
+
+  /* --- the two primaries read as BODIES, not dots (Yeqiu 2026-08-02:
+     「行星小了一点看上去不够闪光」) -----------------------------------------
+     Measured before changing anything: at 1440 the sun was 15px across and the
+     planet 7.5px; at 390 they were 8px and 4px. A four-pixel planet is not a
+     planet, it is a rendering artifact.
+
+     Enlarging them is not a physics lie. The contour geometry and the L-point
+     POSITIONS are computed and must not move — but these two discs were always
+     symbolic: at this scale a true-to-size primary would be well under one
+     pixel. So radius and brightness are free; position is not.
+
+     r is set in CSS rather than the generator, following the .lp4 precedent
+     below — it keeps the change out of gen_lagrange_svg.py, which Fermat is
+     also editing. */
+  .lagrange :global(.sun) {
+    r: 17;
+    filter:
+      drop-shadow(0 0 4px rgba(221, 162, 91, 0.95))
+      drop-shadow(0 0 14px rgba(221, 162, 91, 0.55))
+      drop-shadow(0 0 34px rgba(221, 162, 91, 0.28));
+  }
+  .lagrange :global(.planet) {
+    r: 9;
+    filter:
+      drop-shadow(0 0 3px rgba(125, 179, 224, 0.95))
+      drop-shadow(0 0 10px rgba(125, 179, 224, 0.55))
+      drop-shadow(0 0 24px rgba(125, 179, 224, 0.3));
+  }
   @keyframes draw {
     to {
       stroke-dashoffset: 0;
