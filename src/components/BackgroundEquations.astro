@@ -367,7 +367,13 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
   }
   @media (max-width: 1024px) {
     .eq-path,
-    .eq-efe {
+    .eq-efe,
+    /* noether joins them 2026-08-02: measured at 390 / 600 / 768 / 900 it
+       collides with the headline or the paragraph at EVERY width below 1024,
+       because top-left stops being empty once the two columns stack. Below
+       1024 only Dirac remains, and Dirac is clear at every width tested. One
+       faint equation on a phone is an accent; four behind the text is noise. */
+    .eq-noether {
       display: none;
     }
     .bg-eq {

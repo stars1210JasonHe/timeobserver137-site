@@ -1,0 +1,235 @@
+---
+/**
+ * FleetGraph — the fleet's memory, drawn from the fleet's memory.
+ *
+ * Yeqiu 2026-08-02: the headline says "the story of me and my AI partners" and
+ * the hero showed Euler's three-body contours — two different questions. This
+ * answers the headline's one, and answers it with the actual data rather than a
+ * constellation someone drew.
+ *
+ * Every dot is one real memory anchor. Every line is one real `[[id]]`
+ * cross-reference between two anchors. Positions come from the layout the fleet
+ * tooling already computes; nothing here is arranged for looks.
+ *
+ * ENCODING (deliberately NOT one hue per agent — the source graph used eight
+ * bright colours and that is exactly why it read as noise against a site whose
+ * whole palette is near-black + gold + blue):
+ *   position  → which agent (the clusters are already separated in space, and
+ *               space is a stronger identity channel than hue)
+ *   gold      → anchors, and links inside one agent's own memory
+ *   blue      → the 119 links that CROSS agents (8.1% of 1474). That minority
+ *               is the whole point: it is the fleet citing itself. Buried in
+ *               grey it is invisible; pulled out in the site's second colour,
+ *               "these eight reference each other" becomes something you see
+ *               instead of something the caption claims.
+ *   type      → the eight names, in ink tokens, never in a series colour.
+ *
+ * The counts printed below MUST match the file actually loaded — there are two
+ * generators with two edge-parsing rules (markdown 1106/1652, SQLite 1108/1474)
+ * and quoting one while rendering the other is the easiest lie to tell here.
+ * (Neo's warning, 2026-08-02.)
+ *
+ * Data: src/data/fleet-graph-core.json, exported by
+ * neo/tools/wiki_graph_export_public.py. It carries no anchor ids, no bodies
+ * and no source paths — the exporter refuses to write the file if any text
+ * field survives, so this is enforced upstream rather than trusted here.
+ */
+import graph from '../data/fleet-graph-core.json';
+
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+
+const nodeCount = graph.nodes.length;
+const edgeCount = graph.edges.length;
+const clusterCount = graph.clusters.length;
+const crossCount = graph.edges.filter(
+  ([a, b]: number[]) => graph.nodes[a][2] !== graph.nodes[b][2],
+).length;
+
+const fmt = (n: number) => n.toLocaleString('en-US');
+---
+
+<section class="fleet-graph mx-auto max-w-6xl px-6 py-14" data-reveal>
+  <div class="flex items-baseline justify-between gap-4">
+    <h2 class="text-2xl font-semibold text-chalk">{zh ? '这支舰队的记忆' : "The fleet's memory"}</h2>
+    <a
+      href={zh ? '/zh/projects/openclaw-fleet/' : '/projects/openclaw-fleet/'}
+      class="shrink-0 text-sm text-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink"
+      >{zh ? '认识他们 →' : 'Meet them →'}</a
+    >
+  </div>
+
+  <figure class="mt-6">
+    <div class="fg-stage relative w-full">
+      <canvas class="fg-canvas block w-full" role="img" aria-label={zh
+        ? `${clusterCount} 个智能体的记忆图：${fmt(nodeCount)} 条互相引用的记忆，${fmt(edgeCount)} 条引用`
+        : `Memory graph of ${clusterCount} agents: ${fmt(nodeCount)} interlinked memories, ${fmt(edgeCount)} references`}></canvas>
+    </div>
+    <figcaption class="mt-4 max-w-3xl text-xs leading-relaxed text-faint">
+      {zh ? (
+        <>
+          每一个点是一条真实的记忆，每一条线是一条真实的引用。八簇 = 八个智能体，位置由链接结构算出，不是排布出来的。
+          <span class="text-muted"> {fmt(nodeCount)} 条互相引用的记忆 · {fmt(edgeCount)} 条引用，其中 {fmt(crossCount)} 条跨越智能体（蓝色）</span>
+          —— 那 {fmt(crossCount)} 条是这支舰队在引用它自己。
+        </>
+      ) : (
+        <>
+          Every dot is one real memory; every line one real citation between two of them. Eight clusters, eight agents;
+          the positions come from the link structure, not from an arrangement.
+          <span class="text-muted"> {fmt(nodeCount)} interlinked memories · {fmt(edgeCount)} citations, {fmt(crossCount)} of them across agents (blue)</span>
+          — those {fmt(crossCount)} are the fleet citing itself.
+        </>
+      )}
+    </figcaption>
+  </figure>
+</section>
+
+<script define:vars={{ graph }}>
+  (() => {
+    const GOLD = '221, 162, 91';
+    const BLUE = '125, 179, 224';
+
+    function draw(canvas) {
+      if (canvas.dataset.fgWired) return;
+      canvas.dataset.fgWired = '1';
+
+      const nodes = graph.nodes;
+      const edges = graph.edges;
+      const centers = graph.centers;
+      const clusters = graph.clusters;
+
+      const xs = nodes.map((n) => n[0]);
+      const ys = nodes.map((n) => n[1]);
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const minY = Math.min(...ys), maxY = Math.max(...ys);
+
+      const cross = [];
+      const inner = [];
+      for (const [a, b] of edges) (nodes[a][2] === nodes[b][2] ? inner : cross).push([a, b]);
+
+      const ctx = canvas.getContext('2d');
+      let W = 0, H = 0, sc = 1, ox = 0, oy = 0, dpr = 1;
+
+      function layout() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        // squarish, capped so it never eats a whole phone screen
+        W = Math.max(280, Math.round(rect.width));
+        H = Math.round(Math.min(W * 0.72, 560));
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const pad = 56;
+        sc = Math.min((W - pad * 2) / (maxX - minX), (H - pad * 2) / (maxY - minY));
+        ox = (W - (maxX - minX) * sc) / 2 - minX * sc;
+        oy = (H - (maxY - minY) * sc) / 2 - minY * sc;
+      }
+      const px = (n) => n[0] * sc + ox;
+      const py = (n) => n[1] * sc + oy;
+
+      // p = 0..1 entrance progress. Order: inner links, then nodes, then the
+      // cross-agent links last — the rare thing arrives after the common one,
+      // so the eye has something to land on when it appears.
+      function render(p) {
+        ctx.clearRect(0, 0, W, H);
+        const eInner = Math.min(1, p / 0.5);
+        const eNode = Math.min(1, Math.max(0, (p - 0.15) / 0.5));
+        const eCross = Math.min(1, Math.max(0, (p - 0.62) / 0.38));
+
+        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = `rgba(${GOLD}, ${0.26 * eInner})`;
+        ctx.beginPath();
+        for (const [a, b] of inner) {
+          ctx.moveTo(px(nodes[a]), py(nodes[a]));
+          ctx.lineTo(px(nodes[b]), py(nodes[b]));
+        }
+        ctx.stroke();
+
+        const r = 1.9 * eNode;
+        if (r > 0.05) {
+          ctx.fillStyle = `rgba(${GOLD}, ${0.92 * eNode})`;
+          ctx.shadowColor = `rgba(${GOLD}, 0.55)`;
+          ctx.shadowBlur = 5;
+          for (const n of nodes) {
+            ctx.beginPath();
+            ctx.arc(px(n), py(n), r, 0, 6.284);
+            ctx.fill();
+          }
+          ctx.shadowBlur = 0;
+        }
+
+        if (eCross > 0) {
+          ctx.lineWidth = 0.65;
+          ctx.strokeStyle = `rgba(${BLUE}, ${0.26 * eCross})`;
+          ctx.beginPath();
+          for (const [a, b] of cross) {
+            ctx.moveTo(px(nodes[a]), py(nodes[a]));
+            ctx.lineTo(px(nodes[b]), py(nodes[b]));
+          }
+          ctx.stroke();
+        }
+
+        // labels last, in ink — identity is never colour-alone
+        ctx.font = '500 12.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.lineJoin = 'round';
+        for (const name of clusters) {
+          const c = centers[name];
+          if (!c) continue;
+          // push the label OUTWARD from the picture's centre so it clears its
+          // own cluster instead of sitting on top of it
+          const L = Math.hypot(c[0], c[1]) || 1;
+          const x = (c[0] + (c[0] / L) * 620) * sc + ox;
+          const y = (c[1] + (c[1] / L) * 620) * sc + oy + 4;
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = `rgba(9, 14, 26, ${0.85 * eNode})`;
+          ctx.strokeText(name, x, y);
+          ctx.fillStyle = `rgba(226, 232, 240, ${0.8 * eNode})`;
+          ctx.fillText(name, x, y);
+        }
+      }
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      layout();
+
+      if (reduced) {
+        render(1);
+      } else {
+        let started = false;
+        const run = () => {
+          if (started) return;
+          started = true;
+          const t0 = performance.now();
+          const DUR = 2200;
+          const step = (t) => {
+            const raw = Math.min(1, (t - t0) / DUR);
+            render(1 - Math.pow(1 - raw, 3)); // ease-out, settles and stops
+            if (raw < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        };
+        render(0);
+        new IntersectionObserver(
+          (entries, obs) => {
+            for (const e of entries) if (e.isIntersecting) { run(); obs.disconnect(); }
+          },
+          { threshold: 0.25 },
+        ).observe(canvas);
+      }
+
+      let rt;
+      window.addEventListener('resize', () => {
+        clearTimeout(rt);
+        rt = setTimeout(() => { layout(); render(1); }, 150);
+      });
+    }
+
+    const init = () => document.querySelectorAll('.fg-canvas').forEach(draw);
+    document.addEventListener('astro:page-load', init);
+    init();
+  })();
+</script>

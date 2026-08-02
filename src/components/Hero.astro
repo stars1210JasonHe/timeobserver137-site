@@ -221,14 +221,24 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     stroke-width: 1.5;
   }
 
-  /* L4 reads as the third body: the massless test particle that keeps station
-     with the two primaries. That is what makes the picture legible as a THREE
-     body problem — two masses plus something riding along with them. Only L4;
-     emphasising all five would be decoration. */
-  .lagrange :global(.lp4) {
-    r: 6;
-    filter: drop-shadow(0 0 5px #dda25b);
-  }
+  /* L4 WAS enlarged and given a halo so it would read as the third body — the
+     massless test particle keeping station with the two primaries. Reverted
+     2026-08-02.
+
+     Two reasons, and the second is the real one:
+     1. Yeqiu asked「那个在运动的小圆点是第三颗星？」— the intent did not land.
+        He saw an emphasised dot and had to ask what it was. An element that
+        needs to be explained is not carrying its meaning.
+     2. He then decided 小星不做. Once there is no third body in the picture,
+        L4 has no claim to be bigger than L1, L2, L3, L5 — they are five points
+        of the same kind. Keeping the halo would be emphasis without a reason,
+        which is the definition of decoration under this project's gate.
+
+     Honesty footnote that also argued against it: the figure is drawn at a mass
+     ratio of 0.15, and the triangular points are only stable below about
+     0.0385 (Routh). So even a body parked at L4 would not stay there in THIS
+     configuration — the emphasis was pointing at something the drawing does not
+     actually support. */
 
   /* --- phone: everything inside the SVG scales with the viewBox, and text has
      a legibility floor that a scale factor does not respect -----------------
@@ -254,9 +264,6 @@ const essayUrl = 'https://timeobserver137.cyou/e10-petersburg-ii-blind-years/';
     }
     .lagrange :global(.lp) {
       r: 5;
-    }
-    .lagrange :global(.lp4) {
-      r: 9;
     }
     .lagrange :global(.sun) {
       r: 24;
