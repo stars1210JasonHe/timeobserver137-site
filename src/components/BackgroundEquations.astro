@@ -249,12 +249,26 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
     }
     const band = [Math.max(0, contentL - GAP), Math.max(0, vw - contentR - GAP)]; // [left, right]
 
-    for (const el of root.querySelectorAll<HTMLElement>('.bg-eq')) {
+    /* TEXTURE MODE (phones). On a narrow screen the content fills the width, so
+     * there is no margin and "pinned to the edge" and "never on the text" cannot
+     * both hold. Rather than show nothing — Yeqiu 2026-08-02:「之前一直有的没了
+     * 会让人觉得少了点什么」— the equations drop behind the text at the same
+     * opacity the article pages already use for exactly this (0.13 dark / 0.09
+     * light, the `ambient` level), spread down the viewport so they read as
+     * paper texture instead of as four things colliding with the copy. */
+    const MIN_MARGIN = 70;
+    const texture = band[0] < MIN_MARGIN && band[1] < MIN_MARGIN;
+    const TEXTURE_Y = [0.1, 0.33, 0.6, 0.85];
+
+    const wraps = [...root.querySelectorAll<HTMLElement>('.bg-eq')];
+    for (let idx = 0; idx < wraps.length; idx++) {
+      const el = wraps[idx];
       const cls = [...el.classList].find((c) => c in EQ_HOME) ?? 'eq-noether';
       const [hx, hy] = EQ_HOME[cls];
       const avail = band[hx];
 
       // measure natural size at the CSS font size, undoing any previous solve
+      el.classList.toggle('eq-texture', texture);
       el.style.display = 'block';
       el.style.fontSize = '';
       el.style.right = 'auto';
@@ -265,6 +279,23 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
       let r0 = el.getBoundingClientRect();
       if (r0.width < 4) {
         el.style.display = 'none';
+        continue;
+      }
+
+      if (texture) {
+        // No margin exists; fit the width instead and stack down the viewport.
+        // Nothing is ever hidden here — behind the text at ambient opacity is
+        // the whole point of this branch.
+        const s = Math.min(1, (vw * 0.92) / r0.width);
+        if (s < 1) {
+          el.style.fontSize = `${base * s}px`;
+          r0 = el.getBoundingClientRect();
+        }
+        const yFrac = TEXTURE_Y[idx % TEXTURE_Y.length];
+        const tx = idx % 2 ? Math.max(PAD, vw - PAD - r0.width) : PAD;
+        const ty = Math.max(PAD, vh * yFrac - r0.height / 2);
+        el.style.left = `${Math.round(tx - r0.left)}px`;
+        el.style.top = `${Math.round(ty - r0.top)}px`;
         continue;
       }
 
@@ -481,6 +512,17 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
     to {
       opacity: 0.34;
     }
+  }
+  /* Texture mode (phones — no margin exists, so these sit behind the copy).
+     The values are the ambient variant's, not new ones: that level already
+     ships behind body text on every article page, so it is a measured house
+     precedent rather than a fresh guess. !important because an animation's
+     filled value would otherwise win over a plain declaration. */
+  .bg-eq.eq-texture {
+    opacity: 0.13 !important;
+  }
+  html[data-theme='light'] .bg-eq.eq-texture {
+    opacity: 0.09 !important;
   }
   html[data-theme='light'] .bg-eq {
     animation-name: eq-emerge-light;
