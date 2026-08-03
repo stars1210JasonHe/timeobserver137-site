@@ -64,10 +64,30 @@ echo "==> build"
 npm run build
 
 echo "==> deploy to PREVIEW (branch: $BRANCH — production branch 'main' is not touched)"
-CI=1 "$WRANGLER" pages deploy dist --project-name "$PROJECT" --branch "$BRANCH" --commit-dirty=true
+# Capture the output: every deploy gets its own immutable https://<hash>.<project>.pages.dev,
+# and that URL is the only one guaranteed to serve THIS build.
+DEPLOY_LOG="$(mktemp)"
+CI=1 "$WRANGLER" pages deploy dist --project-name "$PROJECT" --branch "$BRANCH" --commit-dirty=true 2>&1 | tee "$DEPLOY_LOG"
+BUILD_URL="$(grep -oE 'https://[a-f0-9]+\.'"$PROJECT"'\.pages\.dev' "$DEPLOY_LOG" | head -1)"
+rm -f "$DEPLOY_LOG"
 
-URL="${ALIAS}${VERIFY_PATH}"
-echo "==> verify: $URL"
+# Verify against the IMMUTABLE per-deployment URL, not the branch alias.
+#
+# The alias points at the newest deployment but its edge copies lag, so for a
+# minute or two it serves the PREVIOUS build. On 2026-08-03 that misled me seven
+# times in one session, and twice it nearly had me "fix" code that was already
+# correct — a false failure is worse than a false pass, because it sends you to
+# edit something that works. The hashed URL cannot do that: it is one build.
+if [ -n "$BUILD_URL" ]; then
+  URL="${BUILD_URL}${VERIFY_PATH}"
+  echo "==> verify against THIS build: $URL"
+  echo "    (alias $ALIAS may still serve the previous one for a minute)"
+else
+  URL="${ALIAS}${VERIFY_PATH}"
+  echo "==> verify: $URL"
+  echo "    WARNING: could not read the per-deployment URL from wrangler output;"
+  echo "             falling back to the alias, which can serve a stale build."
+fi
 
 # --- what we are comparing against -------------------------------------------
 # HTTP 200 is NOT enough on this site: it soft-404s unknown paths to the homepage
