@@ -122,7 +122,15 @@ const zh = lang === 'zh';
 
 <script>
   const KEY = 'to137-intro-seen';
-  const CANPLAY_BUDGET = 1000; // ms — see the component comment
+  /* 3000, not the 1000 I first picked out of the air. Yeqiu's browser reported
+     `not playable within 1000ms` through the debug hook, so this is a measured
+     number now: the first 512 KB of the file takes 0.67 s to arrive over a
+     ~6 Mbps path (measured from Frankfurt), which is ~2.8 s over the 1.5 Mbps
+     that a phone on mobile data can realistically drop to. One second could
+     never have covered that. Past three seconds, dropping the film is still the
+     right call — but the wait is no longer a black screen (see the poster). */
+  const CANPLAY_BUDGET = 3000;
+  const STALL_BUDGET = 4000; // mid-playback stall: leave rather than freeze
 
   function initIntro() {
     const root = document.querySelector<HTMLElement>('[data-intro]');
@@ -140,12 +148,37 @@ const zh = lang === 'zh';
     } catch {
       seen = false; // private mode — show it, do not crash
     }
-    if (reduced || (seen && !forced)) return;
+    /* ?introdebug=1 makes the film say WHY it stopped. Added 2026-08-03 because
+       Yeqiu reported "some browsers skip it outright" and every candidate cause
+       (autoplay refused, the canplay budget, a media error, reduced-motion, the
+       seen flag) produces the SAME observable — no film. Guessing between them
+       would be picking one and hoping. Defined BEFORE the early return, or the
+       two commonest reasons would be the two it could never report. */
+    const debug = new URLSearchParams(location.search).get('introdebug') === '1';
+    const say = (reason: string) => {
+      if (!debug) return;
+      const el = document.createElement('div');
+      el.style.cssText =
+        'position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#111;color:#7fd;' +
+        'font:12px/1.5 monospace;padding:10px;white-space:pre-wrap;';
+      el.textContent =
+        `intro stopped: ${reason}\n` +
+        `readyState=${video.readyState} networkState=${video.networkState}\n` +
+        `error=${video.error ? video.error.code + ':' + video.error.message : 'none'}\n` +
+        `reduced-motion=${reduced} seen=${seen} ua=${navigator.userAgent}`;
+      document.body.appendChild(el);
+    };
+
+    if (reduced || (seen && !forced)) {
+      say(reduced ? 'prefers-reduced-motion is on' : 'already seen on this browser');
+      return;
+    }
 
     let done = false;
-    const end = () => {
+    const end = (reason = 'ended') => {
       if (done) return;
       done = true;
+      say(reason);
       clearTimeout(budget);
       root.classList.add('is-leaving');
       video.pause();
@@ -164,14 +197,24 @@ const zh = lang === 'zh';
 
     // Abandon rather than make anyone wait. Judges CANPLAY, not "downloaded".
     const budget = window.setTimeout(() => {
-      if (video.readyState < 3) end();
+      if (video.readyState < 3) end('not playable within ' + CANPLAY_BUDGET + 'ms');
     }, CANPLAY_BUDGET);
 
     video.addEventListener('canplay', () => clearTimeout(budget), { once: true });
-    video.addEventListener('ended', end);
-    video.addEventListener('error', end);
+    video.addEventListener('ended', () => end('played to the end'));
+    video.addEventListener('error', () => end('media error'));
 
-    root.querySelector('[data-intro-skip]')?.addEventListener('click', end);
+    /* A film that freezes mid-shot is worse than one that never started: the
+       visitor is left looking at a still frame with no idea whether to wait.
+       If the buffer runs dry for longer than STALL_BUDGET, leave. */
+    let stall = 0;
+    video.addEventListener('waiting', () => {
+      clearTimeout(stall);
+      stall = window.setTimeout(() => end('stalled mid-playback'), STALL_BUDGET);
+    });
+    video.addEventListener('playing', () => clearTimeout(stall));
+
+    root.querySelector('[data-intro-skip]')?.addEventListener('click', () => end('skip button'));
     root.addEventListener('click', (e) => {
       if (e.target === video || e.target === root) end();
     });
@@ -190,7 +233,7 @@ const zh = lang === 'zh';
 
     // Autoplay can still be refused (data-saver, some mobile settings). A
     // rejected promise must not leave a black rectangle over the site.
-    video.play().catch(end);
+    video.play().catch((e) => end('autoplay refused: ' + (e && e.name)));
   }
 
   initIntro();
