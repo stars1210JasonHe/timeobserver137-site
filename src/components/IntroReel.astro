@@ -174,10 +174,23 @@ const zh = lang === 'zh';
       return;
     }
 
+    /* Everything underneath keeps animating while this overlay covers it, and
+       none of it can be seen. Measured on production during playback: the fleet
+       graph was still issuing ~290 arc + 290 stroke calls per 3s (with
+       shadowBlur), and all four equation filters were running — feTurbulence
+       plus feDisplacementMap, among the most expensive things SVG can do. On a
+       phone that competes directly with decoding 720p60, which is exactly the
+       stutter Yeqiu reported. The film announces itself so they can stand down. */
+    const announce = (playing: boolean) => {
+      document.documentElement.classList.toggle('intro-playing', playing);
+      document.dispatchEvent(new CustomEvent('to137:intro', { detail: { playing } }));
+    };
+
     let done = false;
     const end = (reason = 'ended') => {
       if (done) return;
       done = true;
+      announce(false);
       say(reason);
       clearTimeout(budget);
       root.classList.add('is-leaving');
@@ -227,6 +240,7 @@ const zh = lang === 'zh';
     video.preload = 'auto';
     video.src = video.dataset.src ?? '';
 
+    announce(true);
     root.hidden = false;
     document.documentElement.style.overflow = 'hidden';
     root.querySelector<HTMLElement>('[data-intro-skip]')?.focus();

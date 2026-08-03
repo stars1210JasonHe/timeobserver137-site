@@ -316,10 +316,23 @@ const fmt = (n: number) => n.toLocaleString('en-US');
       const TAIL = 0.3; // fraction of the edge the current occupies
 
       let paused = false;
+      /* Separate from `paused` on purpose: the pause BUTTON is the visitor's
+         choice and must survive the intro, so the film gets its own flag rather
+         than flipping theirs. Drawing 1,474 links plus shadow-blurred pulses
+         behind an opaque overlay is pure heat. */
+      let extPaused = false;
+      /* Plain JS on purpose — NO TypeScript casts. This script is emitted into
+         index.html verbatim, so an `as CustomEvent` here is a SyntaxError in the
+         browser and takes the WHOLE graph down with it. The build does not
+         complain (esbuild passes it through) and the page looks merely empty,
+         which is how it survived a build, a deploy and a first glance. */
+      document.addEventListener('to137:intro', function (e) {
+        extPaused = !!(e.detail && e.detail.playing);
+      });
       let rafId = 0;
       function tick(now) {
         rafId = requestAnimationFrame(tick);
-        if (paused || !base) return;
+        if (paused || extPaused || !base) return;
         ctx.clearRect(0, 0, W, H);
         ctx.drawImage(base, 0, 0, W, H);
         /* Current, not marbles (Yeqiu 2026-08-02:「把脉冲从圆球换成电流似的动态」).

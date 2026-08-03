@@ -442,7 +442,28 @@ const uid = variant; // ids must differ if both variants ever co-exist on a page
   function boot() {
     initEquations();
     for (const root of document.querySelectorAll<HTMLElement>('.bg-equations')) solve(root);
+    if (introNow()) setIntroPause(true); // late arrival: catch up on the state
   }
+  /* Four animated feTurbulence + feDisplacementMap filters are expensive enough
+     to matter on a phone, and while the opening film covers the screen nobody
+     can see them. SMIL already gives us the switch the IntersectionObserver
+     uses for off-screen — reuse it. */
+  function setIntroPause(playing: boolean) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    for (const svg of document.querySelectorAll<SVGSVGElement>('.bg-equations svg')) {
+      playing ? svg.pauseAnimations() : svg.unpauseAnimations();
+    }
+  }
+  document.addEventListener('to137:intro', (e) => setIntroPause(!!(e as CustomEvent).detail?.playing));
+  /* The event alone is not enough and the reason is ordering: IntroReel's script
+     is INLINED in the document and runs before this module is even fetched, so
+     the one dispatch that matters has already happened by the time the listener
+     exists. Measured: the graph (whose listener is also inline) stood down to
+     zero draw calls while these filters kept running. So read the state as well
+     as listen for it — the film leaves a class on <html> precisely so a late
+     arrival can still find out. */
+  const introNow = () => document.documentElement.classList.contains('intro-playing');
+
   document.addEventListener('astro:page-load', boot);
   document.addEventListener('astro:after-swap', boot);
   boot();
