@@ -1,0 +1,198 @@
+---
+/**
+ * IntroReel — the first-visit opening film.
+ *
+ * Made by Escher (2026-08-02/03), approved by Yeqiu 2026-08-03. Front 10.7s is
+ * Seedance 2.0 image-to-video from stills he had already signed off; the back
+ * 6s is a deterministic push-in that has to land on a PIXEL-EXACT screenshot of
+ * this site, which a generative model cannot be aimed at. The last frame is a
+ * real screenshot, not a rendering — that is the whole joke, so nothing here
+ * re-encodes it.
+ *
+ * Design constraints, each with a reason:
+ *  - The page underneath is fully built and interactive before this ever shows.
+ *    The film is an overlay, never a gate on rendering, so a visitor who skips
+ *    at t=0 has lost nothing.
+ *  - Skip is available from the first frame, not after some minimum watch time.
+ *  - `prefers-reduced-motion` never plays it at all.
+ *  - If the video cannot reach `canplay` within one second, it is abandoned.
+ *    That threshold judges CANPLAY, not "downloaded": Escher measured the file's
+ *    atom layout (moov 11,314 B at offset 32, i.e. faststart is real) and 0.25s
+ *    of buffer is ~192 KB, which clears one second even on 5 Mbps. Judging
+ *    "downloaded" would fail that same file on any connection under 30 Mbps.
+ *  - Shown once, then remembered. `?intro=1` forces a replay for review.
+ */
+interface Props {
+  lang: 'en' | 'zh';
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+---
+
+<div class="intro-reel" data-intro hidden>
+  <!-- src/poster are deliberately NOT attributes: `preload` has nothing to do
+       with visibility, so a display:none <video src=...> still downloads. This
+       cost every repeat visitor 2.5 MB for a film they would never be shown
+       (measured, not feared). The script attaches them only after deciding to
+       play, so a returning visitor fetches zero bytes of video. -->
+  <video
+    class="intro-video"
+    data-src="/media/intro-reel.mp4"
+    data-poster="/media/intro-poster.jpg"
+    muted
+    playsinline
+    preload="none"
+    aria-label={zh ? '片头动画' : 'Opening film'}></video>
+
+  <button type="button" class="intro-skip" data-intro-skip>
+    {zh ? '跳过' : 'Skip'}
+  </button>
+
+  <!-- Disclosure, not decoration: most of what is on screen was generated.
+       Saying so on the page is the honest default, and YouTube would require
+       the equivalent checkbox if this were ever uploaded there. -->
+  <p class="intro-note">
+    {zh ? 'AI 生成影像 · 结尾为本站真实截图' : 'AI-generated imagery · the closing frame is a real screenshot of this site'}
+  </p>
+</div>
+
+<style>
+  .intro-reel {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: grid;
+    place-items: center;
+    background: #05070f;
+    opacity: 1;
+    transition: opacity 520ms ease;
+  }
+  .intro-reel[hidden] {
+    display: none;
+  }
+  .intro-reel.is-leaving {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .intro-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .intro-skip {
+    position: absolute;
+    right: clamp(0.75rem, 3vw, 2rem);
+    top: clamp(0.75rem, 3vw, 2rem);
+    border: 1px solid rgb(255 255 255 / 0.35);
+    border-radius: 999px;
+    padding: 0.45rem 1.1rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    color: rgb(255 255 255 / 0.85);
+    background: rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      color 160ms ease;
+  }
+  .intro-skip:hover,
+  .intro-skip:focus-visible {
+    border-color: rgb(255 255 255 / 0.8);
+    color: #fff;
+  }
+  .intro-note {
+    position: absolute;
+    bottom: clamp(0.6rem, 2.5vw, 1.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0 1rem;
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: rgb(255 255 255 / 0.45);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .intro-reel {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const KEY = 'to137-intro-seen';
+  const CANPLAY_BUDGET = 1000; // ms — see the component comment
+
+  function initIntro() {
+    const root = document.querySelector<HTMLElement>('[data-intro]');
+    if (!root || root.dataset.introInit) return;
+    root.dataset.introInit = '1';
+
+    const video = root.querySelector<HTMLVideoElement>('.intro-video');
+    if (!video) return;
+
+    const forced = new URLSearchParams(location.search).get('intro') === '1';
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let seen = false;
+    try {
+      seen = localStorage.getItem(KEY) === '1';
+    } catch {
+      seen = false; // private mode — show it, do not crash
+    }
+    if (reduced || (seen && !forced)) return;
+
+    let done = false;
+    const end = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(budget);
+      root.classList.add('is-leaving');
+      video.pause();
+      document.documentElement.style.overflow = '';
+      window.setTimeout(() => {
+        root.hidden = true;
+        video.removeAttribute('src');
+        video.load(); // stop any further network use
+      }, 560);
+      try {
+        localStorage.setItem(KEY, '1');
+      } catch {
+        /* private mode: it will simply play again next time */
+      }
+    };
+
+    // Abandon rather than make anyone wait. Judges CANPLAY, not "downloaded".
+    const budget = window.setTimeout(() => {
+      if (video.readyState < 3) end();
+    }, CANPLAY_BUDGET);
+
+    video.addEventListener('canplay', () => clearTimeout(budget), { once: true });
+    video.addEventListener('ended', end);
+    video.addEventListener('error', end);
+
+    root.querySelector('[data-intro-skip]')?.addEventListener('click', end);
+    root.addEventListener('click', (e) => {
+      if (e.target === video || e.target === root) end();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === ' ') end();
+    });
+
+    // Only now does the video become a network request at all.
+    if (video.dataset.poster) video.poster = video.dataset.poster;
+    video.preload = 'auto';
+    video.src = video.dataset.src ?? '';
+
+    root.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+    root.querySelector<HTMLElement>('[data-intro-skip]')?.focus();
+
+    // Autoplay can still be refused (data-saver, some mobile settings). A
+    // rejected promise must not leave a black rectangle over the site.
+    video.play().catch(end);
+  }
+
+  initIntro();
+  document.addEventListener('astro:page-load', initIntro);
+</script>
