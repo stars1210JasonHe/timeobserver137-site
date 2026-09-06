@@ -1,0 +1,85 @@
+---
+title: "A legal research assistant a practicing lawyer uses every day"
+tagline: "Email in, cited draft out: retrieval over a statute corpus and a confidential case archive, with the verification step kept where the lawyer can see it."
+lang: en
+role: "Product owner & architect — built and operated with my agent fleet"
+stack: ["Python", "Meinrag (RAG + MCP)", "6 MCP servers", "IMAP / SMTP pipeline", "pandoc → .docx", "Discord-triggered agent", "Raspberry Pi + NAS"]
+featured: false
+order: 3
+---
+
+## The problem
+
+A working lawyer's day is retrieval under time pressure: which provision applies, whether it
+is still in force, what the firm did last time on a matter like this — and then a memo that
+cites its sources. General chat models answer these questions fluently and are often right,
+which is exactly the danger: the answer arrives without a citation you can open, and without
+any notion of whether the rule it quotes is still current.
+
+## What I built
+
+An assistant built for one practicing lawyer, in real daily use since June 2026. It is not a
+chatbot. It is an email pipeline with an agent in the middle:
+
+- **Email in, email out** — the lawyer writes to a monitored mailbox; an agent session wakes on
+  the message, assembles that matter's history (earlier opinions, the lawyer's own material,
+  attachments), retrieves, drafts a full reply in Chinese, and sends it back — with a `.docx`
+  when the matter warrants one. Sending is idempotent: one inbound message gets exactly one
+  reply, and the recipient and disclaimer are enforced server-side, not by the prompt;
+- **Two corpora, one confidentiality boundary** — a public statute library (about 3,300
+  statutes plus a bar-association collection, as recorded in June 2026) and the firm's own
+  case archive live in [Meinrag](/projects/meinrag/) as two separate vector stores on
+  different ports. Hits from the first are cited as public law; hits from the second never
+  leave the session. The boundary is the architecture, not a filter;
+- **Retrieval returns sources, not answers** — ranked passages with citation metadata and a
+  confidence tier. This is deliberate: the moment a summary layer sits between the lawyer and
+  the text, verification degrades from *reading the source* to *reading the summary*, and
+  nobody notices the downgrade;
+- **Six MCP tool servers** — case-archive navigation, mail, incident reporting, case-law search,
+  and the two corpora — so the agent uses the system the way any other program would, with
+  bearer tokens, SSH keys, and an injection guard on queries that arrive from untrusted email;
+- **Every matter leaves a record** — a structured, searchable anchor per case, plus a separate
+  hand-written judgment log (basis tier, self-assessed risk, review notes) kept apart from
+  anything the machine generated.
+
+The lawyer reviews everything. The output is draft material for a professional, not legal
+advice, and the system says so on every message.
+
+## What it proves
+
+The interesting engineering is not the drafting. It is what a *legal* corpus does to ordinary
+RAG assumptions, and each of these was found in production rather than in a design review:
+
+- **A corpus has no notion of "now".** Nearest-neighbour search never says "I don't have this";
+  it returns the closest thing, and a repealed provision can be a *perfect* match. Confidence
+  scores answer "does it match", never "is it still in force". A core rule effective
+  2025-09-01 was missing from the library for a year and was only noticed while checking
+  something else. A system that cannot report what it lacks needs a maintenance checklist —
+  "we update regularly" is otherwise luck;
+- **Repeal is finer-grained than an article.** A new rule repealed paragraph one of an old
+  article while paragraph two stayed in force. An article-level in-force flag is wrong in both
+  directions — so the granularity has to be decided at chunking time, before ingestion, not
+  patched in as metadata later;
+- **Faults have two directions, and only one gets reported.** When case-law search broke, it
+  timed out eight times in a day and burned hours — and put zero wrong answers into any
+  document. A corrupted corpus fails the other way: it keeps answering. A tool that wastes your
+  day but never lies is safer than one that answers instantly and lies, and human instinct
+  ranks them the other way round;
+- **Adding a data source can spend a security property you did not know you were using.**
+  With only public sources, "everything retrieved is public" was simply true. The case archive
+  made it false, and a structural guarantee had to be replaced by discipline.
+
+What the system does better than a plain chat window is therefore narrow and honest: citations
+that open, a currency check on what they cite, and the habit of saying *not retrieved* instead
+of *does not exist*.
+
+## Status
+
+Live for the lawyer since 2026-06-09. Recorded turnaround from inbound email to sent reply:
+7 to 46 minutes, first attempt, over the logged period. Twenty-three matters archived between
+June and early August — a lower bound, since the archive index froze after a host failure in
+late August and the backlog is still being rebuilt.
+
+Not measured, and therefore not claimed: retrieval precision or recall, a comparison against
+the lawyer's unaided baseline, or time saved. Those experiments are designable; they have not
+been run.
