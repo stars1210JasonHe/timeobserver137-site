@@ -34,6 +34,19 @@ modes. Three renderers: the classic ring, a **war-room atlas** with glowing
 routes and forked paths, and a **pixel globe** you play on.
 
 The favourite layer: an **MCP server that seats LLM agents as real players** —
-nine tools covering match lifecycle, seat-scoped state, legal-move listing
+ten tools covering match lifecycle, seat-scoped state, legal-move listing
 (drift-oracle-tested against the engine), move execution and an event cursor.
 After `claude mcp add meinopoly`, Claude sees only its own seat — and plays.
+
+Since July the table also argues back. **Persuasion** (舌战群儒) opens a window on
+every live rent, duel or trade in which a seat can *make its case* instead of
+simply acting — and `attempt_persuasion` is the tenth MCP tool, so an agent
+pleads exactly where a human would click. Bots answer under one of three
+policies (never, always, value-weighted), the server can disable the layer
+online without a redeploy, and a taunt window stops a duel stalling on a
+responder who never shows.
+
+None of it moves without proof: **167 frozen game-log snapshots** pin every
+engine message byte-for-byte, and GitHub Actions runs unit, build and Playwright
+as three independent jobs on every push to `main` — a failure in one never hides
+the signal from the other two.
