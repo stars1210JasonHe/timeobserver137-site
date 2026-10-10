@@ -29,7 +29,7 @@ draft: true
 
 **配套视频（YouTube）**
 
-<iframe width="200" height="113" src="https://www.youtube.com/embed/zU75sM3wN7c?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen title="对称与怪兽（八·终章）· 月光"></iframe>
+<iframe width="200" height="113" src="https://www.youtube.com/embed/y2X2GdF-uE4?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen title="对称与怪兽（八·终章）· 月光"></iframe>
 
 ## 引子 · 一个不该存在的巧合
 
