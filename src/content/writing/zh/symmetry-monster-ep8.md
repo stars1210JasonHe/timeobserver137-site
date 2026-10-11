@@ -70,6 +70,8 @@ $$
 
 三行，逐项全对。（这几条能**独立**核到第三条——两边一边算 j、另一边对应上魔群维数；从第四个系数 20245856256 起，就要用到更多维数和不那么显然的重数，只能引 ATLAS 数据核对，详见**附录 B**。）
 
+<video src="/content/motion/2026/10/ep08_loop_s1_threelines.mp4" autoplay muted loop playsinline preload="metadata"></video>
+
 汤普森还多走了关键的一步：既然 j 的系数对应的是魔群**恒等元**在各维度上的数字，那么魔群里**别的**元素，是不是也各自藏着这样一条数列？——这个念头，直接通向了 §3 那整套猜想。
 
 （一个小插曲，据 Marcus du Sautoy《Finding Moonshine》记麦凯后来的说法：更高系数的进一步分解，是汤普森**先**发表的；麦凯自己其实也做了出来，"I was a bit peeved really（我确实有点不爽）"。而这串数今天就叫 **McKay–Thompson 级数**，荣誉归两人。）
@@ -286,6 +288,8 @@ $$
 
 $z$ 是上半平面里的点，$w$ 是它在圆盘里的落点。代两个数进去就知道它在做什么：$z=i$ 时分子为 $0$，所以 $i\mapsto 0$——上半平面的"中心"变成圆盘的圆心；$z$ 取实轴上的点时，$z-i$ 与 $z+i$ 是一对共轭复数、长度相等，相除的结果模长为 $1$，所以整条实轴被送到圆盘的**边界圆**上。**上半平面里"贴着实轴越来越小"的那些瓦片，到了圆盘里就是"贴着边界越来越小"的那一圈**——同一批瓦片，同一套标准，只是换了个画法。埃舍尔画的和数论用的，确实是同一件东西。
 
+<video src="/content/motion/2026/10/ep08_loop_s2_disk_tiles.mp4" autoplay muted loop playsinline preload="metadata"></video>
+
 ### 2.6　那个 744，和减掉它之后的 0
 
 前面我们说了 j 函数， 当我们把 j 在无穷远处展开，就得到 §1 那串系数。展开用的变量是
@@ -311,6 +315,8 @@ J = j-744 = q^{-1}+0+196884\,q+\cdots
 $$
 
 由于$q^{-1}$ 项和 $196884\,q$ 项完全一样，常数项从 $744$ 变成了 $0$。在**§4 我们会看到**，$J$ 的系数正好是某个东西的"逐层维数"。
+
+<video src="/content/motion/2026/10/ep08_loop_s3_744.mp4" autoplay muted loop playsinline preload="metadata"></video>
 
 744 的来历，其实也可以说明白：j 可以由两部分拼出——
 
@@ -447,6 +453,8 @@ $$
 #### genus 0 与主模函数
 
 群 $\Gamma$ 作用在上半平面上，商掉之后得到一个曲面；**再把尖点补上**——上半平面本身不含尖点，补上之后曲面才是**紧**的——记作 $X_\Gamma$。**亏格 0 就是说这个紧曲面是球面**；球面上的模函数域由**单个**函数生成，这个生成元就叫**主模函数**（hauptmodul）。
+
+<video src="/content/motion/2026/10/ep08_loop_s4_genus.mp4" autoplay muted loop playsinline preload="metadata"></video>
 
 **第一个例子 §2 已经给过。** 取 $\Gamma=\mathrm{PSL}(2,\mathbb{Z})$，$X_\Gamma$ 就是基本域 $F$ 按 §2.3 生成的曲面**再补上那一个尖点**，而 $j$ 在 $F$ 上把每个复数恰好取到一次（§2.4）；把尖点连同 $\infty$ 一起算进来，"恰好一次"就是
 
