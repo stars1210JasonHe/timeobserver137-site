@@ -316,7 +316,7 @@ $$
 
 由于$q^{-1}$ 项和 $196884\,q$ 项完全一样，常数项从 $744$ 变成了 $0$。在**§4 我们会看到**，$J$ 的系数正好是某个东西的"逐层维数"。
 
-<video src="/content/motion/2026/10/ep08_loop_s3_744.mp4?v=2" autoplay muted loop playsinline preload="metadata"></video>
+<video src="/content/motion/2026/10/ep08_loop_s3_744.mp4?v=3" autoplay muted loop playsinline preload="metadata"></video>
 
 744 的来历，其实也可以说明白：j 可以由两部分拼出——
 
