@@ -127,7 +127,7 @@ $$
 
 ## 5. 把还原写成一条链
 
-上一节那七步，每做完一步就锁定一批块，后面的公式不再碰它们。一九八一年，英国数学家 Morwen Thistlethwaite 把这个做法推到了底：把还原这件事拆成了四段。他原本是钢琴家，一九七五年才转行做数学，当时在伦敦南岸理工学院教书，后来以纽结理论知名。他的办法是：每做完一段，就有一批块被锁定，同时有几种转动从此不再用，能到的状态随之变少。最后一段结束，只剩还原态。用这个办法他证明了，任何状态五十二步以内都能还原，这是当时最好的上界。
+上一节那七步，每做完一步就锁定一批块，后面的公式不再碰它们。一九八一年，英国数学家 Morwen Thistlethwaite 把这个做法推到了底：把还原这件事拆成了四段。他一九七二年在曼彻斯特拿到数学博士，之后几年在伦敦学琴、开演奏会，一九七五年才回头以数学为业，当时在伦敦南岸理工学院教书，后来以纽结理论知名。他的办法是：每做完一段，就有一批块被锁定，同时有几种转动从此不再用，能到的状态随之变少。最后一段结束，只剩还原态。用这个办法他证明了，任何状态五十二步以内都能还原，这是当时最好的上界。
 
 四段分别做什么，按可以画出来的方式列在下面。「还剩的状态数」是把第二节那个总数逐段除出来的，每一步都除尽（本文实算）；每段的「情形数」出自来源 13。
 
@@ -846,13 +846,13 @@ Demaine 等 2011（arXiv:1106.5736，**本文核过摘要原文**）：上界来
 5. Herbert Kociemba，两阶段算法，<https://www.kociemba.org/math/imptwophase.htm>
 6. Morwen Thistlethwaite 原始打印稿（Singmaster 扫描，Jaap Scherphuis 转录），<https://www.jaapsch.net/puzzles/thistle.htm>
 7. 匈牙利专利 HU170062B（申请 1975-01-30，公布 1977-03-28，同族标题 "Spatial logic toy"），<https://patents.google.com/patent/HU170062B/en>
-8. Gathering 4 Gardner 对鲁比克的访谈逐字稿（2018 年录，2019 年发），<https://www.gathering4gardner.org/an-interview-with-erno-rubik/>
+8. Gathering 4 Gardner 对鲁比克的访谈逐字稿（2018 年录，2019 年发；「不是要做一道谜题」和「一个多月才第一次拧回去」两句的出处，原话 "The cube was not created as a puzzle" 与 "It was more than a month I find my practical solution"），<https://www.gathering4gardner.org/an-interview-with-erno-rubik/>
 
 **二手（用作对照）**
 9. *Rubik's Revenge*，英文维基，<https://en.wikipedia.org/wiki/Rubik%27s_Revenge>（四阶状态数公式与全数，引 Singmaster；翼块不可单独翻转；同色中心使奇排列不可见）
-11. *Ernő Rubik*，英文维基，<https://en.wikipedia.org/wiki/Ern%C5%91_Rubik>（生年、学历、应用艺术学院教职、二十七块木头的原型、一个多月才解开、1977 年匈牙利上市、1979 年授权 Ideal、1980 年全球发售；原型年份仍按文末说明处理）
-12. *Morwen Thistlethwaite*，英文维基，<https://en.wikipedia.org/wiki/Morwen_Thistlethwaite>（钢琴家出身、1975 年转行数学、1978–1987 年在伦敦南岸理工学院、纽结理论）；52 步的年份与上界见来源 1 的历史表（1981 年 7 月）
-13. *Optimal solutions for the Rubik's Cube*，英文维基，<https://en.wikipedia.org/wiki/Optimal_solutions_for_the_Rubik%27s_Cube>（科先巴 1992 年把四段压成两段；Cube Explorer 见来源 5 所在站点首页）
+11. *Ernő Rubik*，英文维基，<https://en.wikipedia.org/wiki/Ern%C5%91_Rubik>（生年、学历、应用艺术学院教职、二十七块木头的原型、1977 年匈牙利上市、1979 年授权 Ideal、1980 年全球发售；原型年份仍按文末说明处理）
+12. *Morwen Thistlethwaite*，英文维基，<https://en.wikipedia.org/wiki/Morwen_Thistlethwaite>（1972 年曼彻斯特数学博士、之后在伦敦学琴开演奏会、1975 年起以数学为业、1978–1987 年在伦敦南岸理工学院、纽结理论；学琴一段英文页无脚注，德文维基同说，先博士后学琴的先后两页一致）；52 步的年份与上界见来源 1 的历史表（1981 年 7 月）
+13. *Optimal solutions for the Rubik's Cube*，英文维基，<https://en.wikipedia.org/wiki/Optimal_solutions_for_the_Rubik%27s_Cube>（科先巴把四段压成两段，此页作 1992 年，他本人的页面（来源 5）作 1991 到 1992 年；Cube Explorer 见来源 5 所在站点首页）
 10. 卢昌海《魔方与"上帝之数"》，《科学画报》2008 年第 12 期（鲁比克、科先巴、罗基奇三个译名的依据；辛马斯特一名按中文维基「魔方」条目的「大卫·辛马斯特」）
 
 **一处说明**：一九七四年做出原型这件事，所有来源都是后来的转述，没有当年的一手件；文中凡涉及这个年份处，都按通行说法处理，不写成他本人的话。
