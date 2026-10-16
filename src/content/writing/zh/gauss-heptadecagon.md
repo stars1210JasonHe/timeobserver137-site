@@ -846,7 +846,7 @@ $$
 \theta_0\theta_1=\sum_{c=1}^{16}N(c)\,\zeta_{17}^{c}=\sum_{c=1}^{16}\zeta_{17}^{c}=-1. \tag{2}
 $$
 
-> **为什么 $N(0)=0?——这里不能照搬 §3 的理由(Socrates §4 finding)。** §3 用"$-1$ 是二次剩余"排掉 $c=0$,因为那里 $a\in\mathrm{QR}$、$b\in\mathrm{NQR}$,要 $b\equiv -a$ 就得 $-a$ 跳到另一类。但**现在 $\theta_0,\theta_1$ 同属 QR**,"$-1\in\mathrm{QR}$"反而说明 $-a$ 还在 QR 里,根本拦不住。正确的理由是**
+> **为什么 $N(0)=0$?——这里不能照搬 §3 的理由(Socrates §4 finding)。** §3 用"$-1$ 是二次剩余"排掉 $c=0$,因为那里 $a\in\mathrm{QR}$、$b\in\mathrm{NQR}$,要 $b\equiv -a$ 就得 $-a$ 跳到另一类。但**现在 $\theta_0,\theta_1$ 同属 QR**,"$-1\in\mathrm{QR}$"反而说明 $-a$ 还在 QR 里,根本拦不住。正确的理由是**
 >
 > 结构性的、按号码看**:
 >
