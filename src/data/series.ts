@@ -8,6 +8,9 @@ export interface SeriesMeta {
   id: string;
   title: string;
   description: string;
+  /** English title / description for the /writing/ (en) side */
+  titleEn?: string;
+  descriptionEn?: string;
   cover?: string;
   status: '连载中' | '已完结';
   note?: string;
@@ -17,6 +20,9 @@ export const SERIES: SeriesMeta[] = [
   {
     id: 'symmetry-monster',
     title: '对称与怪兽',
+    titleEn: 'Symmetry and the Monster',
+    descriptionEn:
+      "From the five regular solids, through the night before Galois's duel and the thirty-year classification of finite simple groups, to the Monster itself: a history of symmetry.",
     description:
       '从五个正多面体出发，穿过伽罗瓦的决斗前夜、单群分类的三十年战争，最终打开怪兽群的魔盒 —— 一部关于对称的科学史。',
     status: '连载中',
@@ -24,6 +30,8 @@ export const SERIES: SeriesMeta[] = [
   {
     id: 'euler',
     title: '欧拉',
+    titleEn: 'Euler',
+    descriptionEn: 'The life and mathematics of Leonhard Euler, from the boy in Basel to his seventeen blind years.',
     description: '莱昂哈德·欧拉的一生与他的数学 —— 从巴塞尔少年到失明的十七年。',
     status: '已完结',
     note: 'E01–E08 以视频形式发布于 YouTube @timeobserver137；博客收录 E09 起的文字版。',

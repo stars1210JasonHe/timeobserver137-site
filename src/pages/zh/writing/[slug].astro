@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Post from '../../../layouts/Post.astro';
 import { seriesById } from '../../../data/series';
 import { postSlug } from '../../../data/slug';
+import { publishedSlugs } from '../../../data/translations';
 
 export async function getStaticPaths() {
   // drafts render in dev for preview but are NOT built in production — a
@@ -17,6 +18,8 @@ export async function getStaticPaths() {
 const { entry, all } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+const enSlugs = await publishedSlugs('en');
+const slug = postSlug(entry);
 
 // series context: breadcrumb + prev/next episode
 let seriesCtx = null;
@@ -42,7 +45,7 @@ if (d.series) {
   title={d.title}
   description={d.excerpt ?? `${d.title} — 时间观察者`}
   lang="zh"
-  altHref="/writing/"
+  altHref={enSlugs.has(slug) ? `/writing/${slug}/` : '/writing/'}
   date={d.date}
   tags={d.tags}
   ogImage={d.cover}

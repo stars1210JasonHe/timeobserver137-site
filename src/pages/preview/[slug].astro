@@ -1,0 +1,64 @@
+---
+/**
+ * English draft preview (added 2026-10-16) — same contract as /zh/preview/[slug].astro:
+ * drafts build only here, never at /writing/<slug>/, are noindex, carry a draft banner,
+ * and the sitemap filter in astro.config.mjs excludes any path containing /preview/.
+ */
+import { getCollection, render } from 'astro:content';
+import Post from '../../layouts/Post.astro';
+import { seriesById } from '../../data/series';
+import { postSlug } from '../../data/slug';
+import { publishedSlugs } from '../../data/translations';
+
+export async function getStaticPaths() {
+  const drafts = await getCollection('writing', (e) => e.data.lang === 'en' && e.data.draft);
+  const all = await getCollection('writing', (e) => e.data.lang === 'en');
+  return drafts.map((entry) => ({
+    params: { slug: postSlug(entry) },
+    props: { entry, all },
+  }));
+}
+
+const { entry, all } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const slug = postSlug(entry);
+const zh = await publishedSlugs('zh');
+
+let seriesCtx = null;
+if (d.series) {
+  const meta = seriesById(d.series);
+  const eps = all
+    .filter((p) => p.data.series === d.series && !p.data.draft)
+    .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
+  const order = d.seriesOrder ?? 0;
+  const before = eps.filter((p) => (p.data.seriesOrder ?? 0) < order);
+  const after = eps.filter((p) => (p.data.seriesOrder ?? 0) > order);
+  const link = (p) => `/writing/${postSlug(p)}/`;
+  const prevEp = before[before.length - 1];
+  const nextEp = after[0];
+  seriesCtx = meta && {
+    id: d.series,
+    title: meta.titleEn ?? meta.title,
+    order,
+    total: eps.length + 1,
+    prev: prevEp ? { title: prevEp.data.title, href: link(prevEp) } : null,
+    next: nextEp ? { title: nextEp.data.title, href: link(nextEp) } : null,
+  };
+}
+---
+
+<Post
+  title={d.title}
+  description={d.excerpt ?? `${d.title} — timeobserver137`}
+  lang="en"
+  altHref={zh.has(slug) ? `/zh/writing/${slug}/` : '/zh/writing/'}
+  date={d.date}
+  tags={d.tags}
+  ogImage={d.cover}
+  series={seriesCtx}
+  noindex={true}
+  draftBanner={true}
+>
+  <Content />
+</Post>

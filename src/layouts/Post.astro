@@ -34,6 +34,9 @@ const {
 } = Astro.props;
 const cover = ogImage; // feature image doubles as the in-page hero (Ghost Source parity)
 const dateStr = date.toISOString().slice(0, 10);
+const en = lang === 'en';
+// English pages link to the English series page once it exists; until then the Chinese one.
+const seriesHref = series ? (en ? `/series/${series.id}/` : `/zh/series/${series.id}/`) : '';
 ---
 
 <!-- The equations layer moved into Base (2026-08-02) so every page has it, not
@@ -43,8 +46,13 @@ const dateStr = date.toISOString().slice(0, 10);
   <main class="mx-auto max-w-2xl px-6 py-12">
     {draftBanner && (
       <p class="mb-8 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-200/90">
-        <strong>草稿预览</strong> —— 这篇还没有发布。它不在首页、文章列表、系列页、RSS 和站点地图里，
-        只有拿到这个链接的人能看到。发布后它会换到正式地址。
+        {en ? (
+          <Fragment><strong>Draft preview</strong> — not published yet. It is not on the homepage, the writing list,
+          the series pages, RSS or the sitemap; only someone with this link can see it. Once published it moves to its real address.</Fragment>
+        ) : (
+          <Fragment><strong>草稿预览</strong> —— 这篇还没有发布。它不在首页、文章列表、系列页、RSS 和站点地图里，
+          只有拿到这个链接的人能看到。发布后它会换到正式地址。</Fragment>
+        )}
       </p>
     )}
     {cover && (
@@ -58,8 +66,10 @@ const dateStr = date.toISOString().slice(0, 10);
     <header class="mb-10">
       {series && (
         <p class="mb-3 text-sm text-muted">
-          <a href={`/zh/series/${series.id}/`} class="text-accent-soft hover:underline">{series.title}</a>
-          {series.order != null && <span class="text-faint"> · 第 {series.order} 篇 / 共 {series.total} 篇</span>}
+          <a href={seriesHref} class="text-accent-soft hover:underline">{series.title}</a>
+          {series.order != null && (en
+            ? <span class="text-faint"> · part {series.order} of {series.total}</span>
+            : <span class="text-faint"> · 第 {series.order} 篇 / 共 {series.total} 篇</span>)}
         </p>
       )}
       <h1 class="text-3xl font-semibold leading-snug text-chalk">{title}</h1>
@@ -75,13 +85,13 @@ const dateStr = date.toISOString().slice(0, 10);
       <nav class="mt-12 grid gap-3 sm:grid-cols-2">
         {series.prev ? (
           <a href={series.prev.href} class="rounded-lg border border-line/70 bg-surface/40 p-4 transition-colors hover:border-accent-soft/60 hover:bg-surface">
-            <span class="text-xs text-faint">← 上一篇</span>
+            <span class="text-xs text-faint">{en ? '← Previous' : '← 上一篇'}</span>
             <span class="mt-1 block text-sm text-ink">{series.prev.title}</span>
           </a>
         ) : <span />}
         {series.next && (
           <a href={series.next.href} class="rounded-lg border border-line/70 bg-surface/40 p-4 text-right transition-colors hover:border-accent-soft/60 hover:bg-surface">
-            <span class="text-xs text-faint">下一篇 →</span>
+            <span class="text-xs text-faint">{en ? 'Next →' : '下一篇 →'}</span>
             <span class="mt-1 block text-sm text-ink">{series.next.title}</span>
           </a>
         )}
@@ -253,10 +263,9 @@ const dateStr = date.toISOString().slice(0, 10);
           secondaryZoomLevel: 2,
           bgOpacity: 0.95,
           padding: { top: 24, bottom: 24, left: 16, right: 16 },
-          closeTitle: '退出',
-          zoomTitle: '缩放',
-          arrowPrevTitle: '上一张',
-          arrowNextTitle: '下一张',
+          ...(document.documentElement.lang === 'en'
+            ? { closeTitle: 'Close', zoomTitle: 'Zoom', arrowPrevTitle: 'Previous', arrowNextTitle: 'Next' }
+            : { closeTitle: '退出', zoomTitle: '缩放', arrowPrevTitle: '上一张', arrowNextTitle: '下一张' }),
         });
         pswp.on('openingAnimationStart', () => ambientSet(false));
         pswp.on('destroy', () => ambientSet(true));

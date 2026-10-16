@@ -1,41 +1,43 @@
 ---
 /**
- * EN writing index — summary cards linking into the /zh/ tree (spec §4:
- * the corpus is Chinese; EN side gets translated-summary cards with a 中文 badge.
- * Translated titles/excerpts land during the content pass; until then the
- * original title carries the card.)
+ * EN writing index. Since 2026-10-16 essays get English versions (src/data/translations.ts):
+ * an essay with a published English version is listed in English and links to /writing/<slug>/;
+ * one without is still listed by its Chinese card, with a 中文 badge, linking into /zh/.
  */
 import { getCollection } from 'astro:content';
 import { postSlug } from '../../data/slug';
 import Base from '../../layouts/Base.astro';
 import WritingCard from '../../components/WritingCard.astro';
 
-const posts = (await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft)).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const en = await getCollection('writing', (e) => e.data.lang === 'en' && !e.data.draft);
+const enSlugs = new Set(en.map(postSlug));
+const zhOnly = await getCollection('writing', (e) => e.data.lang === 'zh' && !e.data.draft && !enSlugs.has(postSlug(e)));
+const cards = [
+  ...en.map((p) => ({ p, href: `/writing/${postSlug(p)}/`, badge: undefined })),
+  ...zhOnly.map((p) => ({ p, href: `/zh/writing/${postSlug(p)}/`, badge: '中文' })),
+].sort((a, b) => b.p.data.date.valueOf() - a.p.data.date.valueOf());
 ---
 
 <Base
   title="Writing — 时间观察者"
-  description="Science-history essays (in Chinese): the Symmetry & Monster series, the Euler series, and more."
+  description="Science-history essays: the Symmetry and the Monster series, the Euler series, and more."
   lang="en"
   altHref="/zh/writing/"
 >
   <main class="mx-auto max-w-3xl px-6 py-12">
     <h1 class="mb-2 text-3xl font-semibold text-chalk">Writing</h1>
     <p class="mb-8 text-sm text-muted">
-      Long-form science history, written in Chinese — from Galois to the Monster group.
+      Long-form science history, from Galois to the Monster group. Written in Chinese; English versions are being added.
     </p>
-    {posts.length === 0 && <p class="text-muted">Essays are being migrated — the full archive lives at the <a class="text-accent-soft underline" href="https://timeobserver137.cyou">current site</a> meanwhile.</p>}
     <div class="grid gap-4">
-      {posts.map((p) => (
+      {cards.map(({ p, href, badge }) => (
         <WritingCard
-          href={`/zh/writing/${postSlug(p)}/`}
+          href={href}
           title={p.data.title}
           date={p.data.date}
           excerpt={p.data.excerpt}
           tags={p.data.tags}
-          langBadge="中文"
+          langBadge={badge}
         />
       ))}
     </div>

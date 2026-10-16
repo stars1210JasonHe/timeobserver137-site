@@ -16,7 +16,8 @@ export default defineConfig({
     mdx(),
     // Draft previews live under /zh/preview/ and must never enter the sitemap —
     // they are unpublished posts handed out as a private link (see src/pages/zh/preview/).
-    sitemap({ filter: (page) => !page.includes('/zh/preview/') }),
+    // 2026-10-16: English drafts preview under /preview/ — the same substring covers both.
+    sitemap({ filter: (page) => !page.includes('/preview/') }),
   ],
   vite: { plugins: [tailwindcss()] },
   markdown: {
