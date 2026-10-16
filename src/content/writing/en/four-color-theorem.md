@@ -2,7 +2,6 @@
 title: "The Four Color Theorem: a story from a century ago, still felt today"
 date: 2026-06-05
 lang: en
-draft: true
 tags:
   - timeobserver137
   - math-companion

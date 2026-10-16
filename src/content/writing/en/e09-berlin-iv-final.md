@@ -2,7 +2,6 @@
 title: "E09 Mathematical Addendum · The Tail End of Berlin 1753-1766"
 date: 2026-05-20
 lang: en
-draft: true
 tags:
   - timeobserver137
   - math-companion

@@ -2,7 +2,6 @@
 title: "Symmetry and the Monster (2): The Eve of the Duel — Galois and the Equations That Cannot Be Solved"
 date: 2026-06-16
 lang: en
-draft: true
 tags:
   - symmetry-monster
 series: symmetry-monster

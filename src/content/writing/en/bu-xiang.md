@@ -3,7 +3,6 @@ title: "Not Alike"
 date: 2026-05-18
 lang: en
 ghostSlug: bu-xiang
-draft: true
 ---
 
 Many discussions about AI start from "is AI conscious or not". I think this is the wrong opening.

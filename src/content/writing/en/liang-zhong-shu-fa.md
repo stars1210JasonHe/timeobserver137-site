@@ -2,7 +2,6 @@
 title: "Two Ways of Counting"
 date: 2026-07-19
 lang: en
-draft: true
 tags:
   - ai-collaboration
   - abel

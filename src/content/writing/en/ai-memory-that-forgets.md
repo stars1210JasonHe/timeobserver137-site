@@ -2,7 +2,6 @@
 title: "Giving AI a memory that forgets: the full history of the memory architecture of an eight-agent system"
 date: 2026-07-06
 lang: en
-draft: true
 tags:
   - ai-collaboration
   - memory-systems

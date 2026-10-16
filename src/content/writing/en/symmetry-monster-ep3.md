@@ -2,7 +2,6 @@
 title: "Symmetry and the Monster (3): The Indecomposable Atom · A₅"
 date: 2026-06-24
 lang: en
-draft: true
 series: symmetry-monster
 seriesOrder: 3
 ghostSlug: symmetry-monster-ep3

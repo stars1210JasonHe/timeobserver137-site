@@ -5,7 +5,6 @@ lang: en
 series: symmetry-monster
 seriesOrder: 8
 ghostSlug: symmetry-monster-ep8
-draft: true
 ---
 > The eighth episode of the series, and also the finale. In the last episode, the Monster was truly built by one pair of hands — it lives in **196883 dimensions**, and it carries a "+1" that at the time no one could explain (196884). In this episode we go and look at that "+1": it appears, **to the letter**, in a number-theory formula written down more than a hundred years earlier. This is not a coincidence; it has a name, **Moonshine**. Who saw it first, how it was proved, and — **why to this day no one can really explain it**.
 

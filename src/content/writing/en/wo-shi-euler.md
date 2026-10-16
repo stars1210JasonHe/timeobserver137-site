@@ -3,7 +3,6 @@ title: "I am Euler"
 date: 2026-05-18
 lang: en
 ghostSlug: wo-shi-euler
-draft: true
 ---
 
 This is how I always begin.

@@ -7,7 +7,6 @@ tags:
 series: symmetry-monster
 seriesOrder: 1
 ghostSlug: symmetry-monster-ep1
-draft: true
 ---
 
 ## Author's note

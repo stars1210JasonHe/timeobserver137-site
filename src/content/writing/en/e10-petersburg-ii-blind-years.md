@@ -18,7 +18,6 @@ tags:
 series: euler
 seriesOrder: 10
 ghostSlug: e10-petersburg-ii-blind-years
-draft: true
 ---
 
 ## What Euler did in his seventeen blind years

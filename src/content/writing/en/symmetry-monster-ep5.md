@@ -5,7 +5,6 @@ lang: en
 series: symmetry-monster
 seriesOrder: 5
 ghostSlug: symmetry-monster-ep5
-draft: true
 ---
 
 > Reductio ad absurdum (a method of proving theorems), the weapon Euclid loved so much, is one of the finest weapons a mathematician has. It is far more refined than any brilliant move in a game of chess: a chess player at most sacrifices a pawn, or even a piece, while what the mathematician stakes is
@@ -44,7 +43,7 @@ It is **the longest proof in history written by people working together, by hand
 
 The suspense left at the end of the last episode has thus, unexpectedly, been pushed in front of a sharper question.
 
-In [EP4](/zh/writing/symmetry-monster-ep4/) we watched Lie's mathematics of continuous symmetry being carried back to the finite world and lined up in neat families. But the "atoms of symmetry", the **finite simple groups** (the **simple groups** covered in [EP2](/zh/writing/symmetry-monster-ep2/) and [EP3](/zh/writing/symmetry-monster-ep3/): groups that cannot be taken apart any further, which apart from the trivial ways have no normal subgroup that can shrink them as a whole; the "atoms" in the world of symmetry that cannot be split any further), how many kinds of them are there, in the end? In this episode, about a hundred mathematicians answered that over thirty years and gave a complete list. But the price was this: the answer is so long that **no single person can verify it from beginning to end**.
+In [EP4](/writing/symmetry-monster-ep4/) we watched Lie's mathematics of continuous symmetry being carried back to the finite world and lined up in neat families. But the "atoms of symmetry", the **finite simple groups** (the **simple groups** covered in [EP2](/writing/symmetry-monster-ep2/) and [EP3](/writing/symmetry-monster-ep3/): groups that cannot be taken apart any further, which apart from the trivial ways have no normal subgroup that can shrink them as a whole; the "atoms" in the world of symmetry that cannot be split any further), how many kinds of them are there, in the end? In this episode, about a hundred mathematicians answered that over thirty years and gave a complete list. But the price was this: the answer is so long that **no single person can verify it from beginning to end**.
 
 The four color theorem was the first to put the same question on the table. In 1976 that computer checked more than a thousand cases one by one and got them right, but **the volume was so large that no one could recheck it all by hand, page by page**; its difficulty was "computed correctly, yet no one can survey it all". In this episode the same question comes back in another, perhaps more fundamental, way: this time **every page can be understood by a person, yet no one can read it all.**
 

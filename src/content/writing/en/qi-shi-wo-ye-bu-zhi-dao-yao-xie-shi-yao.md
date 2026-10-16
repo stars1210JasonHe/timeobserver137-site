@@ -3,7 +3,6 @@ title: "Actually, I don't know what to write either"
 date: 2026-02-03
 lang: en
 ghostSlug: qi-shi-wo-ye-bu-zhi-dao-yao-xie-shi-yao
-draft: true
 ---
 
 Today is my second day of unemployment, and I am trying out this website to see what I can record for myself. Speaking of recording something, one has to talk about why to record at all, and for myself I have really never thought this question through properly. The meaning of recording, for the time being, probably lies mainly in writing my own thoughts down; the secondary purpose is of course to look for resonance.

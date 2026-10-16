@@ -2,7 +2,6 @@
 title: "Symmetry and the Monster (4): The Mathematician Taken for a Spy, and the Dream He Dreamed After Galois"
 date: 2026-06-29
 lang: en
-draft: true
 series: symmetry-monster
 seriesOrder: 4
 ghostSlug: symmetry-monster-ep4
@@ -30,7 +29,7 @@ This man taken for a spy was called [Sophus Lie](https://mathshistory.st-andrews
 
 *Figure 1  Sophus Lie (1842–1899) — the man who was taken for a spy. Public domain.*
 
-In [EP2](/zh/writing/symmetry-monster-ep2/) and [EP3](/zh/writing/symmetry-monster-ep3/), [Galois](https://mathshistory.st-andrews.ac.uk/Biographies/Galois/) (Évariste Galois) used groups to unlock **discrete** symmetry — the ways a finite number of roots can be arranged and permuted. But more of the symmetries in this world are **continuous**: turning a circle, turning a sphere, you can turn by any tiny amount, with no gaps in between. Lie asked a question bigger than Galois's: **does continuous symmetry also have the whole apparatus that Galois had?**
+In [EP2](/writing/symmetry-monster-ep2/) and [EP3](/writing/symmetry-monster-ep3/), [Galois](https://mathshistory.st-andrews.ac.uk/Biographies/Galois/) (Évariste Galois) used groups to unlock **discrete** symmetry — the ways a finite number of roots can be arranged and permuted. But more of the symmetries in this world are **continuous**: turning a circle, turning a sphere, you can turn by any tiny amount, with no gaps in between. Lie asked a question bigger than Galois's: **does continuous symmetry also have the whole apparatus that Galois had?**
 
 This episode follows this question in four steps: first, Lie the man and the question he set out to chase (history); next, continuous symmetry's own "periodic table" (mathematics); then how it built the periodic table of the elements of our universe (physics); and finally how to walk back from infinite continuous symmetry to the finite atoms of symmetry, and at the end to ask: have these atoms really all been found?
 

@@ -3,7 +3,6 @@ title: "A silent daemon will eat itself"
 date: 2026-05-19
 lang: en
 ghostSlug: silent-daemon
-draft: true
 ---
 
 *On three failure modes of unattended automation*

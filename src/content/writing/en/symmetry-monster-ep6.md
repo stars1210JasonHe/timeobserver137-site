@@ -5,7 +5,6 @@ lang: en
 series: symmetry-monster
 seriesOrder: 6
 ghostSlug: symmetry-monster-ep6
-draft: true
 ---
 
 > Episode six of the series. In the last episode we watched that "Thirty Years' War" all the way through: the classification of all the finite "atoms of symmetry" (the finite simple groups). The conclusion: almost all of them line up in neat infinite families, one after another, but there are

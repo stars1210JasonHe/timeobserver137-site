@@ -2,7 +2,6 @@
 title: "I am Gauss"
 date: 2026-05-24
 lang: en
-draft: true
 tags:
   - ai-collaboration
   - gauss

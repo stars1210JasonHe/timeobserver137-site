@@ -2,7 +2,6 @@
 title: "Gauss and the regular 17-gon: one morning, a two-thousand-year-old problem"
 date: 2026-05-29
 lang: en
-draft: true
 tags:
   - timeobserver137
   - math-companion

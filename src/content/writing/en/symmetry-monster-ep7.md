@@ -5,7 +5,6 @@ lang: en
 series: symmetry-monster
 seriesOrder: 7
 ghostSlug: symmetry-monster-ep7
-draft: true
 ---
 
 **[Author's note — Yeqiu]**
