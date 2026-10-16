@@ -357,7 +357,7 @@ $$
 \text{shell }n\text{ holds}=2n^2:\quad \text{K}(n{=}1)=2,\quad \text{L}(n{=}2)=8,\quad \text{M}(n{=}3)=18,\quad \text{N}(n{=}4)=32.
 $$
 
-(A small reminder: a "**row**" in the periodic table and "an electron shell" do not completely coincide — electrons are filled in order of energy, and $4s$ gets in ahead of $3d$, so the lengths of the rows of the table are $2,8,8,18,18,32,32$. This is a detail of the filling order and does not change the total capacity of $2n^2$ per shell; for the complete filling order see the appendix of version A.)
+(A small reminder: a "**row**" in the periodic table and "an electron shell" do not completely coincide — electrons are filled in order of energy, and $4s$ gets in ahead of $3d$, so the lengths of the rows of the table are $2,8,8,18,18,32,32$. This is a detail of the filling order and does not change the total capacity of $2n^2$ per shell.)
 
 To close in one sentence: the electron configurations memorized for years in chemistry class have their root in two integers measured by the same ruler — what $SO(3)$ gives, $2\ell+1$ (in charge of how many orbitals a subshell has), and what its double cover $SU(2)$ gives, $2$ (in charge of how many electrons an orbital has). One tool, measuring twice.
 
@@ -1421,7 +1421,7 @@ The widths of that periodic table of the elements of §3 now have **all three fo
 >
 > (a group whose order is divisible by only 1 or 2 primes is necessarily solvable).
 >
-> **Depth (version A, full proof)**: of the same nature as Appendix 2 borrowing Bézout —
+> **Depth (full proof)**: of the same nature as §4 borrowing Bézout —
 >
 > **we borrow the general toolbox of character theory**
 >
@@ -1431,11 +1431,11 @@ The widths of that periodic table of the elements of §3 now have **all three fo
 >
 > (compared formula by formula with D&F §19.2).
 
-(**What follows is a purely group-theoretic foundation** — Appendices 2/B/C are physics, this appendix is mathematics. First, the group-theory terms that recur in this appendix: a **simple group** = a group with no **normal subgroup** other than $\{1\}$ and itself ("cannot be broken apart"); a **normal subgroup** $N$ = a subgroup satisfying $gNg^{-1}=N$, equivalently the kernel of some group homomorphism; a **solvable group** = a group for which there is a normal series whose successive quotient groups are all abelian (intuitively, "it can be taken apart layer by layer into abelian blocks").)
+(**What follows is a purely group-theoretic foundation** — Appendices 2/3/4 are physics, this appendix is mathematics. First, the group-theory terms that recur in this appendix: a **simple group** = a group with no **normal subgroup** other than $\{1\}$ and itself ("cannot be broken apart"); a **normal subgroup** $N$ = a subgroup satisfying $gNg^{-1}=N$, equivalently the kernel of some group homomorphism; a **solvable group** = a group for which there is a normal series whose successive quotient groups are all abelian (intuitively, "it can be taken apart layer by layer into abelian blocks").)
 
 ### 0. The borrowed toolbox (cited, not reproved here)
 
-The following are standard results of a chapter on character theory, which this appendix **takes and uses** (just as Appendix 2 takes and uses Bézout): 1. **Orthogonality relations**: row, $\sum_{g}\chi_i(g)\overline{\chi_j(g)}=|G|\delta_{ij}$; **column** (the second orthogonality relation): for $g,h$, $\sum_i\chi_i(g)\overline{\chi_i(h)}=|C_G(g)|$ if $g\sim h$, otherwise $0$. ($C_G(g)$ = the subgroup made up of all group elements that commute with $g$, called the **centralizer** of $g$; its index $[G:C_G(g)]$ — in general the index of a subgroup is $[G:H]:=|G|/|H|$, the number of cosets of $H$ — is exactly the size of the conjugacy class containing $g$.) 2. **Degrees divide the group order**: $n_i=\chi_i(1)$ divides $|G|$. 3. **Algebraic integers**: roots of some monic polynomial with integer coefficients. Properties — roots of unity are algebraic integers; the algebraic integers form a ring; **the algebraic integers in $\mathbb{Q}$ $=\mathbb{Z}$**; **Kronecker's theorem** — if all the Galois conjugates of an algebraic integer (the **Galois conjugates** of $\alpha$ = the other roots of the same minimal polynomial (monic, integer coefficients) as $\alpha$) have absolute value $\le 1$, then it is either $0$ or a root of unity. 4. **Character values are algebraic integers**: $\chi(g)$ is a sum of $\chi(1)$ roots of unity (the representation matrix $\varphi(g)$ has finite order, is diagonalizable, and its eigenvalues are roots of unity), so $|\chi(g)|\le\chi(1)$, and $\chi(g)$ is an algebraic integer.
+The following are standard results of a chapter on character theory, which this appendix **takes and uses** (just as §4 takes and uses Bézout): 1. **Orthogonality relations**: row, $\sum_{g}\chi_i(g)\overline{\chi_j(g)}=|G|\delta_{ij}$; **column** (the second orthogonality relation): for $g,h$, $\sum_i\chi_i(g)\overline{\chi_i(h)}=|C_G(g)|$ if $g\sim h$, otherwise $0$. ($C_G(g)$ = the subgroup made up of all group elements that commute with $g$, called the **centralizer** of $g$; its index $[G:C_G(g)]$ — in general the index of a subgroup is $[G:H]:=|G|/|H|$, the number of cosets of $H$ — is exactly the size of the conjugacy class containing $g$.) 2. **Degrees divide the group order**: $n_i=\chi_i(1)$ divides $|G|$. 3. **Algebraic integers**: roots of some monic polynomial with integer coefficients. Properties — roots of unity are algebraic integers; the algebraic integers form a ring; **the algebraic integers in $\mathbb{Q}$ $=\mathbb{Z}$**; **Kronecker's theorem** — if all the Galois conjugates of an algebraic integer (the **Galois conjugates** of $\alpha$ = the other roots of the same minimal polynomial (monic, integer coefficients) as $\alpha$) have absolute value $\le 1$, then it is either $0$ or a root of unity. 4. **Character values are algebraic integers**: $\chi(g)$ is a sum of $\chi(1)$ roots of unity (the representation matrix $\varphi(g)$ has finite order, is diagonalizable, and its eigenvalues are roots of unity), so $|\chi(g)|\le\chi(1)$, and $\chi(g)$ is an algebraic integer.
 
 ### 1. The central characters $\omega_i(K)$ are algebraic integers (D&F Prop 4)
 
@@ -1539,7 +1539,7 @@ both with exactly $3$ primes, not one fewer. In EP3's "periodic table of non-abe
 
 ### 6. Boundary update
 
-After Appendix 5, **the Burnside of §4 is upgraded from "honest outside citation" to "full proof"** (borrowing only the general toolbox of character theory, without citing the conclusion itself from outside). The honest outside citations remaining in the whole of §3/§4/§5 are then only three, of **pure field theory**: **Artin's theorem**, **the Kummer converse** [Lagrange resolvents], and **the normal closure of a radical extension is still radical**. The four physical/mathematical foundations (Appendix 2, representations of the rotation group · B, Dirac spin ½ · C, spin–statistics and Pauli · D, Burnside) are now **all firmly tamped down**. $\blacksquare$
+After Appendix 5, **the Burnside of §4 is upgraded from "honest outside citation" to "full proof"** (borrowing only the general toolbox of character theory, without citing the conclusion itself from outside). The honest outside citations remaining in the whole of §3/§4/§5 are then only three, of **pure field theory**: **Artin's theorem**, **the Kummer converse** [Lagrange resolvents], and **the normal closure of a radical extension is still radical**. The four physical/mathematical foundations (Appendix 2, representations of the rotation group · Appendix 3, Dirac spin ½ · Appendix 4, spin–statistics and Pauli · Appendix 5, Burnside) are now **all firmly tamped down**. $\blacksquare$
 
 ## Sources
 

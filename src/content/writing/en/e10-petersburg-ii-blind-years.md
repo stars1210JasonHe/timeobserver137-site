@@ -100,11 +100,11 @@ Each Euler paper is identified by an E-number (Eneström's 1910 catalogue). Impo
 
 - E041: Basel ζ(2) solution, written 1734-35 / published 1740
 - E053: the seven bridges of Königsberg, 1735 / 1741
-- E065: irrationality of e, 1737 / 1744
-- E070: Euler product ∏(1-p⁻ˢ)⁻¹, 1737 / 1744
+- E071: irrationality of e, 1737 / 1744
+- E072: Euler product ∏(1-p⁻ˢ)⁻¹, 1737 / 1744
 - E101-E102: Introductio in analysin infinitorum, 1748
-- E175: study of the lunar three-body problem, 1751
-- E187: the e^(ix) trigonometric formula, 1748
+- E187: theory of the motion of the Moon (Theoria motus lunae), 1753
+- E101 (Introductio): the e^(ix) trigonometric formula, 1748
 - E230 / E231: the polyhedron formula V−E+F=2 (announcement 1750 / proof 1751-58)
 - E258: Euler's fluid equations (*Principia motus fluidorum*, written 1753 / printed 1761)
 - E309: solution of the knight's tour (written 1758 / printed 1766, delayed by the Seven Years' War)
@@ -129,7 +129,7 @@ The decline of Euler's eyesight over his life falls into three stages, which mus
 
 **Stage I (1738-1766): right eye blind, left eye working**
 
-In 1738 Euler went through a severe high fever in Petersburg (presumed to be typhus or a similar bacterial infection), and after the fever subsided his right eye was blind. He was 31 at the time. This one-eyed blindness lasted 28 years, during which he completed core results such as the Mechanica (E015-E016), the Introductio in analysin infinitorum (E101-E102), the fluid equations (E258), the preliminary form of the lunar three-body problem (E175), and the polyhedron formula (E230/E231). That is, the most productive 28 years of his career were completed with one eye blind.
+In 1738 Euler went through a severe high fever in Petersburg (presumed to be typhus or a similar bacterial infection), and after the fever subsided his right eye was blind. He was 31 at the time. This one-eyed blindness lasted 28 years, during which he completed core results such as the Mechanica (E015-E016), the Introductio in analysin infinitorum (E101-E102), the fluid equations (E258), the theory of the motion of the Moon (E187, 1753), and the polyhedron formula (E230/E231). That is, the most productive 28 years of his career were completed with one eye blind.
 
 **Stage II (1766-1771): the left eye also gradually blurring, nearly totally blind**
 
@@ -781,7 +781,7 @@ assert isprime(M31)
 print("M_31 is prime ✓")
 ```
 
-In 2026 this code block takes only milliseconds to run; in 1772, by mental arithmetic and without pen-and-paper cross-checking (Euler had been completely blind since late 1771 — the infection after Wenzel's cataract operation in September 1771 set in within months), this work took several weeks. The result held the world record as the largest known prime for **one hundred and four years** — until Édouard Lucas in 1876 verified $M_{127}$ with the recurrence method now called the Lucas–Lehmer test.
+In 2026 this code block takes only milliseconds to run; in 1772, by mental arithmetic and without pen-and-paper cross-checking (Euler had been completely blind since late 1771 — the infection after Wenzel's cataract operation in September 1771 set in within months), this work took several weeks. The result held the record as the largest known Mersenne prime for **one hundred and four years** — until Édouard Lucas in 1876 verified $M_{127}$ with the recurrence method now called the Lucas–Lehmer test.
 
 ## 2.6. Modern significance
 
@@ -1485,7 +1485,7 @@ $$
 
 ### 6.1.3 $e \notin \mathbb{Q}$ — E04
 
-**Euler's 1737 proof (E065, *De fractionibus continuis dissertatio*)**:
+**Euler's 1737 proof (E071, *De fractionibus continuis dissertatio*)**:
 
 $e$ is irrational. The proof uses the continued fraction form:
 
@@ -1551,7 +1551,7 @@ Properties: - $\varphi(p) = p - 1$ (prime) - $\varphi(p^k) = p^k - p^{k-1}$ - mu
 
 See §2 of this blog post for details. In 1772 Euler verified by hand that $M_{31} = 2^{31} - 1 = 2{,}147{,}483{,}647$ is prime.
 
-**Modern significance**: this record held for 100 years, until in 1876 Édouard Lucas verified $M_{127}$ with the cleverer Lucas-Lehmer test. Today the largest Mersenne prime is $M_{136{,}279{,}841}$ (41,024,320 digits, the 52nd known Mersenne prime, found by Luke Durant via the GIMPS project on October 12, 2024). The number-theoretic foundation of Lucas-Lehmer is what Euler wrote down in 1772.
+**Modern significance**: this record as the largest known Mersenne prime held for 104 years, until in 1876 Édouard Lucas verified $M_{127}$ with the cleverer Lucas-Lehmer test. Today the largest Mersenne prime is $M_{136{,}279{,}841}$ (41,024,320 digits, the 52nd known Mersenne prime, found by Luke Durant via the GIMPS project on October 12, 2024). The number-theoretic foundation of Lucas-Lehmer is what Euler wrote down in 1772.
 
 ---
 
@@ -1649,7 +1649,7 @@ A bead slides from point $A$ along a frictionless curve to point $B$; which curv
 
 The answer is the cycloid. Not a straight line, not a parabola — but a cycloid.
 
-Bernoulli in 1696 solved it by analogy with optics (Snell's law of refraction). Newton finished it in one night. Euler in 1744 (the same paper, E065) generalized this problem, bringing out the *calculus of variations* as an independent branch of mathematics.
+Bernoulli in 1696 solved it by analogy with optics (Snell's law of refraction). Newton finished it in one night. Euler in 1744 (E065) generalized this problem, bringing out the *calculus of variations* as an independent branch of mathematics.
 
 **Modern significance**: the calculus of variations is a basic tool of classical mechanics (Lagrangian / Hamiltonian), general relativity (the Hilbert action), and quantum field theory (the path integral).
 
@@ -1711,7 +1711,7 @@ $$
 
 ### 6.4.5 The Lagrange points $L_1$-$L_5$ — E10 (§1 of this episode)
 
-See §1 of this blog post for details. Euler in 1751-1753 (E175) found the three collinear points $L_1, L_2, L_3$. Lagrange in 1772 (Paris Academy Prize) added the two equilateral-triangle points $L_4, L_5$.
+See §1 of this blog post for details. Euler (E327, written 1763, published 1767) found the three collinear points $L_1, L_2, L_3$. Lagrange in 1772 (Paris Academy Prize) added the two equilateral-triangle points $L_4, L_5$.
 
 **Modern significance**: NASA's James Webb Space Telescope is at the Earth-Sun $L_2$ point (1.5 million km from the Earth in the direction away from the Sun, arrived January 24, 2022). The SOHO solar observation satellite is at the $L_1$ point. The STEREO and DART missions use $L_4 / L_5$. The Sun-Jupiter $L_4 / L_5$ actually gather 12,000+ *Trojan asteroids*; Lagrange in 1772 thought these two points had no physical realization, which 200 years later was proved wrong.
 

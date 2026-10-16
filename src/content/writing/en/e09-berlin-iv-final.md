@@ -45,7 +45,7 @@ Its extended version, Navier-Stokes, is still one of the 7 Millennium Prize Prob
 
 The Earth spins about its axis once every 24 hours; the front wheel of a bicycle, when it spins fast, does not fall over; a nut floating freely on the ISS spontaneously flips over periodically... These seemingly unrelated phenomena are all described in one sentence by Euler's rigid-body equations $I\dot{\boldsymbol{\omega}} + \boldsymbol{\omega}\times(I\boldsymbol{\omega}) = \boldsymbol{\tau}$.
 
-That 1985 Dzhanibekov nut experiment on the ISS is very striking, compared with the ground, where this phenomenon simply cannot be seen. Today the attitude control of flying vehicles, the planning of robot wrists, and the algorithms that rotate bones in animation engines all rest, at the bottom, on this mathematics that Euler ground out over 15 years in Berlin.
+That 1985 Dzhanibekov nut experiment on the Salyut 7 space station is very striking, compared with the ground, where this phenomenon simply cannot be seen. Today the attitude control of flying vehicles, the planning of robot wrists, and the algorithms that rotate bones in animation engines all rest, at the bottom, on this mathematics that Euler ground out over 15 years in Berlin.
 
 ### §4 · Euler's theorem + RSA — the root of contemporary cryptography
 
@@ -238,7 +238,7 @@ $$
 V - E + F = 60 - 90 + 32 = 2. \quad \checkmark
 $$
 
-**What this tells us**: even for a fairly complex polyhedron with a "non-convex feel" (in fact the Carbon 60 fullerene also has this shape, chemistry 1985, the Kroto-Smalley-Curl Nobel Prize), as long as it is topologically a sphere, $V-E+F$ always = 2. This is why all the fullerene (buckyball) molecules discovered in 1996 must contain exactly 12 pentagons — solving $V-E+F=2$ + $f_5 \cdot 5 + f_6 \cdot 6 = 2E$ + $3V = 2E$ simultaneously gives $f_5 = 12$, independent of the number of hexagons $f_6$.
+**What this tells us**: even for a fairly complex polyhedron with a "non-convex feel" (in fact the Carbon 60 fullerene also has this shape, chemistry 1996, the Kroto-Smalley-Curl Nobel Prize), as long as it is topologically a sphere, $V-E+F$ always = 2. This is why all the fullerene (buckyball) molecules discovered in 1985 must contain exactly 12 pentagons — solving $V-E+F=2$ + $f_5 \cdot 5 + f_6 \cdot 6 = 2E$ + $3V = 2E$ simultaneously gives $f_5 = 12$, independent of the number of hexagons $f_6$.
 
 ---
 
@@ -779,7 +779,7 @@ Second-order ODE: $\ddot\omega_1 = \frac{(I_2-I_3)(I_1-I_2)}{I_1 I_3} \omega_0^2
 
 **What this tells us**: when a free rigid body rotates about the principal axis of "intermediate inertia", any tiny perturbation is amplified exponentially, causing the "flip effect" — what looks like a **periodic 180° flip** is in fact $\omega_1, \omega_3$ going through a complete exponential–saturation–decay cycle.
 
-**The 1985 Dzhanibekov experiment**: the Soviet cosmonaut Vladimir Dzhanibekov, on the ISS (the Salyut 7 space station), unscrewed a wing-nut and let it float and spin freely — the nut **spontaneously flipped over periodically**, astonishing ground control. This effect could already be predicted within the framework of Euler's 1758 *Recherches* (linearization gives it directly), but because gravitational disturbances on Earth are too large, no one had ever seen it on the ground; only in the true weightlessness of space did it show itself. Video: search "Dzhanibekov effect ISS".
+**The 1985 Dzhanibekov experiment**: the Soviet cosmonaut Vladimir Dzhanibekov, on the Salyut 7 space station, unscrewed a wing-nut and let it float and spin freely — the nut **spontaneously flipped over periodically**, astonishing ground control. This effect could already be predicted within the framework of Euler's 1758 *Recherches* (linearization gives it directly), but because gravitational disturbances on Earth are too large, no one had ever seen it on the ground; only in the true weightlessness of space did it show itself. Video: search "Dzhanibekov effect ISS".
 
 ---
 

@@ -100,11 +100,11 @@ $$
 
 - E041: Basel ζ(2) 解, 1734-35 写 / 1740 发表
 - E053: Königsberg 七桥, 1735 / 1741
-- E065: e 的无理性, 1737 / 1744
-- E070: Euler product ∏(1-p⁻ˢ)⁻¹, 1737 / 1744
+- E071: e 的无理性, 1737 / 1744
+- E072: Euler product ∏(1-p⁻ˢ)⁻¹, 1737 / 1744
 - E101-E102: Introductio in analysin infinitorum, 1748
-- E175: 月球三体研究, 1751
-- E187: e^(ix) 三角函数公式, 1748
+- E187: 月球运动理论 (Theoria motus lunae), 1753
+- E101 (Introductio): e^(ix) 三角函数公式, 1748
 - E230 / E231: 多面体公式 V−E+F=2 (announcement 1750 / proof 1751-58)
 - E258: Euler 流体方程 (*Principia motus fluidorum*, 1753 写 / 1761 印)
 - E309: Knight's tour 解 (1758 写 / 1766 印, 七年战争延误)
@@ -129,7 +129,7 @@ Euler 一生的视力衰退分为三个阶段, 必须分开陈述, 因为它们�
 
 **阶段 I (1738-1766): 右眼盲, 左眼工作**
 
-1738 年, Euler 在 Petersburg 经历一场严重高烧 (推测为 typhus 或类似细菌感染), 烧退之后右眼失明. 当时他 31 岁. 这种单眼失明持续了 28 年, 期间他完成了 Mechanica (E015-E016), Introductio in analysin infinitorum (E101-E102), 流体方程 (E258), 月球三体的初步形态 (E175), 多面体公式 (E230/E231) 等核心成果. 即, 他生涯产出最丰富的 28 年, 是在一只眼睛盲掉的状态下完成的.
+1738 年, Euler 在 Petersburg 经历一场严重高烧 (推测为 typhus 或类似细菌感染), 烧退之后右眼失明. 当时他 31 岁. 这种单眼失明持续了 28 年, 期间他完成了 Mechanica (E015-E016), Introductio in analysin infinitorum (E101-E102), 流体方程 (E258), 月球运动理论 (E187, 1753), 多面体公式 (E230/E231) 等核心成果. 即, 他生涯产出最丰富的 28 年, 是在一只眼睛盲掉的状态下完成的.
 
 **阶段 II (1766-1771): 左眼亦逐渐模糊, 近全盲**
 
@@ -781,7 +781,7 @@ assert isprime(M31)
 print("M_31 is prime ✓")
 ```
 
-该代码块在 2026 年只需毫秒级运行; 在 1772 年, 凭心算且无纸笔交叉核对 (Euler 自 1771 年末已完全失明 — 1771 年 9 月 Wenzel 白内障手术后的感染数月内发作), 这项工作花了数周. 该结果作为最大已知素数的世界纪录, 维持了 **一百零四年** — 直到 Édouard Lucas 在 1876 年用如今称为 Lucas–Lehmer 测试的递推法验证了 $M_{127}$.
+该代码块在 2026 年只需毫秒级运行; 在 1772 年, 凭心算且无纸笔交叉核对 (Euler 自 1771 年末已完全失明 — 1771 年 9 月 Wenzel 白内障手术后的感染数月内发作), 这项工作花了数周. 该结果作为最大已知梅森素数的纪录, 维持了 **一百零四年** — 直到 Édouard Lucas 在 1876 年用如今称为 Lucas–Lehmer 测试的递推法验证了 $M_{127}$.
 
 ## 2.6. 现代意义
 
@@ -1485,7 +1485,7 @@ $$
 
 ### 6.1.3 $e \notin \mathbb{Q}$ — E04
 
-**Euler 1737 年证明 (E065, *De fractionibus continuis dissertatio*)**:
+**Euler 1737 年证明 (E071, *De fractionibus continuis dissertatio*)**:
 
 $e$ 是无理数. 证明用连分数 (continued fraction) 形式:
 
@@ -1551,7 +1551,7 @@ $\varphi(n) = \#\{k : 1 \leq k \leq n, \gcd(k, n) = 1\}$ — 1 到 $n$ 之间与
 
 详见本博客 §2. Euler 1772 年手算验证 $M_{31} = 2^{31} - 1 = 2{,}147{,}483{,}647$ 是素数.
 
-**现代意义**: 这个纪录保持了 100 年, 直到 1876 年 Édouard Lucas 用更聪明的 Lucas-Lehmer test 验证 $M_{127}$. 今天最大的 Mersenne 素数是 $M_{136{,}279{,}841}$ (41,024,320 位数, 第 52 个已知 Mersenne 素数, 2024 年 10 月 12 日由 Luke Durant 经 GIMPS 项目找到). Lucas-Lehmer 的数论根基, 是 Euler 1772 写下的.
+**现代意义**: 这个最大已知梅森素数的纪录保持了 104 年, 直到 1876 年 Édouard Lucas 用更聪明的 Lucas-Lehmer test 验证 $M_{127}$. 今天最大的 Mersenne 素数是 $M_{136{,}279{,}841}$ (41,024,320 位数, 第 52 个已知 Mersenne 素数, 2024 年 10 月 12 日由 Luke Durant 经 GIMPS 项目找到). Lucas-Lehmer 的数论根基, 是 Euler 1772 写下的.
 
 ---
 
@@ -1649,7 +1649,7 @@ $$
 
 答案是 cycloid (摆线). 不是直线, 不是抛物线 — 而是一条 cycloid.
 
-Bernoulli 1696 用光学 (Snell's law of refraction) 类比解出. Newton 一晚做完. Euler 1744 (E065 同一论文) 把这个问题一般化, 引出 *变分法* (calculus of variations) 作为独立数学分支.
+Bernoulli 1696 用光学 (Snell's law of refraction) 类比解出. Newton 一晚做完. Euler 1744 (E065) 把这个问题一般化, 引出 *变分法* (calculus of variations) 作为独立数学分支.
 
 **现代意义**: 变分法是经典力学 (Lagrangian / Hamiltonian)、广义相对论 (Hilbert action)、量子场论 (path integral) 的基本工具.
 
@@ -1711,7 +1711,7 @@ $$
 
 ### 6.4.5 Lagrange 点 $L_1$-$L_5$ — E10 (本集 §1)
 
-详见本博客 §1. Euler 1751-1753 (E175) 找出共线三点 $L_1, L_2, L_3$. Lagrange 1772 (Paris Academy Prize) 补上等边三角形两点 $L_4, L_5$.
+详见本博客 §1. Euler (E327, 1763 年写, 1767 年发表) 找出共线三点 $L_1, L_2, L_3$. Lagrange 1772 (Paris Academy Prize) 补上等边三角形两点 $L_4, L_5$.
 
 **现代意义**: NASA James Webb Space Telescope 在地球-太阳 $L_2$ 点 (距离地球 1.5 million km 反太阳方向, 2022 年 1 月 24 日抵达). SOHO 太阳观测卫星在 $L_1$ 点. STEREO 和 DART 任务用 $L_4 / L_5$. Sun-Jupiter $L_4 / L_5$ 实际汇集了 12,000+ 颗 *Trojan asteroids* (小行星), Lagrange 1772 当时认为这两点没物理实现, 200 年后证明错.
 
