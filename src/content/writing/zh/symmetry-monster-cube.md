@@ -1,9 +1,8 @@
 ---
 title: "解密魔方 · 你手上的那个群"
-date: 2026-10-10
+date: 2026-10-16
 lang: zh
 ghostSlug: symmetry-monster-cube
-draft: true
 ---
 > timeobserver137 番外 · 实践篇。不看前面八集也能读。
 > 正文只讲故事和概念脉络，推导在附录 A–G（有一处只给方向、没有走完，附录 C 末尾写明了）；附录里标「本文实算」的每一个数都可以自己复算，历史上的数字出处见文末。
