@@ -25,16 +25,16 @@ ghostSlug: gauss-heptadecagon
 
 **目录**
 
-- [§0 引子](#%C2%A70-%E5%BC%95%E5%AD%90)
-- [§1 为什么是 17（费马素数判据）](#%C2%A71-%E2%80%94-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF-17%EF%BC%9A%E8%B4%B9%E9%A9%AC%E7%B4%A0%E6%95%B0%E4%B8%8E%E5%8F%AF%E4%BD%9C%E5%9B%BE%E5%88%A4%E6%8D%AE)
-- [§2 时钟上的乘法 (ℤ/17ℤ)*](#%C2%A72-%E2%80%94-%E6%97%B6%E9%92%9F%E4%B8%8A%E7%9A%84%E4%B9%98%E6%B3%95%EF%BC%9Amathbbz17mathbbz-%E4%B8%8E%E5%AE%83%E7%9A%84%E7%94%9F%E6%88%90%E5%85%83)
-- [§3 高斯周期 → 第一个 √17](#%C2%A73-%E2%80%94-%E9%AB%98%E6%96%AF%E5%91%A8%E6%9C%9F%EF%BC%9A%E6%8A%8A%E5%8D%81%E5%85%AD%E4%B8%AA%E6%A0%B9%E5%88%86%E6%88%90%E4%B8%A4%E5%8D%8A%EF%BC%8C%E9%80%BC%E5%87%BA%E7%AC%AC%E4%B8%80%E4%B8%AA-sqrt17)
-- [§4 对称的群：Galois](#%C2%A74-%E2%80%94-%E5%AF%B9%E7%A7%B0%E7%9A%84%E7%BE%A4%EF%BC%9Agalois-%E7%BE%A4%EF%BC%8C%E4%B8%8E%E7%AC%AC%E4%BA%8C%E3%80%81%E4%B8%89%E5%88%80)
-- [§5 cos(2π/17) 的显式闭式](#%C2%A75-%E2%80%94-%E6%94%B6%E7%BD%91%EF%BC%9Acosdfrac2pi17-%E7%9A%84%E6%98%BE%E5%BC%8F%E9%97%AD%E5%BC%8F%E4%B8%8E%E6%9C%80%E5%86%85%E5%B1%82%E6%A0%B9%E5%8F%B7%E7%9A%84%E6%9D%A5%E5%8E%86)
-- [§6 Richmond 1893：二十步作图](#%C2%A76-%E2%80%94-richmond-1893%EF%BC%9A%E4%BA%8C%E5%8D%81%E6%AD%A5%E6%8A%8A-costfrac2pi17-%E7%94%BB%E5%88%B0%E7%BA%B8%E4%B8%8A)
-- [§7 必要性：Wantzel + Lindemann](#%C2%A77-%E2%80%94-%E5%BF%85%E8%A6%81%E6%80%A7%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%A4%A7%E5%A4%9A%E6%95%B0%E5%9B%BE%E5%BD%A2%E7%94%BB%E4%B8%8D%E5%87%BA%E6%9D%A5%EF%BC%88wantzel-1837-lindemann-1882%EF%BC%89)
-- [§8 历史与意义](#%C2%A78-%E5%8E%86%E5%8F%B2%E4%B8%8E%E6%84%8F%E4%B9%89)
-- [§9 结语](#%C2%A79-%E7%BB%93%E8%AF%AD)
+- [§0 引子](#0-引子)
+- [§1 为什么是 17（费马素数判据）](#1--为什么是-17费马素数与可作图判据)
+- [§2 时钟上的乘法 (ℤ/17ℤ)*](#2--时钟上的乘法z17zmathbbz17mathbbzz17z-与它的生成元)
+- [§3 高斯周期 → 第一个 √17](#3--高斯周期把十六个根分成两半逼出第一个-17sqrt1717)
+- [§4 对称的群：Galois](#4--对称的群galois-群与第二三刀)
+- [§5 cos(2π/17) 的显式闭式](#5--收网cos2π17cosdfrac2pi17cos172π-的显式闭式与最内层根号的来历)
+- [§6 Richmond 1893：二十步作图](#6--richmond-1893二十步把-cos2π17costfrac2pi17cos172π-画到纸上)
+- [§7 必要性：Wantzel + Lindemann](#7--必要性为什么大多数图形画不出来wantzel-1837--lindemann-1882)
+- [§8 历史与意义](#8-历史与意义)
+- [§9 结语](#9-结语)
 
 ## §0 引子
 
