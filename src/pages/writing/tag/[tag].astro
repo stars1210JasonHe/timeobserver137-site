@@ -1,0 +1,56 @@
+---
+/**
+ * EN tag archive — /writing/tag/<tag>/ (2026-10-18). Mirror of /zh/writing/tag/<tag>/ over the English
+ * entries. Tag slugs are already English (tagLabels.ts); the EN face shows the slug with spaces.
+ */
+import { getCollection } from 'astro:content';
+import { postSlug } from '../../../data/slug';
+import Base from '../../../layouts/Base.astro';
+import WritingCard from '../../../components/WritingCard.astro';
+import { tagLabelEn } from '../../../data/tagLabels';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('writing', (e) => e.data.lang === 'en' && !e.data.draft);
+  const tags = new Set(posts.flatMap((p) => p.data.tags).filter((t) => t !== 'draft'));
+  return [...tags].map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter((p) => p.data.tags.includes(tag))
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+const label = tagLabelEn(tag);
+---
+
+<Base
+  title={`#${label} — Writing — 时间观察者`}
+  description={`${posts.length} essays tagged "${label}".`}
+  lang="en"
+  altHref={`/zh/writing/tag/${encodeURIComponent(tag)}/`}
+>
+  <main class="mx-auto max-w-3xl px-6 py-12">
+    <p class="text-sm text-muted"><a href="/writing/" class="hover:text-ink">Writing</a> / Tags</p>
+    <h1 class="mt-2 text-3xl font-semibold text-chalk">#{label}</h1>
+    <p class="mt-2 text-muted">{posts.length} {posts.length === 1 ? 'essay' : 'essays'}</p>
+    <div class="mt-8 space-y-4">
+      {
+        posts.map((e) => (
+          <WritingCard
+            href={`/writing/${postSlug(e)}/`}
+            title={e.data.title}
+            date={e.data.date}
+            excerpt={e.data.excerpt}
+            tags={e.data.tags}
+            cover={e.data.cover}
+            lang="en"
+          />
+        ))
+      }
+    </div>
+  </main>
+</Base>

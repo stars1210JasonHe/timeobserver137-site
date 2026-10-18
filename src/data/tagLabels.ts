@@ -30,3 +30,6 @@ export const TAG_LABELS: Record<string, string> = {
 };
 
 export const tagLabel = (slug: string) => TAG_LABELS[slug] ?? slug;
+
+/** EN face (2026-10-18): the slug itself, hyphens as spaces ('graph-theory' -> 'graph theory'). */
+export const tagLabelEn = (slug: string) => slug.replace(/-/g, ' ');

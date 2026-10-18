@@ -11,6 +11,7 @@ export interface SeriesMeta {
   /** English title / description for the /writing/ (en) side */
   titleEn?: string;
   descriptionEn?: string;
+  noteEn?: string;
   cover?: string;
   status: '连载中' | '已完结';
   note?: string;
@@ -35,7 +36,10 @@ export const SERIES: SeriesMeta[] = [
     description: '莱昂哈德·欧拉的一生与他的数学 —— 从巴塞尔少年到失明的十七年。',
     status: '已完结',
     note: 'E01–E08 以视频形式发布于 YouTube @timeobserver137；博客收录 E09 起的文字版。',
+    noteEn: 'E01–E08 were published as videos on YouTube @timeobserver137; the blog carries the text versions from E09 on.',
   },
 ];
 
 export const seriesById = (id: string) => SERIES.find((s) => s.id === id);
+
+export const seriesStatusEn = (s: SeriesMeta['status']) => (s === '连载中' ? 'Ongoing' : 'Complete');

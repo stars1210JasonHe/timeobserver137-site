@@ -13,7 +13,7 @@ interface Props {
 }
 const { lang } = Astro.props;
 const zh = lang === 'zh';
-const seriesHref = '/zh/series/symmetry-monster/';
+const seriesHref = zh ? '/zh/series/symmetry-monster/' : '/series/symmetry-monster/';
 ---
 
 <!--

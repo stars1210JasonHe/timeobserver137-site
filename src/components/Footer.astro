@@ -12,7 +12,7 @@ const year = new Date().getFullYear();
     <div class="flex items-center gap-4">
       <a class="transition-colors hover:text-ink" href="https://github.com/stars1210JasonHe" rel="me">GitHub</a>
       <a class="transition-colors hover:text-ink" href="https://www.youtube.com/@timeobserver137" rel="me">YouTube</a>
-      <a class="transition-colors hover:text-ink" href="/rss.xml">RSS</a>
+      <a class="transition-colors hover:text-ink" href={lang === 'zh' ? '/rss.xml' : '/writing/rss.xml'}>RSS</a>
       <!-- Subscribe entry point lands here in Task 5.2 (Buttondown) -->
     </div>
   </div>

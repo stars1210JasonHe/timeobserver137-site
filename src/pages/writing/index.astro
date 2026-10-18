@@ -27,7 +27,7 @@ const cards = [
   <main class="mx-auto max-w-3xl px-6 py-12">
     <h1 class="mb-2 text-3xl font-semibold text-chalk">Writing</h1>
     <p class="mb-8 text-sm text-muted">
-      Long-form science history, from Galois to the Monster group. Written in Chinese; English versions are being added.
+      Long-form science history, from Galois to the Monster group. Each essay is available in English and in the original Chinese. Essays that form a series are listed in order on the <a href="/series/" class="text-accent-soft hover:underline">Series</a> page.
     </p>
     <div class="grid gap-4">
       {cards.map(({ p, href, badge }) => (
@@ -38,6 +38,7 @@ const cards = [
           excerpt={p.data.excerpt}
           tags={p.data.tags}
           langBadge={badge}
+          lang="en"
         />
       ))}
     </div>

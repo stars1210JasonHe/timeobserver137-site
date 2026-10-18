@@ -7,9 +7,12 @@ interface Props {
   tags?: string[];
   cover?: string;
   langBadge?: string; // e.g. "中文" on the EN index
+  lang?: 'zh' | 'en'; // which tag pages the tags link to (default zh)
 }
-import { tagLabel } from '../data/tagLabels';
-const { href, title, date, excerpt, tags = [], cover, langBadge } = Astro.props;
+import { tagLabel, tagLabelEn } from '../data/tagLabels';
+const { href, title, date, excerpt, tags = [], cover, langBadge, lang = 'zh' } = Astro.props;
+const tagHref = (t: string) => (lang === 'en' ? '/writing/tag/' : '/zh/writing/tag/') + encodeURIComponent(t) + '/';
+const tagText = (t: string) => (lang === 'en' ? tagLabelEn(t) : tagLabel(t));
 const dateStr = date.toISOString().slice(0, 10);
 // 'draft' is a Ghost-internal marker carried through migration — never a
 // reader-facing category.
@@ -30,8 +33,8 @@ const shown = tags.filter((t) => t !== 'draft').slice(0, 3);
     <time datetime={dateStr}>{dateStr}</time>
     {
       shown.map((t) => (
-        <a href={`/zh/writing/tag/${encodeURIComponent(t)}/`} class="transition-colors hover:text-ink">
-          #{tagLabel(t)}
+        <a href={tagHref(t)} class="transition-colors hover:text-ink">
+          #{tagText(t)}
         </a>
       ))
     }

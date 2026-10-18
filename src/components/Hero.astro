@@ -22,10 +22,9 @@ const zh = lang === 'zh';
 // Canonical paths, both verified 200 on 2026-08-02. The essay URL used to be
 // the bare absolute `.../e10-petersburg-ii-blind-years/`, which only reaches the
 // article through a 301 — the real route carries the /zh/writing/ prefix.
-// seriesHref matches SymmetrySolids: the series pages exist under /zh/ only, so
-// the EN face links there too rather than to a 404.
-const essayUrl = '/zh/writing/e10-petersburg-ii-blind-years/';
-const seriesHref = '/zh/series/euler/';
+// 2026-10-18: English essay and series pages exist, so the EN face links to them.
+const essayUrl = zh ? '/zh/writing/e10-petersburg-ii-blind-years/' : '/writing/e10-petersburg-ii-blind-years/';
+const seriesHref = zh ? '/zh/series/euler/' : '/series/euler/';
 ---
 
 <!--
