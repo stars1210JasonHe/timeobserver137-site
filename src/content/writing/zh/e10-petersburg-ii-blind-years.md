@@ -119,7 +119,7 @@ $$
 
 俄国女皇 Catherine II 这边在等他. 她从 1762 年宫廷政变继位以来一直在重建俄国学院, 而 Euler 是她重建 Petersburg Academy of Sciences 数学根基的核心人选. 她派的马车在俄国边境上接到了 Euler 一家. 抵达 Petersburg 时, 学院给他备好了 3000 卢布年薪 + 宫廷附近的住房 + 子女职位安排.
 
-据后世数学史轶事流传, Frederick II 当时如此评价 Euler 的离开: *"独眼几何家走了, 我可以省一些钱。"* (原始出处不详, 多见于 19 世纪以来的通俗数学史著作.)
+Euler 走后, Frederick II 写信感谢 d'Alembert 推荐了接替者: *"多亏您的关照与推荐, 我得以把科学院里一位独眼的几何学家, 换成了一位双眼俱全的几何学家——解剖学部想必尤其高兴。"* (腓特烈致达朗贝尔, 1766 年 7 月 26 日, *Œuvres de Frédéric le Grand* 第 24 卷第 407 页. 常见的"独眼几何家走了, 我可以省一些钱"是后人的转述, 原信里没有"省钱".)
 
 但 Euler 的右眼 1738 年的高烧之后已经盲了 28 年. 抵达 Petersburg 时, 他唯一还能用的左眼也已经开始模糊. 他心里很清楚接下来可能会发生什么.
 
@@ -1316,7 +1316,7 @@ Euler 1783 年的猜想是其数论一生最后的工作; Gauss 1796 年的证�
 
 1776 年 7 月, 68 岁的 Euler 续弦 **Salomea Abigail Gsell** — Katharina 同父异母的妹妹, 当时 53 岁. 这桩婚姻在欧洲学术圈引起一些议论, 但 Euler 自己很平静: 一个失明的老人需要一个能照顾他的伴侣.
 
-1779 年起, Euler 越来越频繁地谈论到 *"我已经准备好走了"*. 但他没放下笔. Petersburg Academy 在 1783 年最后一期年报里还有他的两篇 paper. 即使到生命最后三年, 他还在以每天 4-6 小时的节奏口述新内容.
+1779 年, Euler 已经 72 岁. 但他没放下笔. Petersburg Academy 在 1783 年最后一期年报里还有他的两篇 paper. 即使到生命最后三年, 他还在以每天 4-6 小时的节奏口述新内容.
 
 ## §5.2 1781 年 3 月: 天空里出现一颗新行星
 
@@ -1455,7 +1455,7 @@ $$
 1 + \frac{1}{4} + \frac{1}{9} + \frac{1}{16} + \cdots = \sum_{n=1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}.
 $$
 
-Basel 问题由 Pietro Mengoli 1644 提出 (希望算 $\sum 1/n^2$). Jakob 和 Johann Bernoulli 两兄弟都尝试过, 没解出来. Jakob 在 *Tractatus de seriebus infinitis* (1689) 里承认: "如果有人能解出来, 我们将永远感激他."
+Basel 问题由 Pietro Mengoli 1644 提出 (希望算 $\sum 1/n^2$). Jakob 和 Johann Bernoulli 两兄弟都尝试过, 没解出来. Jakob 在 *Tractatus de seriebus infinitis* (1689) 里承认: "若有人找到并告诉我们这个至今躲过我们努力的东西, 他将得到我们的大大感谢."
 
 Euler 1734 年用 *sin x* 函数的无穷乘积展开 (借鉴牛顿) 给出了第一个证明. 1735 年提交给 Petersburg Academy, 1740 年 *Commentarii* 上发表. 后世 (Cauchy / Riemann) 严格化的复变方法给出更标准的证明.
 

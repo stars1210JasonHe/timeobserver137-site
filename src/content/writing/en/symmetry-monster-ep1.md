@@ -88,7 +88,7 @@ First define a "regular polyhedron" by two precise conditions: a **convex** poly
 
 Two thousand years ago, people were already fascinated by these five solids — once treating them as the recipe for all things, and another time as the capstone of mathematics.
 
-**Plato's recipe (*Timaeus*, about 360 BC).** Plato matched each of the four basic "elements" of the world with a solid: **fire** is the sharpest and lightest **pyramid** (only later called the tetrahedron), **earth** is the most stable and stackable **cube**, **air** is the **octahedron**, **water** is the **icosahedron**. One **dodecahedron** remained, and he reserved it for **the whole universe** — according to him, the god used it to adorn the heavens. These five perfect shapes were, for the first time, treated as the underlying language of all things.
+**Plato's recipe (*Timaeus*, about 360 BC).** Plato matched each of the four basic "elements" of the world with a solid: **fire** is the sharpest and lightest **pyramid** (only later called the tetrahedron), **earth** is the most stable and stackable **cube**, **air** is the **octahedron**, **water** is the **icosahedron**. One **dodecahedron** remained, and he reserved it for **the whole universe** — in the Loeb translation, "God used it up for the Universe in his decoration thereof". These five perfect shapes were, for the first time, treated as the underlying language of all things.
 
 ![Bust of Plato](/content/images/2026/06/figE2_1_plato.jpg)
 

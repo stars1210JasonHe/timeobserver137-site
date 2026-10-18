@@ -23,7 +23,7 @@ But what is truly unique and irreplaceable about people comes precisely from our
 
 > Episode 7 of the series. In the previous episode we opened the box holding the 26 sporadic simple groups, watched them come on stage one after another across several decades, and said: all these sporadic groups in the end point faintly toward the same monster, unreasonably large. In this episode we look at this monster head-on (it has a formal name, the **Monster**): how it was first "computed" and then "built" by one person by hand. It lives in **196883 dimensions**. And why does 196884 (exactly 1 more than 196883) appear almost unchanged in a seemingly unrelated corner of number theory? That crack is left for the last episode.
 
-> "317 is a prime, not because we think so, or because our minds are shaped in one way rather than another, but because it is so, because mathematical reality is built that way." (our translation)
+> "317 is a prime, not because we think so, or because our minds are shaped in one way rather than another, but because it is so, because mathematical reality is built that way."
 >
 > — G. H. Hardy (1877–1947), *A Mathematician's Apology* §24
 
@@ -145,7 +145,7 @@ At this point the medical report is complete: size, fingerprint table, smallest 
 ## §3 · Building the monster by hand
 
 
-By the end of the 1970s the situation was a little peculiar: all the technical data on the Monster (the order, the 194×194 character table, 196883, and even the 196884 about to come on stage below) was ready, but **nobody had proved that it really existed**. Conway later recalled his feeling at the time, saying that he regarded building the Monster as (in translation) "**a practical impossibility, or an impractical possibility**".
+By the end of the 1970s the situation was a little peculiar: all the technical data on the Monster (the order, the 194×194 character table, 196883, and even the 196884 about to come on stage below) was ready, but **nobody had proved that it really existed**. Conway later recalled his feeling at the time, saying that he regarded building the Monster as "**a practical impossibility, or maybe an impractical possibility**".
 
 ![Robert Griess](/content/images/2026/07/griess_mfo2005.jpg)
 *Robert Griess (1945–): in 1980, without using a single computer, he built the Monster by hand. (Photo by Renate Schmid, 2005, Oberwolfach Photo Collection, CC BY-SA 2.0 de.)*
@@ -186,7 +186,7 @@ The count had in fact long since closed. The Monster and the several new subgrou
 > "The sporadic groups which are involved in the Friendly Giant constitute the *Happy Family* and those which are not are called the *Pariahs*."
 > —Griess, *The Friendly Giant*, Invent. Math. **69** (1982), p. 3
 
-But one detail is worth pausing on: **in 1982 Griess could name only five pariahs** ($\mathrm{Ly}$, $J_3$, $J_4$, $\mathrm{O'N}$, $\mathrm{Ru}$); **for the sixth, $J_1$, he could not give an answer at the time**. On the same page he wrote: "The membership of every sporadic group in one of those two categories is settled, **except for $J_1$**", and added a very vivid remark: the order of $J_1$ is "**only**" 175,560, and (in translation) "one can easily imagine a copy of $J_1$ floating inside $F_1$ like a speck of dust".
+But one detail is worth pausing on: **in 1982 Griess could name only five pariahs** ($\mathrm{Ly}$, $J_3$, $J_4$, $\mathrm{O'N}$, $\mathrm{Ru}$); **for the sixth, $J_1$, he could not give an answer at the time**. On the same page he wrote: "The membership of every sporadic group in one of those two categories is settled, **except for $J_1$**", and added a very vivid remark: the order of $J_1$ is "**only**" 175,560, and "one might easily imagine a copy of $J_1$ floating as a tiny speck within $F_1$".
 
 In other words: **the person who built the Monster by hand could not say for sure whether a small group of order one hundred seventy thousand was hidden inside the thing he had built.** This suspense was only resolved in 1986 by Wilson (Robert Wilson), and the title of the paper is itself the question: "Is $J_1$ a subgroup of the Monster?" (*Is $J_1$ a Subgroup of the Monster?*, *Bull. London Math. Soc.* **18**(4): 349–350, 1986, [doi:10.1112/blms/18.4.349](https://doi.org/10.1112/blms/18.4.349)). The answer is no, and so the pariahs made up the full 6, becoming the number we write today.[^wilson86]
 
@@ -442,7 +442,7 @@ $$864299970=2\cdot 1+2\cdot 196883+21296876+842609326.$$
 
 The three lines fit perfectly. **This means the first four dimensions above are not "copied"**: they have been independently checked once by a set of numbers from a completely unrelated source. As for why the coefficients of j are "exactly" sums of these dimensions: **here we only lay out the arithmetic; that "why" is the business of the last episode**. (This independent corroboration **goes only up to the fourth entry**; from the fifth entry on there is no such handle, and we can only cite the ATLAS.)
 
-**Four: this table was recomputed in 2024**. First, one thing that is easily skipped over: **the derivation of that original computation was never publicly published**; Wilson himself recalled that those computations were (in translation) "**so long and complicated that nothing was published**". That is to say, for this table, cited over and over for more than forty years, the working draft was never in the public record.
+**Four: this table was recomputed in 2024**. First, one thing that is easily skipped over: **the derivation of that original computation was never publicly published**; Wilson himself recalled (in a December 2024 blog post) that "the calculations were **so long and complicated, that nothing was ever published**". That is to say, for this table, cited over and over for more than forty years, the working draft was never in the public record.
 
 As part of a project to "recompute all the character tables in the ATLAS",
 
@@ -753,7 +753,7 @@ $$|C_M(2\mathrm B)|=2^{1+24}\!\cdot\!\mathrm{Co}_1\ \text{'s order}=2^{25}\cdot|
 - M. Aschbacher & S. D. Smith, *The Classification of Quasithin Groups* (I: MSM 111 / II: MSM 112), American Mathematical Society, 2004 (the quasithin gap, about 1221 pages in total).
 
 **Epigraph / foreshadowing EP8**
-- G. H. Hardy, *A Mathematician's Apology*, Cambridge University Press, 1940 (source of the Ch13 epigraph; uses verbatim the epigraph printed in Ronan's book).
+- G. H. Hardy, *A Mathematician's Apology*, Cambridge University Press, 1940 (source of this episode's epigraph, §24).
 - Wikipedia · Monstrous moonshine: https://en.wikipedia.org/wiki/Monstrous_moonshine (epilogue 196884 = 196883 + 1 → EP8).
 
 

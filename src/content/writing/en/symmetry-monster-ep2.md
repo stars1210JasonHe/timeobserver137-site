@@ -9,7 +9,7 @@ seriesOrder: 2
 ghostSlug: symmetry-monster-ep2
 ---
 
-> In scholarship, what matters is a touch of irreverence, like a ragged, barefoot wild child — one comes here not to worship what is known, but to question it. —— Jacob Bronowski, *The Ascent of Man* (
+> It is important that students bring a certain ragamuffin, barefoot irreverence to their studies; they are not here to worship what is known, but to question it. —— Jacob Bronowski, *The Ascent of Man* (
 >
 > *The Ascent of Man*
 >
@@ -158,8 +158,6 @@ To answer this question, one had to understand equations in a new way. And that 
 ---
 
 ## §2 Galois's turn: not solving for the roots, but looking at the roots' "symmetry"
-
-> For Thales, the primary question was not "what do we know", but "how do we know". —— Aristotle
 
 For more than two hundred years, everyone had been doing the same thing: **solving** for the roots and writing them as a formula. Galois, barely past twenty, raised a question that had rarely been posed head-on before — he did not solve for the roots; instead he stepped back and fixed his eyes on **the relations among** these roots.
 

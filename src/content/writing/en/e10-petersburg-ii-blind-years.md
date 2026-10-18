@@ -119,7 +119,7 @@ In May 1766, the 59-year-old Leonhard Euler was packing his bags in Berlin. The 
 
 On the side of the Russian empress Catherine II, she was waiting for him. Since succeeding to the throne in the palace coup of 1762 she had been rebuilding the Russian academy, and Euler was the key candidate for rebuilding the mathematical foundations of the Petersburg Academy of Sciences. The carriage she sent picked up the Euler family at the Russian border. On arrival in Petersburg, the academy had prepared for him an annual salary of 3000 rubles + housing near the court + positions arranged for his children.
 
-According to anecdotes handed down in later histories of mathematics, Frederick II remarked on Euler's departure at the time (in translation): *"The one-eyed geometer is gone; I can save some money."* (Original source unknown; found mostly in popular histories of mathematics from the 19th century onward.)
+After Euler left, Frederick II wrote to d'Alembert to thank him for recommending the successor: *« je dois à vos soins et à votre recommandation d'avoir remplacé dans mon Académie un géomètre borgne par un géomètre qui a ses deux yeux, ce qui plaira surtout fort à la classe des anatomistes »* ("I owe it to your care and your recommendation that I have replaced, in my Academy, a one-eyed geometer with a geometer who has both his eyes, which will especially please the class of anatomists"). (Frederick to d'Alembert, 26 July 1766, *Œuvres de Frédéric le Grand*, vol. 24, p. 407. The often-repeated "The one-eyed geometer is gone; I can save some money" is a later retelling; the letter says nothing about saving money.)
 
 But Euler's right eye had already been blind for 28 years, since a high fever in 1738. On arrival in Petersburg, the only eye he could still use, his left, had also begun to blur. He knew very well what might happen next.
 
@@ -1316,7 +1316,7 @@ His first wife, **Katharina Gsell**, died in Petersburg on November 19, 1773. Th
 
 In July 1776, the 68-year-old Euler remarried, to **Salomea Abigail Gsell** — Katharina's half-sister, who was then 53. This marriage caused some talk in European academic circles, but Euler himself was very calm about it: a blind old man needed a companion who could look after him.
 
-From 1779 on, Euler spoke more and more frequently of being (in translation) *"ready to go"*. But he did not put down his pen. The Petersburg Academy's last annual volume of 1783 still had two papers by him. Even in the last three years of his life, he was still dictating new content at the pace of 4-6 hours a day.
+In 1779 Euler was 72. But he did not put down his pen. The Petersburg Academy's last annual volume of 1783 still had two papers by him. Even in the last three years of his life, he was still dictating new content at the pace of 4-6 hours a day.
 
 ## §5.2 March 1781: a new planet appears in the sky
 
@@ -1455,7 +1455,7 @@ $$
 1 + \frac{1}{4} + \frac{1}{9} + \frac{1}{16} + \cdots = \sum_{n=1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}.
 $$
 
-The Basel problem was posed by Pietro Mengoli in 1644 (hoping to compute $\sum 1/n^2$). The two brothers Jakob and Johann Bernoulli both tried and could not solve it. Jakob admitted in the *Tractatus de seriebus infinitis* (1689) (in translation): "If anyone can solve it, we will be grateful to him forever."
+The Basel problem was posed by Pietro Mengoli in 1644 (hoping to compute $\sum 1/n^2$). The two brothers Jakob and Johann Bernoulli both tried and could not solve it. Jakob admitted in the *Tractatus de seriebus infinitis* (1689): « Si quis inveniat nobisque communicet, quod industriam nostram elusit hactenus, magnas de nobis gratias feret » ("If anyone finds and tells us what has so far escaped our efforts, he will earn our great thanks").
 
 In 1734 Euler gave the first proof using the infinite product expansion of the *sin x* function (borrowing from Newton). It was submitted to the Petersburg Academy in 1735 and published in the *Commentarii* in 1740. The rigorous complex-variable methods of later generations (Cauchy / Riemann) gave a more standard proof.
 
