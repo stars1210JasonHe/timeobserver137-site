@@ -23,3 +23,37 @@ play the same probabilistic game you do.
 Details that make it feel finished: adaptive background music that follows the
 state of the hand, spectator mode for busted players, responsive layout down to
 phones.
+
+## Auditing the engine (October 2026)
+
+A poker game that looks right can still pay out wrong. So the engine got the
+same treatment as any other system I depend on: a test harness that tries to
+break it, and checks on the harness itself. The audit was run by the
+engineering agent of my [agent fleet](/projects/openclaw-fleet/), with me
+reviewing the results.
+
+- **A rules fuzzer.** Random tables (2–9 seats, random stacks, bots plus
+  scripted "humans") play through the same functions the server calls, and
+  every hand is checked against 16 rule categories. On the original engine,
+  100,000 hands turned up **9 rule bugs**. The worst: no side pots (a short
+  all-in could win the whole pot), tied hands not split, blinds always posted
+  by the same two seats, and acting out of turn.
+- **Each bug got a reproducing test and its own fix.** The 15 new tests fail
+  on the original engine and pass on the fixed one. After the fixes, the same
+  100,000 hands produce **zero violations**.
+- **The fuzzer was tested too.** Five bugs were planted on purpose in the fixed
+  engine; each one was reported in the right category.
+- **The hand evaluator was cross-checked** against the independent `treys`
+  library: 1,981,857 of 1,981,857 hand categories and 1,982,033 of 1,982,033
+  showdown winners agree. Two planted evaluator bugs were caught, so the
+  agreement is not a dead check.
+- **A new bot, measured rather than asserted.** An equity-vs-pot-odds bot
+  played 20,000 duplicate heads-up hands (same cards dealt twice, seats
+  swapped) against each existing level. It beats the beginner bot by
+  +76.8 bb/100 (95% CI 70.1 to 83.5) and the advanced bot by +41.0 (25.5 to
+  56.5). Against the intermediate bot the interval includes zero, and so did a
+  retest of a tuned variant on fresh cards. That is reported as a null result,
+  and the default settings stayed as they were.
+
+The fixes sit on a review branch and are not merged into the public repository
+yet.
