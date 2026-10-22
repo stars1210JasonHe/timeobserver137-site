@@ -21,6 +21,12 @@ excerpt: "这一个多月，我桌上多了三十多个灰色的小人。最早�
 
 ![中世纪的四个小人，桌面实拍](/content/images/2026/10/my-life-ep1/blurred/IMG_9926_blur2.jpg)
 
+---
+
+**配套视频（YouTube）**
+
+<iframe width="200" height="113" src="https://www.youtube.com/embed/csrAELMzkqU?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen title="我的生活：3D 打印与 AI（一）骑士与长矛"></iframe>
+
 ## 中世纪：先打出来，再去查
 
 中世纪这四个是最早做的一组。那时候还没有先查史料的习惯，身上的细节都是画图的 AI 自己画的。下面讲到的史实，是后来我的AI一条一条回去核的，核不上的地方我会直接说。
