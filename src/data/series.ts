@@ -38,6 +38,16 @@ export const SERIES: SeriesMeta[] = [
     note: 'E01–E08 以视频形式发布于 YouTube @timeobserver137；博客收录 E09 起的文字版。',
     noteEn: 'E01–E08 were published as videos on YouTube @timeobserver137; the blog carries the text versions from E09 on.',
   },
+  {
+    // 2026-10-22: description = the series' own opening sentence (EP1), verbatim; en = literal translation
+    id: 'my-life',
+    title: '我的生活：3D 打印与 AI',
+    titleEn: 'My Life: 3D Printing and AI',
+    description: '做这个系列的初衷是找点有意思的项目玩，3D打印加AI建模是我这段时间为自己的生活增添的新的乐趣。',
+    descriptionEn:
+      'I started this series to find some fun projects to play with: 3D printing plus AI modelling is the new pleasure I have added to my life lately.',
+    status: '连载中',
+  },
 ];
 
 export const seriesById = (id: string) => SERIES.find((s) => s.id === id);

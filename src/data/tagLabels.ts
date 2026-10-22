@@ -5,6 +5,8 @@
  */
 export const TAG_LABELS: Record<string, string> = {
   'ai-collaboration': 'AI 合作',
+  '3d-printing': '3D 打印',
+  'military-history': '军事史',
   'fleet-philosophy': 'fleet 哲学',
   'multi-agent': '多智能体',
   'symmetry-monster': '对称与怪兽',
