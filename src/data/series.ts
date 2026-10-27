@@ -48,6 +48,16 @@ export const SERIES: SeriesMeta[] = [
       'I started this series to find some fun projects to play with: 3D printing plus AI modelling is the new pleasure I have added to my life lately.',
     status: '连载中',
   },
+  {
+    // 2026-10-27: description = the series' own opening statement (Yeqiu, 10-23), verbatim; en = literal translation
+    id: 'nobel-physics',
+    title: '诺贝尔物理学奖百年',
+    titleEn: 'A Century of Nobel Physics',
+    description: '这个系列献给同样迷茫的人：献给敢于面对未知的人，献给走进未知去探索的人，也献给那些从未停下脚步、一直朝着梦想走的人。',
+    descriptionEn:
+      'This series is dedicated to people who are just as lost: to those who dare to face the unknown, to those who walk into the unknown to explore it, and also to those who have never stopped, who keep walking toward their dreams.',
+    status: '连载中',
+  },
 ];
 
 export const seriesById = (id: string) => SERIES.find((s) => s.id === id);
