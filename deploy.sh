@@ -143,7 +143,12 @@ echo "    dist:  $dist_bytes   ($DIST_FILE)"
 # not-yet-updated PoP produced a confident false FAILURE.
 code="000"; bytes=0; matched=0
 for i in 1 2 3 4 5 6 7 8; do
-  read -r code bytes <<<"$(curl -s -o /dev/null -w '%{http_code} %{size_download}' -m 25 "$URL" || echo '000 0')"
+  # No `-o /dev/null`: with MSYS_NO_PATHCONV=1 (set in some agent shells) Git Bash passes
+  # "/dev/null" literally to native curl, which cannot open it -> exit 23, size 0, and the
+  # old `|| echo '000 0'` glued onto the output read as bytes "0000". Measured 2026-11-09.
+  # The body goes to stdout and bash drops it; only the tagged stats line is kept.
+  stats="$(curl -s -m 25 -w '\n__STATS__ %{http_code} %{size_download}' "$URL" 2>/dev/null | grep -a '^__STATS__' | tail -n 1)"
+  read -r _ code bytes <<<"${stats:-__STATS__ 000 0}"
   if [ "$code" = "200" ] && [ "$bytes" = "$dist_bytes" ]; then matched=1; break; fi
   echo "    (try $i) HTTP $code ${bytes}B != ${dist_bytes}B — edge still propagating, retrying"
   sleep 4
